@@ -41,21 +41,6 @@ siae-modular/
 └── docker-compose.yml    # Postgres local para desarrollo
 ```
 
-## Flujo de trabajo del equipo (tú, Claude, Antigravity, Stitch, Vercel)
-
-1. **Diseño de specs (aquí, conmigo):** definimos endpoints, esquema de datos,
-   reglas del motor de estados, contratos de API antes de escribir código.
-2. **UI (Stitch):** generamos mockups de las pantallas por rol basados en los
-   diagramas de casos de uso del Sprint 2. El resultado se traduce a componentes
-   en `frontend/src/components` y `frontend/src/pages`.
-3. **Implementación (Antigravity):** con las specs ya definidas, Antigravity
-   escribe el código real en `backend/` y `frontend/`. Yo puedo revisar,
-   depurar y ajustar ese código contigo en esta conversación.
-4. **Despliegue (Vercel):** conecta el repo de GitHub, hace build automático
-   del frontend y expone el backend como funciones serverless. La base de
-   datos vive en Neon/Supabase (Postgres administrado, compatible con
-   transacciones ACID que ya justificaron en Sprint 2).
-
 ## Orden de construcción (según Sprint 3)
 
 - [ ] Etapa 1 — Esquema PostgreSQL + Módulo de Autenticación (JWT, RBAC)
