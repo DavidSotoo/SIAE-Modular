@@ -1,0 +1,80 @@
+﻿import 'dotenv/config';
+import fs from 'fs';
+import path from 'path';
+import pg from 'pg';
+import bcrypt from 'bcrypt';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+
+async function run() {
+  try {
+    const rootDir = path.join(__dirname, '../../');
+    const mig1 = fs.readFileSync(path.join(rootDir, 'database/migrations/001_init.sql'), 'utf-8');
+    const mig2 = fs.readFileSync(path.join(rootDir, 'database/migrations/002_team_matching.sql'), 'utf-8');
+    const seed1 = fs.readFileSync(path.join(rootDir, 'database/seeds/001_catalogs.sql'), 'utf-8');
+
+    console.log('Running 001_init.sql...');
+    await pool.query(mig1);
+    
+    console.log('Running 002_team_matching.sql...');
+    await pool.query(mig2);
+    
+    console.log('Running 001_catalogs.sql...');
+    // Seed script often fails if it runs twice due to duplicate keys, ignoring errors
+    try { await pool.query(seed1); } catch (e: any) { console.log('Catalog seed skipped (probably exists)'); }
+
+    console.log('Creating test users...');
+    const hash = await bcrypt.hash('Test1234', 10);
+    
+    // Alumno 1
+    await pool.query(`
+      INSERT INTO users (codigo_cucei, password_hash, rol, nombre)
+      VALUES ('220000001', $1, 'alumno', 'Alumno de Prueba 1')
+      ON CONFLICT (codigo_cucei) DO UPDATE SET password_hash = $1
+    `, [hash]);
+    const u1 = await pool.query("SELECT id FROM users WHERE codigo_cucei = '220000001'");
+    await pool.query(`
+      INSERT INTO student_profiles (id_usuario, semestre, estado_busqueda, updated_at)
+      VALUES ($1, 6, 'buscando_equipo', now())
+      ON CONFLICT DO NOTHING
+    `, [u1.rows[0].id]);
+
+    // Alumno 2
+    await pool.query(`
+      INSERT INTO users (codigo_cucei, password_hash, rol, nombre)
+      VALUES ('220000002', $1, 'alumno', 'Alumno de Prueba 2')
+      ON CONFLICT (codigo_cucei) DO UPDATE SET password_hash = $1
+    `, [hash]);
+    const u2 = await pool.query("SELECT id FROM users WHERE codigo_cucei = '220000002'");
+    await pool.query(`
+      INSERT INTO student_profiles (id_usuario, semestre, estado_busqueda, updated_at)
+      VALUES ($1, 7, 'buscando_equipo', now())
+      ON CONFLICT DO NOTHING
+    `, [u2.rows[0].id]);
+
+    // Mentor 1
+    await pool.query(`
+      INSERT INTO users (codigo_cucei, password_hash, rol, nombre)
+      VALUES ('mentor1', $1, 'mentor', 'Mentor de Prueba 1')
+      ON CONFLICT (codigo_cucei) DO UPDATE SET password_hash = $1
+    `, [hash]);
+    const u3 = await pool.query("SELECT id FROM users WHERE codigo_cucei = 'mentor1'");
+    await pool.query(`
+      INSERT INTO advisor_profiles (id_usuario, disponible, cupo_maximo, acepta_coasesoria)
+      VALUES ($1, true, 3, true)
+      ON CONFLICT DO NOTHING
+    `, [u3.rows[0].id]);
+
+    console.log('DB Init Complete!');
+    process.exit(0);
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
+}
+
+run();

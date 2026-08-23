@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dashboard - Sistema de Gestión Académica</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-highest": "#d5e3fc",
+                      "surface": "#f8f9ff",
+                      "on-background": "#0d1c2e",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-fixed-variant": "#1f477b",
+                      "error": "#ba1a1a",
+                      "on-secondary": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "secondary-fixed": "#dae4ee",
+                      "on-secondary-container": "#5c666e",
+                      "primary-container": "#003366",
+                      "on-tertiary-fixed": "#191c1d",
+                      "on-secondary-fixed": "#131d24",
+                      "on-primary-fixed": "#001b3c",
+                      "tertiary-fixed-dim": "#c5c7c8",
+                      "inverse-surface": "#233144",
+                      "on-error": "#ffffff",
+                      "on-secondary-fixed-variant": "#3e4850",
+                      "surface-container-low": "#eff4ff",
+                      "surface-dim": "#ccdbf3",
+                      "background": "#f8f9ff",
+                      "outline": "#737780",
+                      "on-surface": "#0d1c2e",
+                      "on-error-container": "#93000a",
+                      "inverse-on-surface": "#eaf1ff",
+                      "surface-tint": "#3a5f94",
+                      "tertiary-container": "#313435",
+                      "on-surface-variant": "#43474f",
+                      "primary-fixed-dim": "#a7c8ff",
+                      "error-container": "#ffdad6",
+                      "tertiary": "#1c1f20",
+                      "inverse-primary": "#a7c8ff",
+                      "on-tertiary-container": "#9a9c9d",
+                      "secondary": "#566068",
+                      "secondary-container": "#dae4ee",
+                      "secondary-fixed-dim": "#bec8d1",
+                      "surface-container-high": "#dce9ff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-fixed-variant": "#454748",
+                      "primary-fixed": "#d5e3ff",
+                      "surface-container": "#e6eeff",
+                      "surface-bright": "#f8f9ff",
+                      "surface-variant": "#d5e3fc",
+                      "primary": "#001e40",
+                      "outline-variant": "#c3c6d1",
+                      "on-primary-container": "#799dd6",
+                      "tertiary-fixed": "#e1e3e4"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-max": "1280px",
+                      "gutter": "24px",
+                      "base": "4px",
+                      "xs": "8px",
+                      "md": "24px",
+                      "sm": "16px",
+                      "lg": "40px",
+                      "xl": "64px"
+              },
+              "fontFamily": {
+                      "title-md": ["Inter"],
+                      "headline-lg-mobile": ["Inter"],
+                      "label-md": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "body-md": ["Inter"]
+              },
+              "fontSize": {
+                      "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-surface-container-lowest shadow-sm docked full-width top-0 sticky z-40 flex justify-between items-center h-16 px-md hidden md:flex ml-64 w-[calc(100%-16rem)]">
+<div class="flex items-center gap-4 w-full justify-between">
+<h1 class="font-title-md text-title-md font-bold text-primary">Portal de Proyectos</h1>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">history</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-high border border-outline-variant">
+<img alt="Foto de perfil del estudiante" class="w-full h-full object-cover" data-alt="A close up, professional portrait of a university student looking confident and optimistic. Clean, high key lighting, light academic environment in background. Bright light mode aesthetics, soft focus background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBH-OtHIUREmKDyE3kVnj-bN77IyunK1lkNajGzVmfNajCEXt_P7IWoH2CXP9E_8awS-NpMXKCHqZPMJfsSoEHgv7qJyEsPkxlDDPDYdbhEnPH_R9QoQ6gklFLtAsC6n5T2wqalDtwl7Am1rrdcmoqwokEDeRNyW0b5szHdrMrk4S5RdRhxsU2Tb42guoeL5FQ5pqtq3J2iBKxT2JN3uVfShHJH4gbR_Gpxx03uWEQtFydmN55W1b5_"/>
+</div>
+</div>
+</div>
+</header>
+<!-- SideNavBar (Desktop) -->
+<nav class="bg-surface shadow-sm h-screen w-64 fixed left-0 top-0 hidden md:flex flex-col py-md px-sm z-50">
+<div class="mb-lg px-2">
+<h2 class="font-title-md text-title-md font-bold text-primary mb-1">Gestión Académica</h2>
+<p class="font-label-md text-label-md text-on-surface-variant">Portal de Proyectos</p>
+</div>
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-3 rounded-lg mb-8 hover:bg-on-primary-fixed-variant transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+            Nuevo Proyecto
+        </button>
+<ul class="flex-1 space-y-2">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 bg-secondary-container text-on-secondary-container font-semibold rounded-lg transition-colors scale-95 duration-100" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">folder_managed</span>
+<span class="font-label-md text-label-md">Proyectos</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">mail</span>
+<span class="font-label-md text-label-md">Mensajes</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="font-label-md text-label-md">Calendario</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Configuración</span>
+</a>
+</li>
+</ul>
+<ul class="mt-auto space-y-2 pt-4 border-t border-outline-variant">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-md text-label-md">Ayuda</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Cerrar Sesión</span>
+</a>
+</li>
+</ul>
+</nav>
+<!-- Main Content -->
+<main class="md:ml-64 p-4 md:p-8 max-w-container-max mx-auto">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Project Header & Status (Spans 2 columns) -->
+<div class="lg:col-span-2 space-y-6">
+<!-- Identification -->
+<div>
+<div class="flex items-center gap-3 mb-2">
+<span class="bg-primary-container text-on-primary-container font-label-sm text-label-sm px-3 py-1 rounded-full">Folio: A123-26A</span>
+<span class="bg-surface-variant text-on-surface-variant font-label-sm text-label-sm px-3 py-1 rounded-full flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">school</span> Ingeniería de Software</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-background mb-1">Sistema de Gestión Académica</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Desarrollo e implementación de plataforma unificada para seguimiento de proyectos de titulación y servicio social.</p>
+</div>
+<!-- Status Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_12px_rgba(0,51,102,0.05)] p-6 md:p-8">
+<h3 class="font-title-md text-title-md text-on-background mb-6">Estado del Proyecto</h3>
+<!-- Stepper -->
+<div class="relative flex justify-between items-center w-full mt-8 mb-4">
+<!-- Connecting Line -->
+<div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-surface-variant z-0 rounded-full"></div>
+<div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1/2 h-1 bg-primary z-0 rounded-full transition-all duration-500"></div>
+<!-- Steps -->
+<div class="relative z-10 flex flex-col items-center gap-2 group">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+<span class="font-label-md text-label-md text-on-background absolute -bottom-6 whitespace-nowrap">Borrador</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2 group">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+<span class="font-label-md text-label-md text-on-background absolute -bottom-6 whitespace-nowrap">Pendiente</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2 group">
+<div class="w-10 h-10 rounded-full bg-surface-container-lowest border-4 border-primary text-primary flex items-center justify-center shadow-md -translate-y-1 bg-white">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">edit_document</span>
+</div>
+<span class="font-label-md text-label-md font-bold text-primary absolute -bottom-7 whitespace-nowrap">Validado</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2 group">
+<div class="w-8 h-8 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center shadow-sm border border-outline-variant">
+<span class="material-symbols-outlined text-[16px]">how_to_reg</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant absolute -bottom-6 whitespace-nowrap">Registrado</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2 group">
+<div class="w-8 h-8 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center shadow-sm border border-outline-variant">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant absolute -bottom-6 whitespace-nowrap">Corrección</span>
+</div>
+</div>
+<div class="mt-12 bg-surface-container-low p-4 rounded-lg flex items-start gap-4">
+<span class="material-symbols-outlined text-primary mt-1">info</span>
+<div>
+<p class="font-label-md text-label-md font-bold text-on-background">Acción Requerida</p>
+<p class="font-body-md text-body-md text-on-surface-variant">El protocolo ha sido validado por el asesor. Procede a cargar el documento final firmado en formato PDF para iniciar el registro oficial.</p>
+</div>
+</div>
+</div>
+<!-- Document Action -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_12px_rgba(0,51,102,0.05)] p-6">
+<h3 class="font-title-md text-title-md text-on-background mb-4">Documentación Principal</h3>
+<div class="border-2 border-dashed border-outline-variant rounded-lg p-8 flex flex-col items-center justify-center text-center hover:bg-surface-container-low transition-colors hover:border-primary cursor-pointer group">
+<div class="w-16 h-16 bg-surface-variant rounded-full flex items-center justify-center mb-4 group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors">
+<span class="material-symbols-outlined text-[32px] text-on-surface-variant group-hover:text-on-primary-container">upload_file</span>
+</div>
+<p class="font-title-md text-title-md text-on-background mb-2">Cargar/Reemplazar Protocolo PDF</p>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">Arrastra el archivo aquí o haz clic para explorar. Máximo 10MB.</p>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-6 py-3 rounded-lg hover:bg-on-primary-fixed-variant transition-colors">
+                            Seleccionar Archivo
+                        </button>
+</div>
+</div>
+</div>
+<!-- Sidebar Content (1 column) -->
+<div class="space-y-6">
+<!-- Team & Mentor -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_12px_rgba(0,51,102,0.05)] p-6">
+<h3 class="font-title-md text-title-md text-on-background mb-4 border-b border-surface-variant pb-2">Equipo de Trabajo</h3>
+<div class="space-y-4 mb-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-variant overflow-hidden">
+<img alt="Estudiante" class="w-full h-full object-cover" data-alt="A small, professional headshot of a young male university student. Bright, academic setting, clear focus, light mode aesthetics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAlqZ7iHjwxcq0aRQOvT8eUeR7qgjeteTwvGMnCud0XqPKL26H9ohMWPKAW7yceO9C0YgM5I-voNAOT48cWk6wBYcL6gFPCpvTXP573Bkv35BfCrSLTKYMHOFUhGk-6NdQa9p4WgUoz5RAvz4w_mzaZqCHE92XafzzZRtgXRy_4lYM3hnTtrnW-sMZd79bsZm5KTbGj8Mmdffz1vzeajiuW0DgFR9y9z5S1wh2xtfk9aKQTOnnxyi3"/>
+</div>
+<div>
+<p class="font-label-md text-label-md font-bold text-on-background">Carlos Rivera</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Líder de Proyecto</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-variant overflow-hidden">
+<img alt="Estudiante" class="w-full h-full object-cover" data-alt="A small, professional headshot of a young female university student. Bright, academic setting, clear focus, light mode aesthetics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAc8FYxRohoKv-zqUmF7TE_ko5zLoP1Cpy3eUq3vvVV-9FaHp7mmfmdlb0PS0IbPBD8bHNBYfODR4Szect12WVxWBansUJSFNNHL1y7OcBtfzLijex00gufcuwcCHMhAnZHu05EjhC38AQ-qa2v8ayWV4PTXOLzpW2N1HBJLkBak4m0-b_BnTpQMkYeJZX0J50bh6gbMacWJt9VcO9KUyXf_UdZtMPIF8dcu5SdLAryJ5IVnec8a1LZ"/>
+</div>
+<div>
+<p class="font-label-md text-label-md font-bold text-on-background">Ana Martínez</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Investigadora</p>
+</div>
+</div>
+</div>
+<h3 class="font-title-md text-title-md text-on-background mb-4 border-b border-surface-variant pb-2">Asesor / Mentor</h3>
+<div class="flex items-center gap-3 bg-surface-container-low p-3 rounded-lg border border-outline-variant">
+<div class="w-12 h-12 rounded-full bg-primary-container overflow-hidden flex-shrink-0">
+<img alt="Profesor" class="w-full h-full object-cover" data-alt="A professional headshot of a distinguished university professor in their 50s. Academic office background, soft warm lighting, clear focus, light mode aesthetics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoXgAwhQ2p769PXwVoIayt66yhy0MJ-zCrXJ_PTz_hrgCAcBr6yaXLCHUJuZOF6s4jqbJDR_hTgNLge0Q3iRfa8PG6PNwwy5V6EoSeChHEGoOXVInvKExX3v_YgiDEPaR6GCdoyDq6Kc3PnktpcFJUln4JnGGE_YPosLHFwYfFTew0S83xpNc74y3B7Yq5ZCQ6IGYrtM8M1JOG052Q4fBwlVIGWOKeZpZt5wbmaHtQDrFdGwjVkC-8"/>
+</div>
+<div>
+<p class="font-label-md text-label-md font-bold text-on-background">Dr. Roberto Sánchez</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Depto. de Ciencias Computacionales</p>
+<a class="font-label-sm text-label-sm text-primary hover:underline mt-1 inline-block" href="#">Contactar</a>
+</div>
+</div>
+</div>
+<!-- History -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_12px_rgba(0,51,102,0.05)] p-6">
+<h3 class="font-title-md text-title-md text-on-background mb-4 border-b border-surface-variant pb-2">Historial de Cambios</h3>
+<div class="relative border-l-2 border-surface-variant ml-3 space-y-6">
+<div class="relative pl-6">
+<div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-primary ring-4 ring-white"></div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Hoy, 10:30 AM</p>
+<p class="font-label-md text-label-md font-bold text-on-background">Estado actualizado: Validado</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 text-sm bg-surface-container-low p-2 rounded">"El planteamiento del problema es correcto. Procedan a subir el PDF." - Dr. Sánchez</p>
+</div>
+<div class="relative pl-6">
+<div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-surface-variant border-2 border-outline ring-4 ring-white"></div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Ayer, 16:45 PM</p>
+<p class="font-label-md text-label-md font-bold text-on-background">Estado actualizado: Pendiente</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 text-sm">Documento enviado a revisión por Carlos Rivera.</p>
+</div>
+<div class="relative pl-6">
+<div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-surface-variant border-2 border-outline ring-4 ring-white"></div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Hace 3 días</p>
+<p class="font-label-md text-label-md font-bold text-on-background">Proyecto Creado (Borrador)</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 text-sm">Registro inicial en el sistema.</p>
+</div>
+</div>
+<button class="w-full text-center mt-6 font-label-md text-label-md text-primary hover:underline">Ver todo el historial</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>
