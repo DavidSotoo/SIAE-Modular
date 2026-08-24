@@ -85,14 +85,14 @@ export class PerfilPage {
 
         <hr class="divider">
 
-        <h3 class="text-title mb-4">Hard Skills</h3>
-        <div id="hard-skills-container" class="chip-selector-panel"></div>
+        <div id="hard-skills-header" class="mb-4"></div>
+        <div id="hard-skills-container"></div>
 
-        <h3 class="text-title mb-4 mt-6">Soft Skills</h3>
-        <div id="soft-skills-container" class="chip-selector-panel"></div>
+        <div id="soft-skills-header" class="mb-4 mt-6"></div>
+        <div id="soft-skills-container"></div>
 
-        <h3 class="text-title mb-4 mt-6">Áreas de Interés</h3>
-        <div id="areas-container" class="chip-selector-panel"></div>
+        <div id="areas-header" class="mb-4 mt-6"></div>
+        <div id="areas-container"></div>
 
         <div class="mt-8 flex justify-end">
           <button type="submit" class="btn btn--primary" id="save-btn">Guardar Perfil</button>
@@ -113,24 +113,39 @@ export class PerfilPage {
       items: hardSkills,
       initial: userHardSkills,
       withLevel: true,
-      chipClass: () => 'chip--hard'
+      category: 'hard',
+      emptyLabel: 'No se encontraron habilidades. Prueba con otro término.',
     });
+    this.hardSkillsSelector.mountHeader(
+      document.getElementById('hard-skills-header')!,
+      'Hard Skills',
+    );
 
     this.softSkillsSelector = new ChipSelector({
       container: document.getElementById('soft-skills-container')!,
       items: softSkills,
       initial: userSoftSkills,
       withLevel: true,
-      chipClass: () => 'chip--soft'
+      category: 'soft',
+      emptyLabel: 'No se encontraron habilidades. Prueba con otro término.',
     });
+    this.softSkillsSelector.mountHeader(
+      document.getElementById('soft-skills-header')!,
+      'Soft Skills',
+    );
 
     this.areasSelector = new ChipSelector({
       container: document.getElementById('areas-container')!,
       items: areasItems,
       initial: userAreas,
       withLevel: false,
-      chipClass: () => 'chip--area'
+      category: 'area',
+      emptyLabel: 'No se encontraron áreas. Prueba con otro término.',
     });
+    this.areasSelector.mountHeader(
+      document.getElementById('areas-header')!,
+      'Áreas de Interés',
+    );
 
     const form = document.getElementById('perfil-form') as HTMLFormElement;
     form.addEventListener('submit', (e) => this.handleSubmit(e));

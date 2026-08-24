@@ -14,9 +14,12 @@
   --color-on-primary:             #ffffff;
   --color-on-primary-container:   #799dd6;
   --color-on-primary-fixed-variant: #1f477b;
-  --color-secondary:              #566068;
-  --color-secondary-container:    #dae4ee;
-  --color-on-secondary-container: #5c666e;
+  --color-secondary:              #1b6b51;
+  --color-secondary-container:    #a6f2d1;
+  --color-on-secondary-container: #237157;
+  --color-tertiary:               #3730A3;
+  --color-tertiary-container:     #E0E7FF;
+  --color-on-tertiary-container:  #3730A3;
   --color-background:             #f8f9ff;
   --color-surface:                #f8f9ff;
   --color-surface-container-lowest: #ffffff;
@@ -289,3 +292,192 @@ textarea.form-control { resize: vertical; min-height: 100px; }
 .flex { display: flex; }
 .justify-end { justify-content: flex-end; }
 .hidden { display: none; }
+
+/* ─── ChipSelector v2 (redesign) ─── */
+/* Wrapper de la sección completa */
+.cs-section { display: flex; flex-direction: column; gap: var(--sp-3); }
+
+/* Header: título a la izquierda, buscador a la derecha */
+.cs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+.cs-search-wrap {
+  position: relative;
+  width: 240px;
+  flex-shrink: 0;
+}
+.cs-search-wrap .material-symbols-outlined {
+  position: absolute;
+  left: var(--sp-2);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: var(--color-outline);
+  pointer-events: none;
+}
+.cs-search-input {
+  width: 100%;
+  padding: 7px var(--sp-3) 7px 32px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-container-lowest);
+  font-family: var(--font-family);
+  font-size: var(--fs-label);
+  color: var(--color-on-surface);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.cs-search-input:focus {
+  outline: none;
+  border-color: var(--color-primary-container);
+  box-shadow: 0 0 0 2px rgba(0,51,102,0.12);
+}
+
+/* Zona de chips seleccionados */
+.cs-selected-zone {
+  background: var(--color-surface-container-low);
+  border: 1px dashed var(--color-outline-variant);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-4);
+  min-height: 68px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: flex-start;
+}
+.cs-placeholder {
+  color: var(--color-on-surface-variant);
+  font-size: var(--fs-label);
+  align-self: center;
+  padding: var(--sp-2);
+}
+
+/* Chips seleccionados */
+.cs-chip-selected {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-2) var(--sp-1) var(--sp-4);
+  border-radius: var(--radius-full);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  position: relative;
+}
+.cs-chip-selected--hard { background: var(--color-primary-container); }
+.cs-chip-selected--soft { background: var(--color-secondary); }
+.cs-chip-selected--area { background: var(--color-tertiary); }
+
+/* Segmented control de nivel */
+.cs-level-control {
+  display: flex;
+  background: rgba(255,255,255,0.2);
+  border-radius: var(--radius-full);
+  padding: 2px;
+  gap: 0;
+}
+.cs-level-btn {
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: var(--fw-medium);
+  color: rgba(255,255,255,0.75);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.cs-level-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+.cs-level-btn[aria-pressed="true"] {
+  background: #fff;
+  font-weight: var(--fw-bold);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+.cs-chip-selected--hard .cs-level-btn[aria-pressed="true"] { color: var(--color-primary-container); }
+.cs-chip-selected--soft .cs-level-btn[aria-pressed="true"] { color: var(--color-secondary); }
+.cs-chip-selected--area .cs-level-btn[aria-pressed="true"] { color: var(--color-tertiary); }
+
+/* Botón quitar chip */
+.cs-chip-remove {
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: rgba(255,255,255,0.65);
+  transition: color var(--transition), background var(--transition);
+}
+.cs-chip-remove:hover { color: #fff; background: rgba(255,255,255,0.2); }
+.cs-chip-remove .material-symbols-outlined { font-size: 15px; }
+
+/* Chips disponibles (no seleccionados) */
+.cs-available-zone {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+.cs-chip-available {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-2) var(--sp-4);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-container-lowest);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
+  color: var(--color-on-surface);
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+}
+.cs-chip-available .material-symbols-outlined { font-size: 16px; color: var(--color-outline); }
+.cs-chip-available--hard:hover { border-color: var(--color-primary-container); background: var(--color-surface-container-low); }
+.cs-chip-available--soft:hover { border-color: var(--color-secondary); background: var(--color-secondary-container); color: var(--color-on-secondary-container); }
+.cs-chip-available--area:hover { border-color: var(--color-tertiary); background: var(--color-tertiary-container); color: var(--color-on-tertiary-container); }
+
+/* Área de chips de área seleccionados (no tienen zona separada — van juntos con los no seleccionados) */
+.cs-chip-area-selected {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--radius-full);
+  background: var(--color-tertiary);
+  color: #fff;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  transition: opacity var(--transition);
+}
+.cs-chip-area-selected .material-symbols-outlined { font-size: 18px; }
+.cs-chip-area-selected:hover { opacity: 0.88; }
+
+/* Estado vacío de búsqueda */
+.cs-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-8) var(--sp-4);
+  text-align: center;
+  color: var(--color-on-surface-variant);
+  gap: var(--sp-3);
+}
+.cs-empty-state .material-symbols-outlined { font-size: 40px; opacity: 0.4; }
+.cs-empty-state__title { font-size: var(--fs-label); font-weight: var(--fw-semibold); color: var(--color-on-surface); }
+.cs-empty-state__msg { font-size: var(--fs-label-sm); }
+
+/* Responsive: buscador debajo del título en pantallas angostas */
+@media (max-width: 768px) {
+  .cs-header { flex-direction: column; align-items: flex-start; }
+  .cs-search-wrap { width: 100%; }
+}

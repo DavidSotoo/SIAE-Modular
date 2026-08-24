@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EduProfile - Skills &amp; Interests</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-high": "#e8e8ed",
+                      "on-primary": "#ffffff",
+                      "primary-fixed": "#d5e3ff",
+                      "on-tertiary-fixed": "#100069",
+                      "tertiary": "#120071",
+                      "surface-dim": "#dad9de",
+                      "on-secondary": "#ffffff",
+                      "surface-variant": "#e2e2e7",
+                      "primary-fixed-dim": "#a7c8ff",
+                      "on-background": "#1a1c1f",
+                      "on-secondary-fixed": "#002116",
+                      "on-primary-container": "#799dd6",
+                      "inverse-surface": "#2f3034",
+                      "on-surface-variant": "#43474f",
+                      "on-tertiary-container": "#938fff",
+                      "surface-tint": "#3a5f94",
+                      "on-secondary-fixed-variant": "#00513b",
+                      "outline": "#737780",
+                      "secondary-container": "#a6f2d1",
+                      "on-primary-fixed-variant": "#1f477b",
+                      "inverse-primary": "#a7c8ff",
+                      "secondary-fixed": "#a6f2d1",
+                      "error-container": "#ffdad6",
+                      "on-primary-fixed": "#001b3c",
+                      "secondary-fixed-dim": "#8bd6b6",
+                      "secondary": "#1b6b51",
+                      "primary-container": "#003366",
+                      "on-error": "#ffffff",
+                      "error": "#ba1a1a",
+                      "surface": "#f9f9fe",
+                      "on-tertiary-fixed-variant": "#372abf",
+                      "inverse-on-surface": "#f1f0f5",
+                      "on-tertiary": "#ffffff",
+                      "background": "#f9f9fe",
+                      "tertiary-fixed-dim": "#c3c0ff",
+                      "outline-variant": "#c3c6d1",
+                      "tertiary-fixed": "#e3dfff",
+                      "on-error-container": "#93000a",
+                      "surface-container": "#eeedf2",
+                      "on-surface": "#1a1c1f",
+                      "primary": "#001e40",
+                      "tertiary-container": "#2100ad",
+                      "on-secondary-container": "#237157",
+                      "surface-container-highest": "#e2e2e7",
+                      "surface-container-low": "#f4f3f8",
+                      "surface-bright": "#f9f9fe",
+                      "surface-container-lowest": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "sm": "8px",
+                      "gutter": "24px",
+                      "xs": "4px",
+                      "lg": "24px",
+                      "xl": "32px",
+                      "container-padding": "40px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "section-title": [
+                              "Inter"
+                      ],
+                      "caption": [
+                              "Inter"
+                      ],
+                      "button-text": [
+                              "Inter"
+                      ],
+                      "body-main": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "section-title": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "caption": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "button-text": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-main": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body { background-color: #f8f9ff; }
+      </style>
+</head>
+<body class="font-body-main text-body-main text-on-background flex min-h-screen antialiased">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-screen p-md gap-sm bg-surface-container-low dark:bg-surface-container-lowest docked left-0 w-64 flex-shrink-0 sticky top-0 border-r border-outline-variant">
+<div class="mb-lg px-sm">
+<h1 class="font-section-title text-section-title font-bold text-primary">EduProfile</h1>
+<p class="font-caption text-caption text-on-surface-variant mt-xs">Academic Portfolio</p>
+</div>
+<div class="flex-grow flex flex-col gap-sm">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:bg-surface-variant/50 transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">person</span>
+                Personal Details
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:bg-surface-variant/50 transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">school</span>
+                Academic History
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-primary dark:text-primary-fixed-dim font-bold bg-primary-fixed dark:bg-primary-container font-label-md text-label-md Active: translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">psychology</span>
+                Skills &amp; Interests
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:bg-surface-variant/50 transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Profile Settings
+            </a>
+</div>
+<div class="mt-auto">
+<button class="w-full bg-surface text-primary border border-primary font-button-text text-button-text py-sm rounded-lg hover:bg-primary hover:text-white transition-colors">
+                View Public Profile
+             </button>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-1 p-gutter md:p-container-padding max-w-[1200px] mx-auto w-full">
+<!-- Header -->
+<header class="mb-xl">
+<h2 class="font-section-title text-[28px] leading-tight font-bold text-on-surface">Skills &amp; Interests</h2>
+<p class="text-on-surface-variant mt-sm">Select and organize your academic and professional competencies.</p>
+</header>
+<div class="flex flex-col gap-xl">
+<!-- Hard Skills Section -->
+<section class="bg-surface rounded-lg shadow-sm p-xl flex flex-col gap-md border border-outline-variant/30">
+<div class="flex justify-between items-center mb-sm">
+<h3 class="font-section-title text-section-title text-on-surface">Hard Skills</h3>
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-[36px] pr-sm py-sm rounded-DEFAULT border border-outline-variant bg-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container font-body-main text-body-main" placeholder="Search skills..." type="text"/>
+</div>
+</div>
+<!-- Selected Skills Area -->
+<div class="bg-surface-container-low rounded-lg p-md min-h-[100px] flex flex-wrap gap-sm items-start border border-outline-variant/50 border-dashed">
+<!-- Selected Chip with Level Toggle -->
+<div class="inline-flex items-center bg-primary-container text-white rounded-full pl-md pr-xs py-xs font-label-md text-label-md gap-sm shadow-sm group">
+<span>JavaScript</span>
+<div class="flex bg-white/20 rounded-full p-[2px] ml-xs">
+<button class="px-2 py-1 rounded-full text-xs hover:bg-white/30 transition-colors">Básico</button>
+<button class="px-2 py-1 rounded-full text-xs bg-white text-primary-container font-bold shadow-sm">Intermedio</button>
+<button class="px-2 py-1 rounded-full text-xs hover:bg-white/30 transition-colors">Avanzado</button>
+</div>
+<button class="ml-xs text-white/70 hover:text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<!-- Selected Chip with Level Toggle -->
+<div class="inline-flex items-center bg-primary-container text-white rounded-full pl-md pr-xs py-xs font-label-md text-label-md gap-sm shadow-sm group">
+<span>React</span>
+<div class="flex bg-white/20 rounded-full p-[2px] ml-xs">
+<button class="px-2 py-1 rounded-full text-xs bg-white text-primary-container font-bold shadow-sm">Básico</button>
+<button class="px-2 py-1 rounded-full text-xs hover:bg-white/30 transition-colors">Intermedio</button>
+<button class="px-2 py-1 rounded-full text-xs hover:bg-white/30 transition-colors">Avanzado</button>
+</div>
+<button class="ml-xs text-white/70 hover:text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+</div>
+<!-- Available Skills -->
+<div class="flex flex-wrap gap-sm mt-sm">
+<button class="inline-flex items-center px-md py-sm border border-outline-variant rounded-full text-on-surface hover:border-primary-container hover:bg-surface-container-low transition-colors font-label-md text-label-md bg-surface">
+<span class="material-symbols-outlined text-[18px] mr-xs text-outline">add</span>
+                        Python
+                    </button>
+<button class="inline-flex items-center px-md py-sm border border-outline-variant rounded-full text-on-surface hover:border-primary-container hover:bg-surface-container-low transition-colors font-label-md text-label-md bg-surface">
+<span class="material-symbols-outlined text-[18px] mr-xs text-outline">add</span>
+                        PostgreSQL
+                    </button>
+<button class="inline-flex items-center px-md py-sm border border-outline-variant rounded-full text-on-surface hover:border-primary-container hover:bg-surface-container-low transition-colors font-label-md text-label-md bg-surface">
+<span class="material-symbols-outlined text-[18px] mr-xs text-outline">add</span>
+                        Docker
+                    </button>
+</div>
+</section>
+<!-- Soft Skills Section -->
+<section class="bg-surface rounded-lg shadow-sm p-xl flex flex-col gap-md border border-outline-variant/30">
+<div class="flex justify-between items-center mb-sm">
+<h3 class="font-section-title text-section-title text-on-surface">Soft Skills</h3>
+</div>
+<!-- Selected Skills Area -->
+<div class="bg-surface-container-low rounded-lg p-md min-h-[100px] flex flex-wrap gap-sm items-start border border-outline-variant/50 border-dashed">
+<!-- Selected Chip with Level Toggle (Emerald Style) -->
+<!-- Note: While the prompt asks for Emerald, we must use design system colors. Mapping to secondary for the 'green' feel. -->
+<div class="inline-flex items-center bg-secondary text-white rounded-full pl-md pr-xs py-xs font-label-md text-label-md gap-sm shadow-sm group">
+<span>Liderazgo</span>
+<div class="flex bg-white/20 rounded-full p-[2px] ml-xs">
+<button class="px-2 py-1 rounded-full text-xs hover:bg-white/30 transition-colors">Básico</button>
+<button class="px-2 py-1 rounded-full text-xs hover:bg-white/30 transition-colors">Intermedio</button>
+<button class="px-2 py-1 rounded-full text-xs bg-white text-secondary font-bold shadow-sm">Avanzado</button>
+</div>
+<button class="ml-xs text-white/70 hover:text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+</div>
+<!-- Available Skills -->
+<div class="flex flex-wrap gap-sm mt-sm">
+<button class="inline-flex items-center px-md py-sm border border-outline-variant rounded-full text-on-surface hover:border-secondary hover:bg-secondary-container/20 transition-colors font-label-md text-label-md bg-surface">
+<span class="material-symbols-outlined text-[18px] mr-xs text-outline">add</span>
+                        Comunicación
+                    </button>
+<button class="inline-flex items-center px-md py-sm border border-outline-variant rounded-full text-on-surface hover:border-secondary hover:bg-secondary-container/20 transition-colors font-label-md text-label-md bg-surface">
+<span class="material-symbols-outlined text-[18px] mr-xs text-outline">add</span>
+                        Trabajo en equipo
+                    </button>
+</div>
+</section>
+<!-- Áreas de Interés Section -->
+<section class="bg-surface rounded-lg shadow-sm p-xl flex flex-col gap-md border border-outline-variant/30">
+<div class="flex justify-between items-center mb-sm">
+<h3 class="font-section-title text-section-title text-on-surface">Áreas de Interés</h3>
+</div>
+<div class="flex flex-wrap gap-md mt-sm">
+<!-- Selected Toggle Chip (Indigo Style - mapping to tertiary) -->
+<button class="inline-flex items-center px-lg py-md rounded-full bg-tertiary text-white font-label-md text-label-md shadow-sm transition-all hover:bg-tertiary/90 border border-transparent">
+<span class="material-symbols-outlined text-[20px] mr-sm">check</span>
+                        Inteligencia Artificial
+                    </button>
+<!-- Unselected Toggle Chip -->
+<button class="inline-flex items-center px-lg py-md border border-outline-variant rounded-full text-on-surface hover:border-tertiary hover:bg-tertiary-container/10 transition-colors font-label-md text-label-md bg-surface">
+                        Ciberseguridad
+                    </button>
+<!-- Unselected Toggle Chip -->
+<button class="inline-flex items-center px-lg py-md border border-outline-variant rounded-full text-on-surface hover:border-tertiary hover:bg-tertiary-container/10 transition-colors font-label-md text-label-md bg-surface">
+                        UX Design
+                    </button>
+</div>
+</section>
+<!-- Empty State Example Section -->
+<section class="bg-surface rounded-lg shadow-sm p-xl flex flex-col items-center justify-center min-h-[300px] border border-outline-variant/30 text-center">
+<img alt="Empty state illustration" class="w-48 h-48 mb-lg opacity-80 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJDC0p8U6dJMPmTQDGZa1HwFAH1uYeI5yATOFTwqQhDCGG-MGrvwyfJbkiklptDVNrDV4exU7DTocOkmpBsGeeiSywusc7mMfImPGBW8mCTXKFPYNsUc9LjgJA8LKUFEF5yWEEErNGsfXQk2mT1dxqW-cMa5Swm-iIvlS0MFLguHNNkXCcL8vJCVbFr6toWJyUJUb5U2fK1-JJ6outFmetcP-KO6CWpfPmzVTpTpbJxHKj5Nl3kBIEZw"/>
+<h4 class="font-section-title text-section-title text-on-surface mb-xs">No Results Found</h4>
+<p class="font-body-main text-body-main text-on-surface-variant max-w-md">
+                    No se encontraron habilidades. Prueba con otro término.
+                </p>
+</section>
+</div>
+<!-- Sticky Bottom Actions -->
+<div class="sticky bottom-0 bg-surface/90 backdrop-blur-sm border-t border-outline-variant/30 p-md mt-xl flex justify-end gap-md -mx-gutter px-gutter md:-mx-container-padding md:px-container-padding">
+<button class="px-xl py-sm rounded-lg border border-outline text-on-surface font-button-text text-button-text hover:bg-surface-container-low transition-colors">
+                Cancel
+            </button>
+<button class="px-xl py-sm rounded-lg bg-primary-container text-white font-button-text text-button-text shadow-sm hover:opacity-90 transition-opacity">
+                Save Profile
+            </button>
+</div>
+</main>
+</body></html>
