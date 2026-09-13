@@ -23,6 +23,7 @@ export interface ChipSelectorOptions {
   chipClass?: (item: ChipItem) => string; // Compatibilidad retroactiva; ignorado si category está presente
   category?: 'hard' | 'soft' | 'area';   // Categoría semántica → paleta visual automática
   emptyLabel?: string;       // Texto del estado vacío en búsqueda sin resultados
+  onCreateItem?: (label: string) => Promise<ChipItem>;
   onChange?: (selected: ChipSelection[]) => void;
 }
 
@@ -105,7 +106,10 @@ export class ChipSelector {
 
     const availableItems = isArea ? items : items.filter(it => !selectedIds.has(it.id));
 
-    if (availableItems.length === 0 && this.searchQuery) {
+    const exactMatch = this.opts.items.some(it => this.normalize(it.label) === this.normalize(this.searchQuery));
+    const showCreateButton = this.opts.onCreateItem && this.searchQuery && !exactMatch;
+
+    if (availableItems.length === 0 && this.searchQuery && !showCreateButton) {
       // Estado vacío de búsqueda
       const empty = document.createElement('div');
       empty.className = 'cs-empty-state';
@@ -122,6 +126,47 @@ export class ChipSelector {
           availableZone.appendChild(this.buildAvailableChip(item, cat, onChange));
         }
       });
+
+      if (showCreateButton) {
+        const createBtn = document.createElement('button');
+        createBtn.type = 'button';
+        createBtn.className = `cs-chip-available cs-chip-available--${cat}`;
+        createBtn.innerHTML = `<span class="material-symbols-outlined">add</span>Agregar "${this.searchQuery}"`;
+        createBtn.addEventListener('click', async () => {
+          createBtn.disabled = true;
+          createBtn.innerHTML = '<span class="spinner" style="width:14px;height:14px;border-width:2px;margin-right:4px;"></span>Creando...';
+          try {
+            const newItem = await this.opts.onCreateItem!(this.searchQuery);
+            this.opts.items.push(newItem);
+            this.selected.set(newItem.id, {
+              id: newItem.id,
+              nivel: this.opts.withLevel ? 'basico' : undefined,
+            });
+            this.searchQuery = '';
+            
+            // Try to clear the input if it's attached via mountHeader
+            const headerInput = document.querySelector(`.cs-search-input`) as HTMLInputElement;
+            // A more robust way is to just find the input relative to this component, but the header is detached sometimes.
+            // Since there can be multiple headers on the page, we'll try to rely on render() to let the user clear it manually 
+            // or we clear all inputs that match this searchQuery.
+            // A simpler way is to just trigger render, and if the user keeps typing, they can clear it.
+            // But let's try to clear the specific input if we know its value:
+            document.querySelectorAll('.cs-search-input').forEach(el => {
+              const inp = el as HTMLInputElement;
+              if (this.normalize(inp.value) === this.normalize(createBtn.textContent?.replace('Agregar "', '').replace('"', '') || '')) {
+                inp.value = '';
+              }
+            });
+
+            onChange?.(this.getValue());
+            this.render();
+          } catch (err) {
+            createBtn.disabled = false;
+            createBtn.innerHTML = '<span class="material-symbols-outlined">error</span>Error';
+          }
+        });
+        availableZone.appendChild(createBtn);
+      }
     }
 
     container.appendChild(availableZone);

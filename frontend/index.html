@@ -1,10 +1,18 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SIAE-Modular - Portal de Estudiantes</title>
   <link rel="stylesheet" href="/src/styles/main.css">
+  <!-- Inline: apply theme before first paint to avoid flash -->
+  <script>
+    (function(){
+      var t = localStorage.getItem('siae_theme');
+      if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
 </head>
 <body>
   <div id="app" class="app-layout">

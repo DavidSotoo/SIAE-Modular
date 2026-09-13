@@ -67,17 +67,29 @@ export type StudentSearchResult = StudentProfile;
 
 // ─── Proyectos ───────────────────────────────────────────────────────────────
 
+export type ProjectState = 'borrador' | 'pendiente' | 'validado' | 'registrado' | 'correccion' | 'cancelado';
+
 /** Representa un proyecto y sus integrantes actuales. */
 export interface Project {
   id_proyecto: number;
   titulo: string;
-  estado_actual: string;
+  estado_actual: ProjectState;
+  codigo_folio?: string | null;
+  pdf_path?: string | null;
   id_mentor: number | null;
   created_at: string;
   miembros: Array<{
     codigo_cucei: string;
     nombre: string;
   }>;
+}
+
+export interface ProjectStateLog {
+  id_log: number;
+  estado_anterior: ProjectState | null;
+  estado_nuevo: ProjectState;
+  timestamp: string;
+  comentario: string | null;
 }
 
 // ─── Team Requests ───────────────────────────────────────────────────────────

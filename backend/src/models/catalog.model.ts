@@ -1,4 +1,4 @@
-﻿import pool from '../config/db.js';
+import pool from '../config/db.js';
 
 export interface Skill {
   id_skill: number;
@@ -27,4 +27,12 @@ export async function findAllAreas(): Promise<Area[]> {
      ORDER BY nombre`,
   );
   return result.rows;
+}
+
+export async function createSkill(nombre: string, tipo: 'hard' | 'soft'): Promise<Skill> {
+  const result = await pool.query<Skill>(
+    `INSERT INTO skills (nombre, tipo) VALUES ($1, $2) RETURNING id_skill, nombre, tipo`,
+    [nombre, tipo]
+  );
+  return result.rows[0];
 }

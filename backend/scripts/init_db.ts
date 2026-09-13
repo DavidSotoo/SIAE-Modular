@@ -1,4 +1,4 @@
-﻿import 'dotenv/config';
+import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
 import pg from 'pg';
@@ -18,10 +18,10 @@ async function run() {
     const seed1 = fs.readFileSync(path.join(rootDir, 'database/seeds/001_catalogs.sql'), 'utf-8');
 
     console.log('Running 001_init.sql...');
-    await pool.query(mig1);
+    try { await pool.query(mig1); } catch (e: any) { console.log('Migración 001 ya aplicada, omitiendo...'); }
     
     console.log('Running 002_team_matching.sql...');
-    await pool.query(mig2);
+    try { await pool.query(mig2); } catch (e: any) { console.log('Migración 002 ya aplicada, omitiendo...'); }
     
     console.log('Running 001_catalogs.sql...');
     // Seed script often fails if it runs twice due to duplicate keys, ignoring errors

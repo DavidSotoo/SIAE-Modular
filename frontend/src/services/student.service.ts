@@ -1,4 +1,4 @@
-﻿import { api } from './api.js';
+import { api } from './api.js';
 import type {
   Skill, Area,
   StudentProfile, StudentProfileUpdate, StudentSearchResult,
@@ -8,6 +8,9 @@ import type {
 // ─── Catálogos ──────────────────────────────────────────────────────────────
 export const getSkills = (): Promise<Skill[]> =>
   api.get('/skills');
+
+export const createSkill = (nombre: string, tipo: 'hard' | 'soft'): Promise<Skill> =>
+  api.post('/skills', { nombre, tipo });
 
 export const getAreas = (): Promise<Area[]> =>
   api.get('/areas');

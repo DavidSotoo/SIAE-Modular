@@ -1,8 +1,12 @@
-import { renderSidebar } from './components/Sidebar.js';
+import { renderSidebar, applyStoredTheme } from './components/Sidebar.js';
 import { PerfilPage } from './pages/PerfilPage.js';
 import { BuscarEquipoPage } from './pages/BuscarEquipoPage.js';
 import { MiProyectoPage } from './pages/MiProyectoPage.js';
+import { BuscarAsesorPage } from './pages/BuscarAsesorPage.js';
 import { LoginPage } from './pages/LoginPage.js';
+
+// Apply theme ASAP to avoid flash of wrong theme
+applyStoredTheme();
 
 function handleRoute() {
   const hash = window.location.hash || '#/perfil';
@@ -47,6 +51,9 @@ function handleRoute() {
     page.render();
   } else if (path === '/proyecto') {
     const page = new MiProyectoPage(mainContent);
+    page.render();
+  } else if (path === '/asesores') {
+    const page = new BuscarAsesorPage(mainContent);
     page.render();
   } else {
     mainContent.innerHTML = '<div class="state-empty"><span class="material-symbols-outlined">explore_off</span><div class="state-empty__title">Página no encontrada</div></div>';

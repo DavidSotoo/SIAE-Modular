@@ -1,4 +1,4 @@
-﻿import pg from 'pg';
+import pg from 'pg';
 import pool from '../config/db.js';
 import { notFound } from '../utils/errors.js';
 
@@ -67,4 +67,33 @@ export async function findActiveProjectByAlumno(
   );
 
   return { ...project, miembros: memRes.rows };
+}
+
+export async function updateProjectStateAndPdf(
+  id_proyecto: number,
+  estadosOrigen: string[],
+  estado_nuevo: string,
+  pdf_path?: string,
+  client?: pg.PoolClient
+): Promise<boolean> {
+  const db = client || pool;
+  
+  let query = `UPDATE projects SET estado_actual = $1, updated_at = now()`;
+  const values: any[] = [estado_nuevo];
+  
+  if (pdf_path !== undefined) {
+    values.push(pdf_path);
+    query += `, pdf_path = $${values.length}`;
+  }
+  
+  values.push(id_proyecto);
+  query += ` WHERE id_proyecto = $${values.length}`;
+  
+  if (estadosOrigen.length > 0) {
+    query += ` AND estado_actual = ANY($${values.length + 1}::project_state[])`;
+    values.push(estadosOrigen);
+  }
+  
+  const res = await db.query(query, values);
+  return (res.rowCount ?? 0) > 0;
 }
