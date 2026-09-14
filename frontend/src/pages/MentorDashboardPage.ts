@@ -1,5 +1,5 @@
 import { listMentorAdvisorRequests, acceptAdvisorRequest, rejectAdvisorRequest } from '../services/mentor.service.js';
-import { getMentorProjects, getProjectHistory, downloadProtocol, approveProject, rejectProject } from '../services/project.service.js';
+import { getMentorProjects, getProjectHistory, downloadProtocol, validateProject, rejectProject } from '../services/project.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
@@ -175,10 +175,14 @@ export class MentorDashboardPage {
 
     const reviewActionsHtml = canReview ? `
       <div class="mt-4" style="display:flex; gap: var(--sp-2);">
-        <button class="btn btn--primary btn--sm" id="btn-approve">Aprobar y registrar</button>
+        <button class="btn btn--primary btn--sm" id="btn-approve">Aprobar protocolo</button>
         <button class="btn btn--danger btn--sm" id="btn-reject">Rechazar con correcciones</button>
       </div>
     ` : '';
+
+    const validatedNoticeHtml = project.estado_actual === 'validado'
+      ? '<div class="banner-alert banner-alert--neutral mt-4"><span class="material-symbols-outlined">info</span><div>Ya aprobaste este protocolo. Falta que administración emita el folio oficial para registrarlo.</div></div>'
+      : '';
 
     modal.bodyEl.innerHTML = `
       <div class="mb-4" style="display:flex; gap: var(--sp-6); align-items:center;">
@@ -194,6 +198,7 @@ export class MentorDashboardPage {
         <div class="text-label-sm text-muted mb-2">DOCUMENTACIÓN</div>
         ${viewBtnHtml}
         ${reviewActionsHtml}
+        ${validatedNoticeHtml}
       </div>
       <hr class="divider">
       <div>
@@ -214,8 +219,8 @@ export class MentorDashboardPage {
 
     document.getElementById('btn-approve')?.addEventListener('click', async () => {
       try {
-        const result = await approveProject(project.id_proyecto);
-        showToast('Proyecto aprobado. Folio: ' + result.codigo_folio, { type: 'success' });
+        await validateProject(project.id_proyecto);
+        showToast('Protocolo aprobado. Queda pendiente que administración emita el folio.', { type: 'success' });
         modal.close();
         this.loadProjects();
       } catch (err: any) {

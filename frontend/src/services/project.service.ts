@@ -26,8 +26,13 @@ export const downloadProtocol = (id_proyecto: number): Promise<Blob> =>
 export const getMentorProjects = (): Promise<Project[]> =>
   api.get('/mentors/me/projects');
 
-export const approveProject = (id_proyecto: number): Promise<{ codigo_folio: string }> =>
-  api.post('/projects/' + id_proyecto + '/approve', {});
+export const validateProject = (id_proyecto: number): Promise<{ message: string }> =>
+  api.post('/projects/' + id_proyecto + '/validate', {});
 
 export const rejectProject = (id_proyecto: number, comentario: string): Promise<{ message: string }> =>
   api.post('/projects/' + id_proyecto + '/reject', { comentario });
+
+// ─── Admin ───────────────────────────────────────────────────────────────────
+
+export const registerProject = (id_proyecto: number): Promise<{ codigo_folio: string }> =>
+  api.post('/projects/' + id_proyecto + '/register', {});
