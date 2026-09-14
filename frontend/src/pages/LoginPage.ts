@@ -356,7 +356,7 @@ export class LoginPage {
               <div class="login-input-group">
                 <label class="login-label" for="codigo_cucei">Código CUCEI</label>
                 <div class="login-input-wrapper">
-                  <input type="text" id="codigo_cucei" name="codigo_cucei" class="login-input" placeholder="Ej. 220000001" required inputmode="numeric" pattern="[0-9]*">
+                  <input type="text" id="codigo_cucei" name="codigo_cucei" class="login-input" placeholder="Ej. 220000001" required>
                   <div class="login-input-icon">
                     <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
@@ -449,7 +449,8 @@ export class LoginPage {
       const res = await login(codigoInput.value.trim(), passwordInput.value);
       localStorage.setItem('siae_token', res.token);
       localStorage.setItem('siae_user', JSON.stringify(res.user));
-      window.location.hash = '#/perfil';
+      const roleHomes: Record<string, string> = { mentor: '#/mentor' };
+      window.location.hash = roleHomes[res.user.rol] ?? '#/perfil';
     } catch (err: any) {
       showToast(getErrorMessage(err.code, err.status), { type: 'error' });
       btn.disabled = false;

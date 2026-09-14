@@ -357,7 +357,20 @@ textarea.form-control { resize: vertical; min-height: 100px; }
   .filters-bar { flex-direction: column; }
 }
 
-.badge--borrador { background: var(--color-surface-container-high); color: var(--color-on-surface-variant); }
+.badge--borrador   { background: var(--color-surface-container-high); color: var(--color-on-surface-variant); }
+.badge--validado   { background: var(--color-primary-container); color: var(--color-on-primary); }
+.badge--registrado { background: var(--color-success-bg); color: var(--color-success-text); }
+.badge--correccion { background: var(--color-warning-bg); color: var(--color-warning-text); }
+.badge--cancelado  { background: var(--color-error-container); color: var(--color-on-error-container); }
+
+/* ─── Tablas (panel de mentor / admin) ─── */
+.table-wrap { overflow-x: auto; background: var(--color-surface-container-lowest); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+.table { width: 100%; border-collapse: collapse; font-size: var(--fs-label); }
+.table th, .table td { padding: var(--sp-3) var(--sp-4); text-align: left; white-space: nowrap; }
+.table thead th { font-size: var(--fs-label-sm); font-weight: var(--fw-semibold); color: var(--color-on-surface-variant); text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px solid var(--color-outline-variant); }
+.table tbody tr { border-bottom: 1px solid var(--color-outline-variant); cursor: pointer; transition: background 0.15s; }
+.table tbody tr:last-child { border-bottom: none; }
+.table tbody tr:hover { background: var(--color-surface-container-low); }
 
 /* ─── Utilities ─── */
 .mt-1 { margin-top: var(--sp-1); }

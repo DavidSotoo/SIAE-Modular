@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authenticate, requireRole } from '../middleware/auth.js';
-import { createProjectHandler } from '../controllers/project.controller.js';
+import { createProjectHandler, getMentorProjectsHandler } from '../controllers/project.controller.js';
 
 import {
   uploadProtocolHandler,
@@ -65,6 +65,14 @@ router.post(
     });
   },
   uploadProtocolHandler
+);
+
+// GET /api/mentors/me/projects — proyectos asignados al mentor autenticado
+router.get(
+  '/mentors/me/projects',
+  authenticate,
+  requireRole('mentor'),
+  getMentorProjectsHandler
 );
 
 // GET /api/projects/:id_proyecto/history — ver historial

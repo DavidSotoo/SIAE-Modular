@@ -4,22 +4,42 @@ import { BuscarEquipoPage } from './pages/BuscarEquipoPage.js';
 import { MiProyectoPage } from './pages/MiProyectoPage.js';
 import { BuscarAsesorPage } from './pages/BuscarAsesorPage.js';
 import { LoginPage } from './pages/LoginPage.js';
+import { MentorDashboardPage } from './pages/MentorDashboardPage.js';
 
 // Apply theme ASAP to avoid flash of wrong theme
 applyStoredTheme();
 
+function getStoredRole(): string | null {
+  const rawUser = localStorage.getItem('siae_user');
+  if (!rawUser) return null;
+  try {
+    return JSON.parse(rawUser).rol ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function defaultPathForRole(rol: string | null): string {
+  if (rol === 'mentor') return '#/mentor';
+  return '#/perfil';
+}
+
+const ALUMNO_PATHS = ['/perfil', '/equipo', '/proyecto', '/asesores'];
+
 function handleRoute() {
-  const hash = window.location.hash || '#/perfil';
-  const path = hash.slice(1);
   const token = localStorage.getItem('siae_token');
+  const rol = getStoredRole();
+  const defaultPath = defaultPathForRole(rol);
+  const hash = window.location.hash || defaultPath;
+  const path = hash.slice(1);
 
   if (!token && path !== '/login') {
     window.location.hash = '#/login';
     return;
   }
-  
+
   if (token && path === '/login') {
-    window.location.hash = '#/perfil';
+    window.location.hash = defaultPath;
     return;
   }
 
@@ -43,6 +63,11 @@ function handleRoute() {
   mainContent.innerHTML = '';
 
   // Route
+  if (ALUMNO_PATHS.includes(path) && rol !== 'alumno') {
+    window.location.hash = defaultPath;
+    return;
+  }
+
   if (path === '/perfil') {
     const page = new PerfilPage(mainContent);
     page.render();
@@ -54,6 +79,13 @@ function handleRoute() {
     page.render();
   } else if (path === '/asesores') {
     const page = new BuscarAsesorPage(mainContent);
+    page.render();
+  } else if (path === '/mentor') {
+    if (rol !== 'mentor') {
+      window.location.hash = defaultPath;
+      return;
+    }
+    const page = new MentorDashboardPage(mainContent);
     page.render();
   } else {
     mainContent.innerHTML = '<div class="state-empty"><span class="material-symbols-outlined">explore_off</span><div class="state-empty__title">Página no encontrada</div></div>';

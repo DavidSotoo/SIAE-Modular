@@ -167,6 +167,8 @@ export interface AdvisorRequest {
   estado: AdvisorRequestEstado;
   created_at: string;
   updated_at: string;
+  /** Solo presente en GET /mentors/me/advisor-requests */
+  titulo_proyecto?: string;
 }
 
 /** Body para POST /api/projects/:id_proyecto/advisor-requests */

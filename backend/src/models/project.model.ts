@@ -9,6 +9,7 @@ export interface ProjectRow {
   titulo: string;
   id_mentor: number | null;
   estado_actual: string;
+  pdf_path: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -67,6 +68,37 @@ export async function findActiveProjectByAlumno(
   );
 
   return { ...project, miembros: memRes.rows };
+}
+
+export async function findProjectsByMentor(
+  id_mentor: number,
+): Promise<Array<ProjectWithMembers & { codigo_folio: string | null }>> {
+  const projRes = await pool.query<ProjectRow & { codigo_folio: string | null }>(
+    `SELECT p.*, f.codigo_folio
+     FROM projects p
+     LEFT JOIN folios f ON f.id_proyecto = p.id_proyecto
+     WHERE p.id_mentor = $1
+     ORDER BY p.updated_at DESC`,
+    [id_mentor],
+  );
+  if (projRes.rows.length === 0) return [];
+
+  const ids = projRes.rows.map((r) => r.id_proyecto);
+  const memRes = await pool.query<{ id_proyecto: number; codigo_cucei: string; nombre: string }>(
+    `SELECT pm.id_proyecto, u.codigo_cucei, u.nombre
+     FROM users u
+     JOIN project_members pm ON pm.codigo_alumno = u.codigo_cucei
+     WHERE pm.id_proyecto = ANY($1)`,
+    [ids],
+  );
+
+  const membersByProject = new Map<number, { codigo_cucei: string; nombre: string }[]>();
+  memRes.rows.forEach((r) => {
+    if (!membersByProject.has(r.id_proyecto)) membersByProject.set(r.id_proyecto, []);
+    membersByProject.get(r.id_proyecto)!.push({ codigo_cucei: r.codigo_cucei, nombre: r.nombre });
+  });
+
+  return projRes.rows.map((p) => ({ ...p, miembros: membersByProject.get(p.id_proyecto) ?? [] }));
 }
 
 export async function updateProjectStateAndPdf(
