@@ -1,11 +1,13 @@
 import { Router } from 'express';
 import { authenticate, requireRole } from '../middleware/auth.js';
-import { createProjectHandler } from '../controllers/project.controller.js';
+import { createProjectHandler, getMentorProjectsHandler } from '../controllers/project.controller.js';
 
 import {
   uploadProtocolHandler,
+  downloadProtocolHandler,
   getHistoryHandler,
-  approveProjectHandler,
+  validateProjectHandler,
+  registerProjectHandler,
   rejectProjectHandler
 } from '../controllers/projectState.controller.js';
 import multer from 'multer';
@@ -67,6 +69,22 @@ router.post(
   uploadProtocolHandler
 );
 
+// GET /api/mentors/me/projects — proyectos asignados al mentor autenticado
+router.get(
+  '/mentors/me/projects',
+  authenticate,
+  requireRole('mentor'),
+  getMentorProjectsHandler
+);
+
+// GET /api/projects/:id_proyecto/protocol — descargar/visualizar el protocolo vigente
+// (si lo abre el mentor asignado, marca pdf_visualizado=true — ver IMF-03)
+router.get(
+  '/projects/:id_proyecto/protocol',
+  authenticate,
+  downloadProtocolHandler
+);
+
 // GET /api/projects/:id_proyecto/history — ver historial
 router.get(
   '/projects/:id_proyecto/history',
@@ -75,12 +93,20 @@ router.get(
   getHistoryHandler
 );
 
-// POST /api/projects/:id_proyecto/approve — mentor aprueba proyecto
+// POST /api/projects/:id_proyecto/validate — mentor aprueba protocolo (pendiente -> validado)
 router.post(
-  '/projects/:id_proyecto/approve',
+  '/projects/:id_proyecto/validate',
   authenticate,
   requireRole('mentor'),
-  approveProjectHandler
+  validateProjectHandler
+);
+
+// POST /api/projects/:id_proyecto/register — admin emite folio (validado -> registrado)
+router.post(
+  '/projects/:id_proyecto/register',
+  authenticate,
+  requireRole('admin'),
+  registerProjectHandler
 );
 
 // POST /api/projects/:id_proyecto/reject — mentor rechaza proyecto

@@ -2,12 +2,36 @@
 // Acepta la ruta activa para marcarla.
 export interface SidebarLink { href: string; icon: string; label: string; }
 
-const LINKS: SidebarLink[] = [
+const ALUMNO_LINKS: SidebarLink[] = [
   { href: '#/perfil',      icon: 'person',         label: 'Mi Perfil'     },
   { href: '#/equipo',      icon: 'group_search',   label: 'Buscar Equipo' },
   { href: '#/asesores',    icon: 'school',         label: 'Buscar Asesor' },
   { href: '#/proyecto',    icon: 'folder_managed', label: 'Mi Proyecto'   },
 ];
+
+const MENTOR_LINKS: SidebarLink[] = [
+  { href: '#/mentor', icon: 'supervisor_account', label: 'Panel de Asesor' },
+];
+
+const ADMIN_LINKS: SidebarLink[] = [
+  { href: '#/admin', icon: 'admin_panel_settings', label: 'Panel Admin' },
+];
+
+function getStoredRole(): string | null {
+  try {
+    const raw = localStorage.getItem('siae_user');
+    if (!raw) return null;
+    return JSON.parse(raw).rol ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function getLinksForRole(rol: string | null): SidebarLink[] {
+  if (rol === 'admin') return ADMIN_LINKS;
+  if (rol === 'mentor') return MENTOR_LINKS;
+  return ALUMNO_LINKS;
+}
 
 // ─── Theme management ──────────────────────────────────────────────────────
 
@@ -41,11 +65,13 @@ function updateToggleBtn(btn: HTMLButtonElement): void {
 // ─── Render ────────────────────────────────────────────────────────────────
 
 export function renderSidebar(container: HTMLElement, activePath: string): void {
+  const links = getLinksForRole(getStoredRole());
+
   container.className = 'sidebar';
   container.innerHTML =
     '<div class="sidebar__brand"><h1>SIAE</h1><p>CUCEI · Informática</p></div>' +
     '<nav class="sidebar__nav" aria-label="Navegación principal">' +
-    LINKS.map(l =>
+    links.map(l =>
       '<a href="' + l.href + '" class="' + ('#' + activePath === l.href ? 'active' : '') + '">' +
       '<span class="material-symbols-outlined">' + l.icon + '</span>' +
       '<span>' + l.label + '</span></a>'

@@ -54,11 +54,38 @@ async function request<T>(
   return res.json() as Promise<T>;
 }
 
+async function requestBlob(path: string): Promise<Blob> {
+  const token = localStorage.getItem('siae_token');
+  const headers: Record<string, string> = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`${BASE}${path}`, { headers });
+
+  if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem('siae_token');
+      localStorage.removeItem('siae_user');
+      window.location.hash = '#/login';
+    }
+    let errMsg = res.statusText;
+    let errCode: string | undefined;
+    try {
+      const body = await res.json();
+      errMsg = body.error ?? errMsg;
+      errCode = body.code;
+    } catch { /* ignore parse errors */ }
+    throw new ApiRequestError(res.status, errMsg, errCode);
+  }
+
+  return res.blob();
+}
+
 export const api = {
-  get:    <T>(path: string, skipAuthRedirect = false)                          => request<T>(path, undefined, skipAuthRedirect),
-  post:   <T>(path: string, body: unknown, skipAuthRedirect = false)           => request<T>(path, { method: 'POST',   body: JSON.stringify(body) }, skipAuthRedirect),
-  put:    <T>(path: string, body: unknown, skipAuthRedirect = false)           => request<T>(path, { method: 'PUT',    body: JSON.stringify(body) }, skipAuthRedirect),
-  delete: <T>(path: string, skipAuthRedirect = false)                          => request<T>(path, { method: 'DELETE' }, skipAuthRedirect),
-  patch:  <T>(path: string, body: unknown, skipAuthRedirect = false)           => request<T>(path, { method: 'PATCH',  body: JSON.stringify(body) }, skipAuthRedirect),
-  upload: <T>(path: string, formData: FormData, skipAuthRedirect = false)      => request<T>(path, { method: 'POST',   body: formData, headers: {} }, skipAuthRedirect),
+  get:     <T>(path: string, skipAuthRedirect = false)                          => request<T>(path, undefined, skipAuthRedirect),
+  post:    <T>(path: string, body: unknown, skipAuthRedirect = false)           => request<T>(path, { method: 'POST',   body: JSON.stringify(body) }, skipAuthRedirect),
+  put:     <T>(path: string, body: unknown, skipAuthRedirect = false)           => request<T>(path, { method: 'PUT',    body: JSON.stringify(body) }, skipAuthRedirect),
+  delete:  <T>(path: string, skipAuthRedirect = false)                          => request<T>(path, { method: 'DELETE' }, skipAuthRedirect),
+  patch:   <T>(path: string, body: unknown, skipAuthRedirect = false)           => request<T>(path, { method: 'PATCH',  body: JSON.stringify(body) }, skipAuthRedirect),
+  upload:  <T>(path: string, formData: FormData, skipAuthRedirect = false)      => request<T>(path, { method: 'POST',   body: formData, headers: {} }, skipAuthRedirect),
+  getBlob: (path: string)                                                       => requestBlob(path),
 };
