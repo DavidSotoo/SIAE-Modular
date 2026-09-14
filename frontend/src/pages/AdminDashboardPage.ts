@@ -6,6 +6,7 @@ import {
   exportProjectsXlsx,
   triggerBlobDownload,
 } from '../services/admin.service.js';
+import { registerProject } from '../services/project.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
@@ -35,9 +36,10 @@ export class AdminDashboardPage {
 
     const statTiles = [
       { label: 'Proyectos totales', value: stats.total_proyectos },
-      { label: 'Folios emitidos', value: stats.total_folios },
       { label: 'En revisión', value: stats.por_estado['pendiente'] ?? 0 },
+      { label: 'Validados (falta folio)', value: stats.por_estado['validado'] ?? 0 },
       { label: 'Registrados', value: stats.por_estado['registrado'] ?? 0 },
+      { label: 'Folios emitidos', value: stats.total_folios },
     ];
 
     this.container.innerHTML = `
@@ -46,7 +48,7 @@ export class AdminDashboardPage {
         <p>Consulta todos los proyectos y folios del sistema, y expórtalos para reportes.</p>
       </div>
 
-      <div class="cards-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: var(--sp-6);">
+      <div class="cards-grid" style="grid-template-columns: repeat(5, 1fr); margin-bottom: var(--sp-6);">
         ${statTiles.map(t => `
           <div class="stat-tile">
             <div class="stat-tile__value">${t.value}</div>
@@ -209,12 +211,29 @@ export class AdminDashboardPage {
           <div class="text-label-sm text-muted mb-2">EQUIPO</div>
           ${membersHtml}
         </div>
+        ${detail.estado_actual === 'validado' ? `
+          <hr class="divider">
+          <div class="mb-4">
+            <button class="btn btn--primary btn--sm" id="btn-register"><span class="material-symbols-outlined">verified</span> Emitir folio y registrar</button>
+          </div>
+        ` : ''}
         <hr class="divider">
         <div>
           <div class="text-label-sm text-muted mb-2">HISTORIAL</div>
           ${historyHtml}
         </div>
       `;
+
+      document.getElementById('btn-register')?.addEventListener('click', async () => {
+        try {
+          const result = await registerProject(id_proyecto);
+          showToast('Proyecto registrado. Folio: ' + result.codigo_folio, { type: 'success' });
+          modal.close();
+          this.loadTable();
+        } catch (err: any) {
+          showToast(getErrorMessage(err.code, err.status), { type: 'error' });
+        }
+      });
     } catch (err: any) {
       modal.bodyEl.innerHTML = `<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__msg">${getErrorMessage(err.code, err.status)}</div></div>`;
     }
