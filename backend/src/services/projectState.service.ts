@@ -54,7 +54,19 @@ export async function submitProtocol(
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    
+
+    // Bloquea la fila y obtiene el estado real vigente, para que el log de
+    // auditoría (IMF-05) registre la transición exacta en vez de un null fijo
+    // (importa distinguir Borrador->Pendiente de Corrección->Pendiente).
+    const lockRes = await client.query<{ estado_actual: string }>(
+      `SELECT estado_actual FROM projects WHERE id_proyecto = $1 FOR UPDATE`,
+      [id_proyecto],
+    );
+    if (lockRes.rows.length === 0) {
+      throw notFound('Proyecto no encontrado');
+    }
+    const estadoAnterior = lockRes.rows[0].estado_actual;
+
     // El proyecto debe estar en 'borrador' o 'correccion'
     const updated = await updateProjectStateAndPdf(
       id_proyecto,
@@ -63,20 +75,14 @@ export async function submitProtocol(
       pdf_path,
       client
     );
-    
+
     if (!updated) {
       throw conflict('El proyecto ya no está en el estado esperado, actualiza la página');
     }
-    
-    // Nota: El log no requiere saber exactamente el estado anterior en este helper,
-    // o podemos insertarlo con NULL o con una consulta extra. Para simplicidad,
-    // como solo queremos registrar la acción, ponemos estado_nuevo = 'pendiente'.
-    // Idealmente el estado_anterior se recuperaría con SELECT FOR UPDATE.
-    // Asumiremos que el frontend/history mostrará la transición lógicamente, o recuperamos:
-    
+
     await insertStateLog(
       id_proyecto,
-      null, // Simplificación: se omite el estado_anterior en el log o requiere fetch previo
+      estadoAnterior,
       'pendiente',
       id_usuario,
       'Protocolo subido',
