@@ -140,6 +140,7 @@ input,select,textarea { font-family: var(--font-family); font-size: var(--fs-bod
 .text-label-sm { font-size: var(--fs-label-sm); font-weight: var(--fw-semibold); line-height: 16px; }
 .text-muted    { color: var(--color-on-surface-variant); }
 .text-primary  { color: var(--color-primary-container); }
+.text-error    { color: var(--color-error); }
 
 /* ─── Layout ── */
 .sidebar {
