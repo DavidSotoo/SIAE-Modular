@@ -12,8 +12,10 @@ export async function createStudentProject(
   if (!titulo || titulo.trim().length === 0) {
     throw badRequest('El título del proyecto es requerido.');
   }
-  if (titulo.length > 200) {
-    throw badRequest('El título del proyecto no debe exceder 200 caracteres.');
+  // Sprint 2 de Diseño, sección 5.1 (condición de Borrador -> Pendiente): título <= 20 palabras.
+  const wordCount = titulo.trim().split(/\s+/).length;
+  if (wordCount > 20) {
+    throw badRequest('El título del proyecto no debe exceder 20 palabras.');
   }
 
   const alreadyHas = await hasActiveProject(codigo_alumno);
