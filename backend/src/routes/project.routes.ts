@@ -5,7 +5,8 @@ import { createProjectHandler, getMentorProjectsHandler } from '../controllers/p
 import {
   uploadProtocolHandler,
   getHistoryHandler,
-  approveProjectHandler,
+  validateProjectHandler,
+  registerProjectHandler,
   rejectProjectHandler
 } from '../controllers/projectState.controller.js';
 import multer from 'multer';
@@ -83,12 +84,20 @@ router.get(
   getHistoryHandler
 );
 
-// POST /api/projects/:id_proyecto/approve — mentor aprueba proyecto
+// POST /api/projects/:id_proyecto/validate — mentor aprueba protocolo (pendiente -> validado)
 router.post(
-  '/projects/:id_proyecto/approve',
+  '/projects/:id_proyecto/validate',
   authenticate,
   requireRole('mentor'),
-  approveProjectHandler
+  validateProjectHandler
+);
+
+// POST /api/projects/:id_proyecto/register — admin emite folio (validado -> registrado)
+router.post(
+  '/projects/:id_proyecto/register',
+  authenticate,
+  requireRole('admin'),
+  registerProjectHandler
 );
 
 // POST /api/projects/:id_proyecto/reject — mentor rechaza proyecto

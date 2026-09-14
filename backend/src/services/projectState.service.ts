@@ -69,47 +69,96 @@ export async function submitProtocol(
   }
 }
 
-export async function approveProject(
+/**
+ * Transición 2 del motor de estados (Sprint 2 de Diseño, sección 5.1):
+ * Pendiente → Validado. La ejecuta el mentor asignado; NO genera folio
+ * ni pasa a Registrado — esa es una transición aparte (ver registerProject),
+ * ejecutada por el administrador.
+ */
+export async function validateProject(
   id_proyecto: number,
   id_mentor_solicitante: number
-): Promise<{ codigo_folio: string }> {
+): Promise<void> {
   const mentorId = await findProjectMentorId(id_proyecto);
   if (mentorId !== id_mentor_solicitante) {
     throw forbidden('No eres el mentor asignado a este proyecto');
   }
 
   const client = await pool.connect();
-  let generatedFolio = '';
-  
   try {
     await client.query('BEGIN');
-    
+
     const updated = await updateProjectStateAndPdf(
       id_proyecto,
       ['pendiente'],
-      'registrado',
-      undefined, // No actualiza el PDF
+      'validado',
+      undefined,
       client
     );
-    
+
     if (!updated) {
       throw conflict('El proyecto ya no está en el estado esperado, actualiza la página');
     }
-    
-    const seq = await getNextFolioSequence(client);
-    generatedFolio = generateFolioCode(seq);
-    
-    await insertFolio(generatedFolio, id_proyecto, client);
-    
+
     await insertStateLog(
       id_proyecto,
       'pendiente',
-      'registrado',
+      'validado',
       id_mentor_solicitante,
+      'Protocolo aprobado por el mentor',
+      client
+    );
+
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * Transición 5 del motor de estados (Sprint 2 de Diseño, sección 5.1):
+ * Validado → Registrado. La ejecuta el administrador/coordinación —no el
+ * mentor— y es el único punto donde se emite el folio oficial.
+ */
+export async function registerProject(
+  id_proyecto: number,
+  id_admin: number
+): Promise<{ codigo_folio: string }> {
+  const client = await pool.connect();
+  let generatedFolio = '';
+
+  try {
+    await client.query('BEGIN');
+
+    const updated = await updateProjectStateAndPdf(
+      id_proyecto,
+      ['validado'],
+      'registrado',
+      undefined,
+      client
+    );
+
+    if (!updated) {
+      throw conflict('El proyecto debe estar validado por el mentor antes de registrarse', 'NOT_VALIDATED');
+    }
+
+    const seq = await getNextFolioSequence(client);
+    generatedFolio = generateFolioCode(seq);
+
+    await insertFolio(generatedFolio, id_proyecto, client);
+
+    await insertStateLog(
+      id_proyecto,
+      'validado',
+      'registrado',
+      id_admin,
       `Proyecto registrado. Folio: ${generatedFolio}`,
       client
     );
-    
+
     await client.query('COMMIT');
     return { codigo_folio: generatedFolio };
   } catch (err) {
