@@ -158,6 +158,7 @@ export class MentorDashboardPage {
 
   private async openProjectModal(project: Project) {
     const canReview = project.estado_actual === 'pendiente';
+    let visualizado = !!project.pdf_visualizado;
 
     const modal = new Modal({
       id: 'mentor-project-modal',
@@ -174,9 +175,10 @@ export class MentorDashboardPage {
       : '<div class="text-muted">Aún no se ha subido un protocolo.</div>';
 
     const reviewActionsHtml = canReview ? `
-      <div class="mt-4" style="display:flex; gap: var(--sp-2);">
-        <button class="btn btn--primary btn--sm" id="btn-approve">Aprobar protocolo</button>
+      <div class="mt-4" style="display:flex; gap: var(--sp-2); align-items:center;">
+        <button class="btn btn--primary btn--sm" id="btn-approve" ${visualizado ? '' : 'disabled'} title="${visualizado ? '' : 'Debes abrir el protocolo antes de aprobarlo'}">Aprobar protocolo</button>
         <button class="btn btn--danger btn--sm" id="btn-reject">Rechazar con correcciones</button>
+        ${visualizado ? '' : '<span class="text-label-sm text-muted" id="approve-hint">Abre el protocolo primero</span>'}
       </div>
     ` : '';
 
@@ -212,6 +214,16 @@ export class MentorDashboardPage {
       try {
         const blob = await downloadProtocol(project.id_proyecto);
         window.open(URL.createObjectURL(blob), '_blank');
+
+        if (!visualizado) {
+          visualizado = true;
+          const approveBtn = document.getElementById('btn-approve') as HTMLButtonElement | null;
+          if (approveBtn) {
+            approveBtn.disabled = false;
+            approveBtn.title = '';
+          }
+          document.getElementById('approve-hint')?.remove();
+        }
       } catch (err: any) {
         showToast(getErrorMessage(err.code, err.status), { type: 'error' });
       }
