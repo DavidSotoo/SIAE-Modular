@@ -13,6 +13,10 @@ const MENTOR_LINKS: SidebarLink[] = [
   { href: '#/mentor', icon: 'supervisor_account', label: 'Panel de Asesor' },
 ];
 
+const ADMIN_LINKS: SidebarLink[] = [
+  { href: '#/admin', icon: 'admin_panel_settings', label: 'Panel Admin' },
+];
+
 function getStoredRole(): string | null {
   try {
     const raw = localStorage.getItem('siae_user');
@@ -24,6 +28,7 @@ function getStoredRole(): string | null {
 }
 
 function getLinksForRole(rol: string | null): SidebarLink[] {
+  if (rol === 'admin') return ADMIN_LINKS;
   if (rol === 'mentor') return MENTOR_LINKS;
   return ALUMNO_LINKS;
 }

@@ -372,6 +372,9 @@ textarea.form-control { resize: vertical; min-height: 100px; }
 .table tbody tr { border-bottom: 1px solid var(--color-outline-variant); cursor: pointer; transition: background 0.15s; }
 .table tbody tr:last-child { border-bottom: none; }
 .table tbody tr:hover { background: var(--color-surface-container-low); }
+.stat-tile { background: var(--color-surface-container-lowest); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--sp-5); }
+.stat-tile__value { font-size: var(--fs-headline); font-weight: var(--fw-semibold); }
+.stat-tile__label { font-size: var(--fs-label-sm); color: var(--color-on-surface-variant); text-transform: uppercase; letter-spacing: 0.03em; }
 
 /* ─── Utilities ─── */
 .mt-1 { margin-top: var(--sp-1); }

@@ -5,6 +5,7 @@ import { MiProyectoPage } from './pages/MiProyectoPage.js';
 import { BuscarAsesorPage } from './pages/BuscarAsesorPage.js';
 import { LoginPage } from './pages/LoginPage.js';
 import { MentorDashboardPage } from './pages/MentorDashboardPage.js';
+import { AdminDashboardPage } from './pages/AdminDashboardPage.js';
 
 // Apply theme ASAP to avoid flash of wrong theme
 applyStoredTheme();
@@ -20,6 +21,7 @@ function getStoredRole(): string | null {
 }
 
 function defaultPathForRole(rol: string | null): string {
+  if (rol === 'admin') return '#/admin';
   if (rol === 'mentor') return '#/mentor';
   return '#/perfil';
 }
@@ -86,6 +88,13 @@ function handleRoute() {
       return;
     }
     const page = new MentorDashboardPage(mainContent);
+    page.render();
+  } else if (path === '/admin') {
+    if (rol !== 'admin') {
+      window.location.hash = defaultPath;
+      return;
+    }
+    const page = new AdminDashboardPage(mainContent);
     page.render();
   } else {
     mainContent.innerHTML = '<div class="state-empty"><span class="material-symbols-outlined">explore_off</span><div class="state-empty__title">Página no encontrada</div></div>';

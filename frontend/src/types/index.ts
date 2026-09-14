@@ -178,6 +178,37 @@ export interface AdvisorRequestCreate {
   mensaje?: string | null;
 }
 
+// ─── Admin ───────────────────────────────────────────────────────────────────
+
+export interface AdminProjectRow {
+  id_proyecto: number;
+  titulo: string;
+  estado_actual: ProjectState;
+  codigo_folio: string | null;
+  fecha_folio: string | null;
+  id_mentor: number | null;
+  mentor_nombre: string | null;
+  num_integrantes: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminProjectDetail extends AdminProjectRow {
+  miembros: Array<{ codigo_cucei: string; nombre: string }>;
+  historial: ProjectStateLog[];
+}
+
+export interface AdminProjectFilters {
+  estado?: ProjectState;
+  search?: string;
+}
+
+export interface AdminStats {
+  total_proyectos: number;
+  por_estado: Record<string, number>;
+  total_folios: number;
+}
+
 // ─── Respuesta de error ──────────────────────────────────────────────────────
 
 export interface ApiError {

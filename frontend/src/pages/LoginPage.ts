@@ -449,7 +449,7 @@ export class LoginPage {
       const res = await login(codigoInput.value.trim(), passwordInput.value);
       localStorage.setItem('siae_token', res.token);
       localStorage.setItem('siae_user', JSON.stringify(res.user));
-      const roleHomes: Record<string, string> = { mentor: '#/mentor' };
+      const roleHomes: Record<string, string> = { mentor: '#/mentor', admin: '#/admin' };
       window.location.hash = roleHomes[res.user.rol] ?? '#/perfil';
     } catch (err: any) {
       showToast(getErrorMessage(err.code, err.status), { type: 'error' });
