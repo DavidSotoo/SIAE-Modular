@@ -76,6 +76,7 @@ export interface Project {
   estado_actual: ProjectState;
   codigo_folio?: string | null;
   pdf_path?: string | null;
+  pdf_visualizado?: boolean;
   id_mentor: number | null;
   created_at: string;
   miembros: Array<{

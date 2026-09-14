@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { submitProtocol, validateProject, registerProject, rejectProject, getProjectHistory } from '../services/projectState.service.js';
+import path from 'path';
+import { submitProtocol, validateProject, registerProject, rejectProject, getProjectHistory, getProtocolFilePath } from '../services/projectState.service.js';
 import { badRequest } from '../utils/errors.js';
 
 export const uploadProtocolHandler = async (req: Request, res: Response, next: NextFunction) => {
@@ -15,6 +16,18 @@ export const uploadProtocolHandler = async (req: Request, res: Response, next: N
     
     await submitProtocol(id_proyecto, id, codigo_cucei, pdf_path);
     res.json({ message: 'Protocolo subido exitosamente' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const downloadProtocolHandler = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id_proyecto = Number(req.params.id_proyecto);
+    const { id, codigo_cucei, rol } = req.user!;
+
+    const pdf_path = await getProtocolFilePath(id_proyecto, id, codigo_cucei, rol);
+    res.download(path.resolve(pdf_path));
   } catch (err) {
     next(err);
   }

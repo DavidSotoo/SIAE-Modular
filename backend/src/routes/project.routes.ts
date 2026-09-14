@@ -4,6 +4,7 @@ import { createProjectHandler } from '../controllers/project.controller.js';
 
 import {
   uploadProtocolHandler,
+  downloadProtocolHandler,
   getHistoryHandler,
   validateProjectHandler,
   registerProjectHandler,
@@ -66,6 +67,14 @@ router.post(
     });
   },
   uploadProtocolHandler
+);
+
+// GET /api/projects/:id_proyecto/protocol — descargar/visualizar el protocolo vigente
+// (si lo abre el mentor asignado, marca pdf_visualizado=true — ver IMF-03)
+router.get(
+  '/projects/:id_proyecto/protocol',
+  authenticate,
+  downloadProtocolHandler
 );
 
 // GET /api/projects/:id_proyecto/history — ver historial
