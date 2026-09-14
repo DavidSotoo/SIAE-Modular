@@ -4,6 +4,7 @@ import { createProjectHandler, getMentorProjectsHandler } from '../controllers/p
 
 import {
   uploadProtocolHandler,
+  downloadProtocolHandler,
   getHistoryHandler,
   validateProjectHandler,
   registerProjectHandler,
@@ -74,6 +75,14 @@ router.get(
   authenticate,
   requireRole('mentor'),
   getMentorProjectsHandler
+);
+
+// GET /api/projects/:id_proyecto/protocol — descargar/visualizar el protocolo vigente
+// (si lo abre el mentor asignado, marca pdf_visualizado=true — ver IMF-03)
+router.get(
+  '/projects/:id_proyecto/protocol',
+  authenticate,
+  downloadProtocolHandler
 );
 
 // GET /api/projects/:id_proyecto/history — ver historial

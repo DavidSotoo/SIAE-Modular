@@ -1,9 +1,32 @@
 import pool from '../config/db.js';
-import { updateProjectStateAndPdf, findProjectMentorId } from '../models/project.model.js';
+import {
+  updateProjectStateAndPdf,
+  findProjectMentorId,
+  findProjectPdfPath,
+  isProjectPdfVisualizado,
+  markPdfVisualizado,
+} from '../models/project.model.js';
 import { insertStateLog, getProjectHistory as getHistoryDb } from '../models/stateLog.model.js';
 import { isAlumnoInProject } from '../models/teamRequest.model.js';
 import { getNextFolioSequence, insertFolio } from '../models/folio.model.js';
-import { conflict, forbidden, badRequest } from '../utils/errors.js';
+import { conflict, forbidden, badRequest, notFound } from '../utils/errors.js';
+
+async function assertProjectAccess(
+  id_proyecto: number,
+  id_usuario: number,
+  codigo_cucei: string,
+  rol: string
+): Promise<void> {
+  if (rol === 'alumno') {
+    const isMember = await isAlumnoInProject(id_proyecto, codigo_cucei);
+    if (!isMember) throw forbidden('No eres miembro de este proyecto');
+  } else if (rol === 'mentor') {
+    const mentorId = await findProjectMentorId(id_proyecto);
+    if (mentorId !== id_usuario) throw forbidden('No eres el mentor de este proyecto');
+  } else if (rol !== 'admin') {
+    throw forbidden('Rol no autorizado');
+  }
+}
 
 export function generateFolioCode(sequence: number): string {
   const seqStr = sequence.toString().padStart(3, '0');
@@ -82,6 +105,12 @@ export async function validateProject(
   const mentorId = await findProjectMentorId(id_proyecto);
   if (mentorId !== id_mentor_solicitante) {
     throw forbidden('No eres el mentor asignado a este proyecto');
+  }
+
+  // IMF-03 (Sprint 2/4 de Diseño): no se puede aprobar sin haber visualizado el PDF.
+  const visualizado = await isProjectPdfVisualizado(id_proyecto);
+  if (!visualizado) {
+    throw conflict('Debes abrir y revisar el protocolo antes de aprobarlo', 'PDF_NOT_VIEWED');
   }
 
   const client = await pool.connect();
@@ -223,19 +252,31 @@ export async function getProjectHistory(
   codigo_cucei: string,
   rol: string
 ) {
-  if (rol === 'alumno') {
-    const isMember = await isAlumnoInProject(id_proyecto, codigo_cucei);
-    if (!isMember) {
-      throw forbidden('No eres miembro de este proyecto');
-    }
-  } else if (rol === 'mentor') {
-    const mentorId = await findProjectMentorId(id_proyecto);
-    if (mentorId !== id_usuario) {
-      throw forbidden('No eres el mentor de este proyecto');
-    }
-  } else if (rol !== 'admin') {
-    throw forbidden('Rol no autorizado');
+  await assertProjectAccess(id_proyecto, id_usuario, codigo_cucei, rol);
+  return await getHistoryDb(id_proyecto);
+}
+
+/**
+ * Devuelve la ruta del PDF vigente para descarga/visualización. Cuando quien
+ * abre el archivo es el mentor asignado, marca pdf_visualizado = true —esta
+ * es la señal que exige el IMF-03 antes de permitir validateProject().
+ */
+export async function getProtocolFilePath(
+  id_proyecto: number,
+  id_usuario: number,
+  codigo_cucei: string,
+  rol: string
+): Promise<string> {
+  await assertProjectAccess(id_proyecto, id_usuario, codigo_cucei, rol);
+
+  const pdf_path = await findProjectPdfPath(id_proyecto);
+  if (!pdf_path) {
+    throw notFound('Este proyecto aún no tiene un protocolo subido');
   }
 
-  return await getHistoryDb(id_proyecto);
+  if (rol === 'mentor') {
+    await markPdfVisualizado(id_proyecto);
+  }
+
+  return pdf_path;
 }
