@@ -182,15 +182,33 @@ export async function advisorHasCupo(
   db: pg.Pool | pg.PoolClient = pool,
   forUpdate = false,
 ): Promise<boolean> {
-  const lockClause = forUpdate ? 'FOR UPDATE OF ap' : '';
+  if (forUpdate) {
+    // Postgres no permite FOR UPDATE junto con GROUP BY/JOIN agregado, así que
+    // primero bloqueamos la fila del asesor (sin agregación) y luego contamos
+    // sus proyectos activos por separado; el lock ya serializa aceptaciones concurrentes.
+    const lockRes = await db.query<{ disponible: boolean; cupo_maximo: number }>(
+      `SELECT disponible, cupo_maximo FROM advisor_profiles WHERE id_usuario = $1 FOR UPDATE`,
+      [id_mentor],
+    );
+    if (lockRes.rows.length === 0) return false;
+    const { disponible, cupo_maximo } = lockRes.rows[0];
+    if (!disponible) return false;
+
+    const countRes = await db.query<{ activos: string }>(
+      `SELECT COUNT(*) FILTER (WHERE estado_actual != 'cancelado') AS activos
+       FROM projects WHERE id_mentor = $1`,
+      [id_mentor],
+    );
+    return parseInt(countRes.rows[0].activos, 10) < cupo_maximo;
+  }
+
   const res = await db.query<{ disponible: boolean; cupo_maximo: number; activos: string }>(
     `SELECT ap.disponible, ap.cupo_maximo,
             COUNT(p.id_proyecto) FILTER (WHERE p.estado_actual != 'cancelado') AS activos
      FROM advisor_profiles ap
      LEFT JOIN projects p ON p.id_mentor = ap.id_usuario
      WHERE ap.id_usuario = $1
-     GROUP BY ap.id_usuario, ap.disponible, ap.cupo_maximo
-     ${lockClause}`,
+     GROUP BY ap.id_usuario, ap.disponible, ap.cupo_maximo`,
     [id_mentor],
   );
 

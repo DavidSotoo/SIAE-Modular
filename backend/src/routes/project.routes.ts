@@ -4,6 +4,7 @@ import { createProjectHandler } from '../controllers/project.controller.js';
 
 import {
   uploadProtocolHandler,
+  downloadProtocolHandler,
   getHistoryHandler,
   approveProjectHandler,
   rejectProjectHandler
@@ -65,6 +66,13 @@ router.post(
     });
   },
   uploadProtocolHandler
+);
+
+// GET /api/projects/:id_proyecto/protocol — descargar el protocolo PDF vigente
+router.get(
+  '/projects/:id_proyecto/protocol',
+  authenticate,
+  downloadProtocolHandler
 );
 
 // GET /api/projects/:id_proyecto/history — ver historial

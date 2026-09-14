@@ -1,4 +1,4 @@
-import { getMyProject, createProject, getProjectHistory, uploadProtocol } from '../services/project.service.js';
+import { getMyProject, createProject, getProjectHistory, uploadProtocol, downloadProtocol } from '../services/project.service.js';
 import { getAdvisorById } from '../services/advisor.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
@@ -144,18 +144,7 @@ export class MiProyectoPage {
           ${stepperHtml}
           ${bannerHtml}
 
-          ${currentActualState === 'cancelado' ? '' : `
-          <hr class="divider">
-
-          <h3 class="text-title mb-4">Documentación Principal</h3>
-          <div class="dropzone" id="protocol-dropzone">
-            <span class="material-symbols-outlined">upload_file</span>
-            <p class="text-label mt-2">Arrastra tu protocolo PDF aquí o</p>
-            <button class="btn btn--secondary btn--sm mt-2" id="btn-select-file">Seleccionar Archivo</button>
-            <input type="file" id="file-input" accept="application/pdf" class="hidden">
-            <div id="file-error" class="form-error hidden mt-2"></div>
-          </div>
-          `}
+          ${currentActualState === 'cancelado' ? '' : this.renderDocumentSection()}
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--sp-6);">
@@ -184,8 +173,57 @@ export class MiProyectoPage {
     `;
 
     this.setupDropzone();
+    this.setupViewDocument();
     this.loadAdvisor();
     this.loadHistory();
+  }
+
+  private renderDocumentSection(): string {
+    const state = this.project!.estado_actual;
+    const canUpload = state === 'borrador' || state === 'correccion';
+    const hasDoc = !!this.project!.pdf_path;
+
+    const viewLink = hasDoc
+      ? `<button class="btn btn--ghost btn--sm mt-2" id="btn-view-document"><span class="material-symbols-outlined">description</span> Ver protocolo actual</button>`
+      : '';
+
+    const dropzone = canUpload ? `
+      <div class="dropzone" id="protocol-dropzone">
+        <span class="material-symbols-outlined">upload_file</span>
+        <p class="text-label mt-2">Arrastra tu protocolo PDF aquí o</p>
+        <button class="btn btn--secondary btn--sm mt-2" id="btn-select-file">${hasDoc ? 'Reemplazar Archivo' : 'Seleccionar Archivo'}</button>
+        <input type="file" id="file-input" accept="application/pdf" class="hidden">
+        <div id="file-error" class="form-error hidden mt-2"></div>
+      </div>
+    ` : `
+      <div class="state-empty" style="padding: 16px 0;">
+        <div class="state-empty__msg">${hasDoc ? 'El protocolo está en revisión, no se puede reemplazar por ahora.' : 'Aún no se ha subido un protocolo.'}</div>
+      </div>
+    `;
+
+    return `
+      <hr class="divider">
+      <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 class="text-title" style="margin: 0;">Documentación Principal</h3>
+        ${viewLink}
+      </div>
+      ${dropzone}
+    `;
+  }
+
+  private setupViewDocument() {
+    const btn = document.getElementById('btn-view-document');
+    if (!btn) return;
+
+    btn.addEventListener('click', async () => {
+      try {
+        const blob = await downloadProtocol(this.project!.id_proyecto);
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      } catch (err: any) {
+        showToast(getErrorMessage(err.code, err.status), { type: 'error' });
+      }
+    });
   }
 
   private setupDropzone() {
@@ -207,13 +245,15 @@ export class MiProyectoPage {
         errorDiv.classList.remove('hidden');
         return;
       }
-      
+
       uploadProtocol(this.project!.id_proyecto, file)
-        .then(() => {
+        .then(async () => {
           showToast('Protocolo subido exitosamente.', { type: 'success' });
+          this.project = await getMyProject();
+          this.buildView();
         })
-        .catch(() => {
-          showToast('Esta función estará disponible próximamente.', { type: 'info' });
+        .catch((err: any) => {
+          showToast(getErrorMessage(err.code, err.status), { type: 'error' });
         });
     };
 

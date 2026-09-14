@@ -7,13 +7,14 @@ export const getMyProject = (): Promise<Project | null> =>
 export const createProject = (titulo: string): Promise<Project> =>
   api.post('/projects', { titulo });
 
-// TODO(backend): endpoint pendiente, Etapa 3
 export const getProjectHistory = (id_proyecto: number): Promise<ProjectStateLog[]> =>
   api.get('/projects/' + id_proyecto + '/history');
 
-// TODO(backend): endpoint pendiente, Etapa 3
-export const uploadProtocol = (id_proyecto: number, file: File): Promise<Project> => {
+export const uploadProtocol = (id_proyecto: number, file: File): Promise<{ message: string }> => {
   const formData = new FormData();
-  formData.append('protocolo', file);
+  formData.append('file', file);
   return api.upload('/projects/' + id_proyecto + '/protocol', formData);
 };
+
+export const downloadProtocol = (id_proyecto: number): Promise<Blob> =>
+  api.getBlob('/projects/' + id_proyecto + '/protocol');
