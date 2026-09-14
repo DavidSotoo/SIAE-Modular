@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { submitProtocol, approveProject, rejectProject, getProjectHistory } from '../services/projectState.service.js';
+import { submitProtocol, validateProject, registerProject, rejectProject, getProjectHistory } from '../services/projectState.service.js';
 import { badRequest } from '../utils/errors.js';
 
 export const uploadProtocolHandler = async (req: Request, res: Response, next: NextFunction) => {
@@ -32,12 +32,24 @@ export const getHistoryHandler = async (req: Request, res: Response, next: NextF
   }
 };
 
-export const approveProjectHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const validateProjectHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id_proyecto = Number(req.params.id_proyecto);
     const { id } = req.user!;
-    
-    const result = await approveProject(id_proyecto, id);
+
+    await validateProject(id_proyecto, id);
+    res.json({ message: 'Protocolo validado, listo para que administración emita el folio' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const registerProjectHandler = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id_proyecto = Number(req.params.id_proyecto);
+    const { id } = req.user!;
+
+    const result = await registerProject(id_proyecto, id);
     res.json(result);
   } catch (err) {
     next(err);
