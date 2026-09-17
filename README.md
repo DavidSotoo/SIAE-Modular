@@ -9,7 +9,7 @@ Sistema Integral de Administración de Equipos Modulares — CUCEI, Ingeniería 
 | Frontend | Vite + TypeScript (SPA), sin framework pesado (según Sprint 2) |
 | Backend | Node.js + Express + TypeScript |
 | Base de datos | PostgreSQL (Neon/Supabase en prod, Docker local en dev) |
-| Auth | JWT + BCrypt + RBAC |
+| Auth | Login con Google (OIDC) por dominio institucional + JWT propio + RBAC — ver `docs/bitacora-decisiones.md` |
 | Contenedores | Docker (solo entorno local) |
 | Despliegue | Vercel (frontend + funciones serverless del backend) |
 
@@ -51,4 +51,4 @@ siae-modular/
 
 ## Variables de entorno necesarias
 
-Ver `backend/.env.example` y `frontend/.env.example`.
+Ver `backend/.env.example` y `frontend/.env.example`. Para el login con Google, ver `docs/setup-google-oauth.md`.

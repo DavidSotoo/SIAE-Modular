@@ -69,7 +69,7 @@ export async function getMyStudentTeamRequests(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const requests = await getMyTeamRequests(req.user!.codigo_cucei);
+    const requests = await getMyTeamRequests(req.user!.codigo_cucei!);
     res.json(requests);
   } catch (err) {
     next(err);

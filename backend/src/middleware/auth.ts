@@ -4,7 +4,10 @@ import { unauthorized, forbidden } from '../utils/errors.js';
 
 export interface AuthUser {
   id: number;
-  codigo_cucei: string;
+  // Solo obligatorio para alumno; null en mentor/admin y en un alumno que
+  // aun no completa el paso de "completa tu perfil" tras su primer login
+  // con Google (ver requireOnboarded).
+  codigo_cucei: string | null;
   rol: 'alumno' | 'mentor' | 'admin';
 }
 
@@ -56,4 +59,18 @@ export function requireRole(...roles: Array<'alumno' | 'mentor' | 'admin'>) {
     }
     next();
   };
+}
+
+/**
+ * Debe usarse DESPUÉS de authenticate + requireRole('alumno') en cualquier
+ * ruta que dependa de codigo_cucei. Bloquea a un alumno que inició sesión
+ * con Google por primera vez y aún no captura su código CUCEI de 9 dígitos
+ * (ver POST /auth/complete-profile).
+ */
+export function requireOnboarded(req: Request, _res: Response, next: NextFunction): void {
+  if (!req.user) return next(unauthorized());
+  if (req.user.codigo_cucei === null) {
+    return next(forbidden('Completa tu perfil (código CUCEI) antes de continuar', 'ONBOARDING_REQUIRED'));
+  }
+  next();
 }

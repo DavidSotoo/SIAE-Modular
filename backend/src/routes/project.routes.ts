@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate, requireRole } from '../middleware/auth.js';
+import { authenticate, requireRole, requireOnboarded } from '../middleware/auth.js';
 import { createProjectHandler } from '../controllers/project.controller.js';
 
 import {
@@ -48,6 +48,7 @@ router.post(
   '/projects',
   authenticate,
   requireRole('alumno'),
+  requireOnboarded,
   createProjectHandler,
 );
 
@@ -56,6 +57,7 @@ router.post(
   '/projects/:id_proyecto/protocol',
   authenticate,
   requireRole('alumno'),
+  requireOnboarded,
   (req, res, next) => {
     upload.single('file')(req, res, (err) => {
       if (err) {

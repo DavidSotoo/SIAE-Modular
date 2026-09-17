@@ -1,5 +1,5 @@
 ﻿import { Router } from 'express';
-import { authenticate, requireRole } from '../middleware/auth.js';
+import { authenticate, requireRole, requireOnboarded } from '../middleware/auth.js';
 import {
   postTeamRequest,
   getProjectTeamRequests,
@@ -15,6 +15,7 @@ router.post(
   '/projects/:id_proyecto/team-requests',
   authenticate,
   requireRole('alumno'),
+  requireOnboarded,
   postTeamRequest,
 );
 
@@ -23,6 +24,7 @@ router.get(
   '/projects/:id_proyecto/team-requests',
   authenticate,
   requireRole('alumno'),
+  requireOnboarded,
   getProjectTeamRequests,
 );
 
@@ -31,6 +33,7 @@ router.post(
   '/team-requests/:id_solicitud/accept',
   authenticate,
   requireRole('alumno'),
+  requireOnboarded,
   acceptTeamRequestHandler,
 );
 
@@ -39,6 +42,7 @@ router.post(
   '/team-requests/:id_solicitud/reject',
   authenticate,
   requireRole('alumno'),
+  requireOnboarded,
   rejectTeamRequestHandler,
 );
 
@@ -47,6 +51,7 @@ router.post(
   '/team-requests/:id_solicitud/cancel',
   authenticate,
   requireRole('alumno'),
+  requireOnboarded,
   cancelTeamRequestHandler,
 );
 
