@@ -1,15 +1,16 @@
-import { renderSidebar, applyStoredTheme } from './components/Sidebar.js';
+import { renderSidebar, applyStoredTheme, type Rol } from './components/Sidebar.js';
 import { PerfilPage } from './pages/PerfilPage.js';
 import { BuscarEquipoPage } from './pages/BuscarEquipoPage.js';
 import { MiProyectoPage } from './pages/MiProyectoPage.js';
 import { BuscarAsesorPage } from './pages/BuscarAsesorPage.js';
 import { LoginPage } from './pages/LoginPage.js';
 import { CompleteProfilePage } from './pages/CompleteProfilePage.js';
+import { renderErrorState } from './pages/ErrorStatePage.js';
 
 // Apply theme ASAP to avoid flash of wrong theme
 applyStoredTheme();
 
-function getStoredUser(): { rol?: string; codigo_cucei?: string | null } | null {
+function getStoredUser(): { rol?: Rol; codigo_cucei?: string | null } | null {
   const raw = localStorage.getItem('siae_user');
   if (!raw) return null;
   try {
@@ -43,6 +44,13 @@ function handleRoute() {
     return;
   }
 
+  // Rutas exclusivas de alumno: mentor/admin no tienen esas páginas todavía.
+  const ALUMNO_ONLY_PATHS = new Set(['/equipo', '/asesores', '/proyecto']);
+  if (storedUser?.rol && storedUser.rol !== 'alumno' && ALUMNO_ONLY_PATHS.has(path)) {
+    window.location.hash = '#/perfil';
+    return;
+  }
+
   const sidebarContainer = document.getElementById('sidebar-container')!;
   const mainContent = document.getElementById('main-content')!;
 
@@ -66,7 +74,7 @@ function handleRoute() {
 
   sidebarContainer.style.display = 'block';
   // Render Sidebar
-  renderSidebar(sidebarContainer, path);
+  renderSidebar(sidebarContainer, path, storedUser?.rol);
 
   // Clear main content
   mainContent.innerHTML = '';
@@ -85,7 +93,7 @@ function handleRoute() {
     const page = new BuscarAsesorPage(mainContent);
     page.render();
   } else {
-    mainContent.innerHTML = '<div class="state-empty"><span class="material-symbols-outlined">explore_off</span><div class="state-empty__title">Página no encontrada</div></div>';
+    renderErrorState(mainContent, 'not-found');
   }
 }
 

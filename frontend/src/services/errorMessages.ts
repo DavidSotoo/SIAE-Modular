@@ -18,6 +18,9 @@ const ERROR_MESSAGES: Record<string, string> = {
   DUPLICATE_ADVISOR_REQUEST: 'Ya enviaste una solicitud de asesoría a este mentor para este proyecto.',
   ALREADY_HAS_MENTOR:        'El proyecto ya tiene un asesor asignado.',
 
+  // Login con Google
+  DOMAIN_NOT_ALLOWED: 'Ese correo no pertenece a la UDG. Inicia sesión con tu cuenta institucional (@alumnos.udg.mx o @academicos.udg.mx).',
+
   // Genéricos HTTP
   UNAUTHORIZED:   'Tu sesión expiró. Por favor inicia sesión nuevamente.',
   FORBIDDEN:      'No tienes permiso para realizar esta acción.',

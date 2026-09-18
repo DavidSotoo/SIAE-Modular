@@ -142,6 +142,27 @@ export class LoginPage {
           text-align: center;
         }
 
+        .login-domain-error {
+          display: flex;
+          align-items: flex-start;
+          gap: 8px;
+          font-size: 13px;
+          color: #b3261e;
+          background: #fce8e6;
+          border: 1px solid #f6c6c2;
+          border-radius: 12px;
+          padding: 12px 14px;
+          text-align: left;
+          line-height: 1.4;
+        }
+        .login-domain-error .material-symbols-outlined {
+          font-size: 18px;
+          flex-shrink: 0;
+        }
+        .login-domain-error.hidden {
+          display: none;
+        }
+
         .login-domain-hint {
           font-size: 12px;
           color: #5f6368;
@@ -224,6 +245,10 @@ export class LoginPage {
             </div>
 
             <div class="login-google-area">
+              <div id="google-domain-error" class="login-domain-error hidden">
+                <span class="material-symbols-outlined">error</span>
+                <span id="google-domain-error-text"></span>
+              </div>
               <div id="google-signin-button"></div>
               <div id="google-fallback" class="login-google-fallback hidden"></div>
               <p class="login-domain-hint">
@@ -286,7 +311,10 @@ export class LoginPage {
 
   private async handleCredential(idToken: string) {
     const fallback = document.getElementById('google-fallback')!;
+    const domainError = document.getElementById('google-domain-error')!;
+    const domainErrorText = document.getElementById('google-domain-error-text')!;
     fallback.classList.add('hidden');
+    domainError.classList.add('hidden');
 
     try {
       const res = await loginWithGoogle(idToken);
@@ -301,7 +329,13 @@ export class LoginPage {
       const roleHomes: Record<string, string> = { mentor: '#/mentor', admin: '#/admin' };
       window.location.hash = roleHomes[res.user.rol] ?? '#/perfil';
     } catch (err: any) {
-      showToast(getErrorMessage(err.code, err.status), { type: 'error' });
+      const message = getErrorMessage(err.code, err.status);
+      if (err.code === 'DOMAIN_NOT_ALLOWED') {
+        domainErrorText.textContent = message;
+        domainError.classList.remove('hidden');
+      } else {
+        showToast(message, { type: 'error' });
+      }
     }
   }
 }

@@ -7,6 +7,7 @@ import {
   linkGoogleSub,
   isCodigoCuceiTaken,
   setUserCodigoCucei,
+  updateUserFotoUrl,
   Rol,
   UserRow,
 } from '../models/user.model.js';
@@ -87,6 +88,7 @@ export async function loginWithGoogle(idToken: string) {
     );
   }
 
+  const foto_url = payload.picture ?? null;
   let user: UserRow | null = await findUserByGoogleSub(payload.sub);
 
   if (!user) {
@@ -101,9 +103,16 @@ export async function loginWithGoogle(idToken: string) {
         nombre: payload.name ?? payload.email,
         email: payload.email,
         google_sub: payload.sub,
+        foto_url,
         rol,
       });
     }
+  }
+
+  // La foto de Google puede cambiar entre logins; se mantiene sincronizada.
+  if (foto_url !== user.foto_url) {
+    await updateUserFotoUrl(user.id, foto_url);
+    user = { ...user, foto_url };
   }
 
   const needsOnboarding = user.rol === 'alumno' && user.codigo_cucei === null;

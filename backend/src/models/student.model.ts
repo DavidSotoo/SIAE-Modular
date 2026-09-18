@@ -28,6 +28,7 @@ export interface StudentInterestRow {
 export interface StudentProfileFull extends StudentProfile {
   nombre: string;
   codigo_cucei: string;
+  foto_url: string | null;
   skills: StudentSkillRow[];
   areas: StudentInterestRow[];
 }
@@ -55,11 +56,11 @@ export async function findProfileByUserId(
   id_usuario: number,
 ): Promise<StudentProfileFull | null> {
   const profileRes = await pool.query<
-    StudentProfile & { nombre: string; codigo_cucei: string }
+    StudentProfile & { nombre: string; codigo_cucei: string; foto_url: string | null }
   >(
     `SELECT sp.id_usuario, sp.semestre, sp.bio, sp.portafolio_url,
             sp.disponibilidad, sp.estado_busqueda, sp.updated_at,
-            u.nombre, u.codigo_cucei
+            u.nombre, u.codigo_cucei, u.foto_url
      FROM student_profiles sp
      JOIN users u ON u.id = sp.id_usuario
      WHERE sp.id_usuario = $1`,
