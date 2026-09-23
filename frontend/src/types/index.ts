@@ -41,6 +41,7 @@ export interface StudentProfile {
   id_usuario: number;
   codigo_cucei: string;
   nombre: string;
+  foto_url: string | null;
   semestre: number | null;
   bio: string | null;
   portafolio_url: string | null;

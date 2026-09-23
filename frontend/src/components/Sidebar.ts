@@ -1,6 +1,7 @@
 // Sidebar component — renderiza el menu lateral y el toggle de tema.
-// Acepta la ruta activa para marcarla.
+// Acepta la ruta activa para marcarla y el rol para filtrar los links.
 export interface SidebarLink { href: string; icon: string; label: string; }
+export type Rol = 'alumno' | 'mentor' | 'admin';
 
 const LINKS: SidebarLink[] = [
   { href: '#/perfil',      icon: 'person',         label: 'Mi Perfil'     },
@@ -8,6 +9,15 @@ const LINKS: SidebarLink[] = [
   { href: '#/asesores',    icon: 'school',         label: 'Buscar Asesor' },
   { href: '#/proyecto',    icon: 'folder_managed', label: 'Mi Proyecto'   },
 ];
+
+// Rutas exclusivas de alumno (mentor/admin aun no tienen su propio panel en
+// esta rama — solo ven "Mi Perfil" hasta que se integren etapa4/etapa5).
+const ALUMNO_ONLY_HREFS = new Set(['#/equipo', '#/asesores', '#/proyecto']);
+
+function linksForRol(rol?: Rol): SidebarLink[] {
+  if (rol === 'alumno' || !rol) return LINKS;
+  return LINKS.filter(l => !ALUMNO_ONLY_HREFS.has(l.href));
+}
 
 // ─── Theme management ──────────────────────────────────────────────────────
 
@@ -40,12 +50,12 @@ function updateToggleBtn(btn: HTMLButtonElement): void {
 
 // ─── Render ────────────────────────────────────────────────────────────────
 
-export function renderSidebar(container: HTMLElement, activePath: string): void {
+export function renderSidebar(container: HTMLElement, activePath: string, rol?: Rol): void {
   container.className = 'sidebar';
   container.innerHTML =
     '<div class="sidebar__brand"><h1>SIAE</h1><p>CUCEI · Informática</p></div>' +
     '<nav class="sidebar__nav" aria-label="Navegación principal">' +
-    LINKS.map(l =>
+    linksForRol(rol).map(l =>
       '<a href="' + l.href + '" class="' + ('#' + activePath === l.href ? 'active' : '') + '">' +
       '<span class="material-symbols-outlined">' + l.icon + '</span>' +
       '<span>' + l.label + '</span></a>'

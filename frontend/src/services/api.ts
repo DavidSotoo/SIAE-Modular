@@ -31,7 +31,12 @@ async function request<T>(
   
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(`${BASE}${path}`, { ...options, headers });
+  let res: Response;
+  try {
+    res = await fetch(`${BASE}${path}`, { ...options, headers });
+  } catch {
+    throw new ApiRequestError(0, 'No se pudo conectar con el servidor', 'NETWORK_ERROR');
+  }
 
   if (!res.ok) {
     if (res.status === 401 && !skipAuthRedirect) {

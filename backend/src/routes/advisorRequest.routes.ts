@@ -1,5 +1,5 @@
 ﻿import { Router } from 'express';
-import { authenticate, requireRole } from '../middleware/auth.js';
+import { authenticate, requireRole, requireOnboarded } from '../middleware/auth.js';
 import {
   postAdvisorRequest,
   getMentorAdvisorRequestsHandler,
@@ -14,6 +14,7 @@ router.post(
   '/projects/:id_proyecto/advisor-requests',
   authenticate,
   requireRole('alumno'),
+  requireOnboarded,
   postAdvisorRequest,
 );
 

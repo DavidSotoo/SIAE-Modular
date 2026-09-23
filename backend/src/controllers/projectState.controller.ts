@@ -13,7 +13,7 @@ export const uploadProtocolHandler = async (req: Request, res: Response, next: N
 
     const pdf_path = req.file.path; // Destino local de multer
     
-    await submitProtocol(id_proyecto, id, codigo_cucei, pdf_path);
+    await submitProtocol(id_proyecto, id, codigo_cucei!, pdf_path);
     res.json({ message: 'Protocolo subido exitosamente' });
   } catch (err) {
     next(err);

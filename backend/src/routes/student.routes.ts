@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate, requireRole } from '../middleware/auth.js';
+import { authenticate, requireRole, requireOnboarded } from '../middleware/auth.js';
 import {
   getMyStudentProfile,
   putMyStudentProfile,
@@ -15,10 +15,13 @@ router.get(
   '/students/me/project',
   authenticate,
   requireRole('alumno'),
+  requireOnboarded,
   getMyProjectHandler,
 );
 
 // GET /api/students/me/profile — perfil del alumno autenticado
+// (no exige requireOnboarded: el propio flujo de completar perfil vive aquí
+// a futuro; no depende de codigo_cucei en el handler)
 router.get(
   '/students/me/profile',
   authenticate,
@@ -47,6 +50,7 @@ router.get(
   '/students/me/team-requests',
   authenticate,
   requireRole('alumno'),
+  requireOnboarded,
   getMyStudentTeamRequests,
 );
 

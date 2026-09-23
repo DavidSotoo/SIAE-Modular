@@ -16,7 +16,7 @@ export async function postAdvisorRequest(
     const id_proyecto = parseInt(req.params.id_proyecto, 10);
     if (isNaN(id_proyecto)) throw badRequest('id_proyecto debe ser un número');
 
-    const result = await createAdvisorRequestService(id_proyecto, req.body, req.user!.codigo_cucei);
+    const result = await createAdvisorRequestService(id_proyecto, req.body, req.user!.codigo_cucei!);
     res.status(201).json(result);
   } catch (err) {
     next(err);

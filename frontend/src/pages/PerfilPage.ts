@@ -1,8 +1,15 @@
 import { getMyProfile, getSkills, getAreas, updateMyProfile, createSkill } from '../services/student.service.js';
+import { getMe } from '../services/auth.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
 import { ChipSelector } from '../components/ChipSelector.js';
 import type { Skill, Area, StudentProfile, StudentProfileUpdate } from '../types/index.js';
+
+const ROL_LABEL: Record<string, string> = {
+  alumno: 'Alumno',
+  mentor: 'Mentor / Asesor',
+  admin: 'Administrador',
+};
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -33,6 +40,12 @@ function initials(nombre: string): string {
     .join('');
 }
 
+function avatarContent(nombre: string, foto_url: string | null): string {
+  return foto_url
+    ? `<img src="${foto_url}" alt="" referrerpolicy="no-referrer" onerror="this.remove(); this.parentElement.textContent='${initials(nombre)}';">`
+    : initials(nombre);
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export class PerfilPage {
@@ -50,10 +63,42 @@ export class PerfilPage {
     this.container = container;
   }
 
+  private static skeletonHtml(): string {
+    return `
+      <div class="sk-hero">
+        <div class="skeleton sk-cover"></div>
+        <div class="sk-hero-body">
+          <div class="skeleton sk-avatar"></div>
+          <div class="sk-lines">
+            <div class="skeleton sk-line" style="width:180px;height:22px;"></div>
+            <div class="skeleton sk-line" style="width:120px;"></div>
+            <div class="skeleton sk-line" style="width:140px;height:24px;border-radius:9999px;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sk-card">
+        <div class="skeleton sk-line" style="width:140px;"></div>
+        <div class="skeleton sk-line" style="width:90%;"></div>
+        <div class="skeleton sk-line" style="width:70%;"></div>
+      </div>
+      <div class="sk-card">
+        <div class="skeleton sk-line" style="width:160px;"></div>
+        <div class="skeleton sk-line" style="width:80%;"></div>
+      </div>
+    `;
+  }
+
   async render() {
-    this.container.innerHTML = '<div class="state-loading"><span class="spinner"></span> Cargando perfil...</div>';
+    this.container.innerHTML = PerfilPage.skeletonHtml();
 
     try {
+      const me = await getMe();
+
+      if (me.rol !== 'alumno') {
+        this.buildBasicView(me);
+        return;
+      }
+
       const [profile, skills, areas] = await Promise.all([
         getMyProfile(),
         getSkills(),
@@ -74,6 +119,36 @@ export class PerfilPage {
     }
   }
 
+  // ─── Vista básica para mentor/admin (sin perfil de alumno) ────────────────
+
+  private buildBasicView(me: { nombre: string; email: string | null; rol: string; foto_url: string | null }) {
+    const avatarInner = avatarContent(me.nombre, me.foto_url);
+
+    this.container.innerHTML = `
+      <div class="profile-view">
+        <div class="pv-hero">
+          <div class="pv-cover"></div>
+          <div class="pv-hero-body">
+            <div class="pv-avatar">${avatarInner}</div>
+            <div class="pv-hero-info">
+              <div class="pv-name">${me.nombre}</div>
+              ${me.email ? `<div class="pv-code">
+                <span class="material-symbols-outlined" style="font-size:14px">mail</span>
+                ${me.email}
+              </div>` : ''}
+              <div class="pv-badges">
+                <span class="pv-badge pv-badge--semestre">
+                  <span class="material-symbols-outlined" style="font-size:13px">badge</span>
+                  ${ROL_LABEL[me.rol] ?? me.rol}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   // ─── VIEW MODE (LinkedIn-style) ──────────────────────────────────────────
 
   private buildView() {
@@ -81,7 +156,7 @@ export class PerfilPage {
     const p = this.profile;
 
     const estado = ESTADO_LABEL[p.estado_busqueda] ?? ESTADO_LABEL['no_disponible'];
-    const avatarLetters = initials(p.nombre);
+    const avatarInner = avatarContent(p.nombre, p.foto_url);
 
     const hardSkills = p.skills.filter(s => s.tipo === 'hard');
     const softSkills = p.skills.filter(s => s.tipo === 'soft');
@@ -124,7 +199,7 @@ export class PerfilPage {
         <div class="pv-hero">
           <div class="pv-cover"></div>
           <div class="pv-hero-body">
-            <div class="pv-avatar">${avatarLetters}</div>
+            <div class="pv-avatar">${avatarInner}</div>
             <div class="pv-hero-info">
               <div class="pv-name">${p.nombre}</div>
               <div class="pv-code">

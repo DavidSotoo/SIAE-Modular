@@ -1,4 +1,4 @@
-import { login } from '../services/auth.service.js';
+import { loginWithGoogle } from '../services/auth.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
 
@@ -17,7 +17,7 @@ export class LoginPage {
           display: flex;
           flex-direction: column;
           background-color: #f0f4f9;
-          background-image: 
+          background-image:
             radial-gradient(circle at 10% 20%, rgba(26, 115, 232, 0.035) 0%, transparent 40%),
             radial-gradient(circle at 90% 80%, rgba(11, 32, 70, 0.03) 0%, transparent 45%);
           font-family: 'Inter', 'Roboto', sans-serif;
@@ -50,7 +50,7 @@ export class LoginPage {
           display: flex;
           flex-direction: column;
         }
-        
+
         .login-topbar-title {
           font-size: 14px;
           font-weight: 600;
@@ -124,151 +124,50 @@ export class LoginPage {
           line-height: 1.6;
         }
 
-        .login-form {
+        .login-google-area {
           display: flex;
           flex-direction: column;
-          gap: 20px;
-        }
-
-        .login-input-group {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-
-        .login-label-row {
-          display: flex;
-          justify-content: space-between;
           align-items: center;
+          gap: 16px;
+          padding-top: 8px;
         }
 
-        .login-label {
-          font-size: 12px;
-          font-weight: 500;
-          color: #5f6368;
-          padding: 0 2px;
+        #google-signin-button {
+          min-height: 44px;
         }
 
-        .login-link {
-          font-size: 12px;
-          font-weight: 500;
-          color: #1a73e8;
-          text-decoration: none;
-          transition: color 0.2s;
-        }
-        .login-link:hover {
-          color: #1557b0;
-          text-decoration: underline;
+        .login-google-fallback {
+          font-size: 13px;
+          color: #b3261e;
+          text-align: center;
         }
 
-        .login-input-wrapper {
-          position: relative;
-        }
-
-        .login-input {
-          width: 100%;
+        .login-domain-error {
+          display: flex;
+          align-items: flex-start;
+          gap: 8px;
+          font-size: 13px;
+          color: #b3261e;
+          background: #fce8e6;
+          border: 1px solid #f6c6c2;
           border-radius: 12px;
-          border: 1px solid #d1d5db;
-          background: transparent;
           padding: 12px 14px;
-          font-size: 14px;
-          color: #202124;
-          transition: border-color 0.2s, box-shadow 0.2s;
-          outline: none;
-          box-sizing: border-box;
+          text-align: left;
+          line-height: 1.4;
         }
-        .login-input:focus {
-          border-color: #1a73e8;
-          box-shadow: 0 0 0 1.5px #1a73e8;
+        .login-domain-error .material-symbols-outlined {
+          font-size: 18px;
+          flex-shrink: 0;
         }
-        .login-input::placeholder {
-          color: #9ca3af;
+        .login-domain-error.hidden {
+          display: none;
         }
 
-        .login-input-icon {
-          position: absolute;
-          right: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #9ca3af;
-          display: flex;
-          align-items: center;
-          pointer-events: none;
-        }
-
-        .login-input-toggle {
-          position: absolute;
-          right: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #9ca3af;
-          background: none;
-          border: none;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          padding: 4px;
-        }
-        .login-input-toggle:hover {
-          color: #5f6368;
-        }
-
-        .login-remember {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding-top: 2px;
-        }
-
-        .login-checkbox {
-          width: 16px;
-          height: 16px;
-          border-radius: 4px;
-          border: 1px solid #d1d5db;
-          accent-color: #1a73e8;
-          cursor: pointer;
-        }
-
-        .login-remember-label {
+        .login-domain-hint {
           font-size: 12px;
           color: #5f6368;
-          cursor: pointer;
-          user-select: none;
-        }
-
-        .login-actions {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding-top: 16px;
-          flex-direction: row-reverse;
-        }
-
-        .login-btn-submit {
-          background: #1a73e8;
-          color: #ffffff;
-          font-size: 14px;
-          font-weight: 500;
-          padding: 10px 24px;
-          border-radius: 9999px;
-          border: none;
-          cursor: pointer;
-          transition: background 0.15s, box-shadow 0.15s;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-width: 120px;
-        }
-        .login-btn-submit:hover {
-          background: #1557b0;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .login-btn-submit:active {
-          background: #174ea6;
-        }
-        .login-btn-submit:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
+          text-align: center;
+          line-height: 1.6;
         }
 
         .login-footer {
@@ -314,13 +213,6 @@ export class LoginPage {
           .login-card {
             padding: 36px 28px;
           }
-          .login-actions {
-            flex-direction: column;
-            gap: 16px;
-          }
-          .login-btn-submit {
-            width: 100%;
-          }
           .login-footer {
             flex-direction: column;
             gap: 16px;
@@ -349,48 +241,20 @@ export class LoginPage {
                 <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAr3jCUlsUzPBOGY1J8x9c6xyq81SFu7Rb4tOzGz1H_ybkPh1Oqaqq1Cv_pLcYW1kpFXaZ98dVTtZ-7ZC3tMCtvPkHQBympN3fwZssmI4I6qx4Clua0HqOrBlO7ZjKAldMxyjsIOlOfLlD5Vkrd6uj96MAXENOvUS6_bdhlAPkNECUZgVNoP0RmRBuX8CXSlPKR6IYQfD68SMefDsRenbeo68VEAAl39s8GaWST89jFkJg5YfiSSLltgFwgfXoQmt-Ouw" alt="Escudo Universidad de Guadalajara" style="height: 64px; width: auto; object-fit: contain;">
               </div>
               <h1 class="login-card-title">Iniciar sesión</h1>
-              <p class="login-card-subtitle">Ingresa tus credenciales institucionales de CUCEI para acceder a tu cuenta</p>
+              <p class="login-card-subtitle">Entra con tu cuenta institucional de Google para acceder a tu cuenta</p>
             </div>
 
-            <form id="login-form" class="login-form" autocomplete="on">
-              <div class="login-input-group">
-                <label class="login-label" for="codigo_cucei">Código CUCEI</label>
-                <div class="login-input-wrapper">
-                  <input type="text" id="codigo_cucei" name="codigo_cucei" class="login-input" placeholder="Ej. 220000001" required inputmode="numeric" pattern="[0-9]*">
-                  <div class="login-input-icon">
-                    <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
-                    </svg>
-                  </div>
-                </div>
+            <div class="login-google-area">
+              <div id="google-domain-error" class="login-domain-error hidden">
+                <span class="material-symbols-outlined">error</span>
+                <span id="google-domain-error-text"></span>
               </div>
-
-              <div class="login-input-group">
-                <div class="login-label-row">
-                  <label class="login-label" for="password">Contraseña</label>
-                  <a class="login-link" href="#olvide-contrasena">¿Olvidaste tu contraseña?</a>
-                </div>
-                <div class="login-input-wrapper">
-                  <input type="password" id="password" name="password" class="login-input" style="padding-right: 40px;" placeholder="Ingresa tu contraseña" required>
-                  <button type="button" id="togglePassword" class="login-input-toggle" aria-label="Mostrar u ocultar contraseña">
-                    <svg id="eyeIcon" style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
-                      <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              <div class="login-remember">
-                <input type="checkbox" id="rememberMe" name="rememberMe" class="login-checkbox">
-                <label for="rememberMe" class="login-remember-label">Recordar en este equipo</label>
-              </div>
-
-              <div class="login-actions">
-                <button type="submit" id="btn-login" class="login-btn-submit">Siguiente</button>
-                <a class="login-link" href="#crear-cuenta">¿Problemas para ingresar?</a>
-              </div>
-            </form>
+              <div id="google-signin-button"></div>
+              <div id="google-fallback" class="login-google-fallback hidden"></div>
+              <p class="login-domain-hint">
+                Alumnos: cuenta <strong>@alumnos.udg.mx</strong> · Mentores: cuenta <strong>@academicos.udg.mx</strong>
+              </p>
+            </div>
           </div>
         </main>
 
@@ -410,50 +274,68 @@ export class LoginPage {
       </div>
     `;
 
-    const form = document.getElementById('login-form') as HTMLFormElement;
-    form.addEventListener('submit', (e) => this.handleLogin(e));
-
-    const toggleBtn = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('password') as HTMLInputElement;
-    const eyeIcon = document.getElementById('eyeIcon');
-
-    if (toggleBtn && passwordInput && eyeIcon) {
-      toggleBtn.addEventListener('click', () => {
-        const isPassword = passwordInput.type === 'password';
-        passwordInput.type = isPassword ? 'text' : 'password';
-        
-        if (isPassword) {
-          eyeIcon.innerHTML = `
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
-          `;
-        } else {
-          eyeIcon.innerHTML = `
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-          `;
-        }
-      });
-    }
+    this.initGoogleButton();
   }
 
-  private async handleLogin(e: Event) {
-    e.preventDefault();
-    const btn = document.getElementById('btn-login') as HTMLButtonElement;
-    const codigoInput = document.getElementById('codigo_cucei') as HTMLInputElement;
-    const passwordInput = document.getElementById('password') as HTMLInputElement;
-    
+  private initGoogleButton() {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
+    const buttonContainer = document.getElementById('google-signin-button')!;
+    const fallback = document.getElementById('google-fallback')!;
+
+    if (!clientId) {
+      fallback.textContent = 'Falta configurar VITE_GOOGLE_CLIENT_ID en el frontend.';
+      fallback.classList.remove('hidden');
+      return;
+    }
+
+    if (!window.google) {
+      fallback.textContent = 'No se pudo cargar Google. Verifica tu conexión y recarga la página.';
+      fallback.classList.remove('hidden');
+      return;
+    }
+
+    window.google.accounts.id.initialize({
+      client_id: clientId,
+      callback: (response) => this.handleCredential(response.credential),
+    });
+
+    window.google.accounts.id.renderButton(buttonContainer, {
+      type: 'standard',
+      theme: 'outline',
+      size: 'large',
+      text: 'signin_with',
+      shape: 'pill',
+      width: 320,
+    });
+  }
+
+  private async handleCredential(idToken: string) {
+    const fallback = document.getElementById('google-fallback')!;
+    const domainError = document.getElementById('google-domain-error')!;
+    const domainErrorText = document.getElementById('google-domain-error-text')!;
+    fallback.classList.add('hidden');
+    domainError.classList.add('hidden');
+
     try {
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner" style="width: 16px; height: 16px; border-width: 2px;"></span> Iniciando...';
-      
-      const res = await login(codigoInput.value.trim(), passwordInput.value);
+      const res = await loginWithGoogle(idToken);
       localStorage.setItem('siae_token', res.token);
       localStorage.setItem('siae_user', JSON.stringify(res.user));
-      window.location.hash = '#/perfil';
+
+      if (res.needsOnboarding) {
+        window.location.hash = '#/completar-perfil';
+        return;
+      }
+
+      const roleHomes: Record<string, string> = { mentor: '#/mentor', admin: '#/admin' };
+      window.location.hash = roleHomes[res.user.rol] ?? '#/perfil';
     } catch (err: any) {
-      showToast(getErrorMessage(err.code, err.status), { type: 'error' });
-      btn.disabled = false;
-      btn.textContent = 'Siguiente';
+      const message = getErrorMessage(err.code, err.status);
+      if (err.code === 'DOMAIN_NOT_ALLOWED') {
+        domainErrorText.textContent = message;
+        domainError.classList.remove('hidden');
+      } else {
+        showToast(message, { type: 'error' });
+      }
     }
   }
 }

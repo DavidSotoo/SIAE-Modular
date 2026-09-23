@@ -171,11 +171,11 @@ export async function rejectProject(
 export async function getProjectHistory(
   id_proyecto: number,
   id_usuario: number,
-  codigo_cucei: string,
+  codigo_cucei: string | null,
   rol: string
 ) {
   if (rol === 'alumno') {
-    const isMember = await isAlumnoInProject(id_proyecto, codigo_cucei);
+    const isMember = codigo_cucei ? await isAlumnoInProject(id_proyecto, codigo_cucei) : false;
     if (!isMember) {
       throw forbidden('No eres miembro de este proyecto');
     }

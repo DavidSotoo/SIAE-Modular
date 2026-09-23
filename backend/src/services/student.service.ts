@@ -20,9 +20,18 @@ export interface UpdateProfileBody {
   areas?: number[];
 }
 
-/** Devuelve el perfil del alumno autenticado. */
+/**
+ * Devuelve el perfil del alumno autenticado. Un alumno recién creado por
+ * Google login solo tiene fila en `users`, aun no en `student_profiles`
+ * (esa fila antes solo se creaba al guardar el perfil por primera vez) —
+ * aquí se crea con valores por defecto si todavia no existe.
+ */
 export async function getMyProfile(id_usuario: number): Promise<StudentProfileFull> {
-  const profile = await findProfileByUserId(id_usuario);
+  let profile = await findProfileByUserId(id_usuario);
+  if (!profile) {
+    await withTransaction((client) => upsertStudentProfile(client, id_usuario, {}));
+    profile = await findProfileByUserId(id_usuario);
+  }
   if (!profile) throw notFound('Perfil de alumno no encontrado', 'PROFILE_NOT_FOUND');
   return profile;
 }
