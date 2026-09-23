@@ -16,6 +16,16 @@ import { badRequest, conflict, forbidden, unauthorized } from '../utils/errors.j
 const ALUMNO_DOMAIN = 'alumnos.udg.mx';
 const MENTOR_DOMAIN = 'academicos.udg.mx';
 
+// Client ID del proyecto `siae-modular` en Google Cloud. No es secreto (el
+// frontend lo expone en el navegador), así que va en el repo para que nadie
+// tenga que configurarlo. GOOGLE_CLIENT_ID en .env lo sobrescribe si hace falta.
+const DEFAULT_GOOGLE_CLIENT_ID =
+  '997402371394-p2mamuu4v3m14lg0chp1ic7967s0srgh.apps.googleusercontent.com';
+
+function getGoogleClientId(): string {
+  return process.env.GOOGLE_CLIENT_ID || DEFAULT_GOOGLE_CLIENT_ID;
+}
+
 function getAdminEmails(): string[] {
   return (process.env.ADMIN_EMAILS ?? '')
     .split(',')
@@ -52,9 +62,7 @@ function signSessionToken(user: { id: number; codigo_cucei: string | null; rol: 
 let client: OAuth2Client | null = null;
 function getClient(): OAuth2Client {
   if (!client) {
-    const clientId = process.env.GOOGLE_CLIENT_ID;
-    if (!clientId) throw new Error('GOOGLE_CLIENT_ID no configurado');
-    client = new OAuth2Client(clientId);
+    client = new OAuth2Client(getGoogleClientId());
   }
   return client;
 }
@@ -62,8 +70,7 @@ function getClient(): OAuth2Client {
 export async function loginWithGoogle(idToken: string) {
   if (!idToken) throw badRequest('id_token es requerido');
 
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  if (!clientId) throw new Error('GOOGLE_CLIENT_ID no configurado');
+  const clientId = getGoogleClientId();
 
   let payload;
   try {

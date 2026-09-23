@@ -2,6 +2,11 @@ import { loginWithGoogle } from '../services/auth.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
 
+// Client ID del proyecto `siae-modular` en Google Cloud. No es secreto, así que
+// va en el repo; VITE_GOOGLE_CLIENT_ID en .env lo sobrescribe si hace falta.
+const DEFAULT_GOOGLE_CLIENT_ID =
+  '997402371394-p2mamuu4v3m14lg0chp1ic7967s0srgh.apps.googleusercontent.com';
+
 export class LoginPage {
   private container: HTMLElement;
 
@@ -278,15 +283,9 @@ export class LoginPage {
   }
 
   private initGoogleButton() {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
+    const clientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) || DEFAULT_GOOGLE_CLIENT_ID;
     const buttonContainer = document.getElementById('google-signin-button')!;
     const fallback = document.getElementById('google-fallback')!;
-
-    if (!clientId) {
-      fallback.textContent = 'Falta configurar VITE_GOOGLE_CLIENT_ID en el frontend.';
-      fallback.classList.remove('hidden');
-      return;
-    }
 
     if (!window.google) {
       fallback.textContent = 'No se pudo cargar Google. Verifica tu conexión y recarga la página.';
