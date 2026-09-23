@@ -18,16 +18,30 @@ Pasos que solo puede hacer una persona con acceso a una cuenta de Google (no nec
 
 ## 2. Configurarlo en el proyecto
 
-Pega el mismo Client ID en dos lugares (deben coincidir exactamente):
+El Client ID del proyecto `siae-modular` ya viene por defecto en el código
+(`backend/src/services/googleAuth.service.ts` y `frontend/src/pages/LoginPage.ts`),
+así que después de hacer `git pull` no hay que configurarlo. No es un secreto:
+el frontend lo manda al navegador de todos modos.
+
+Lo único que cada quien pone en su `backend/.env` es quién entra como admin:
+
+```bash
+ADMIN_EMAILS=correo1@ejemplo.com,correo2@ejemplo.com
+```
+
+Si algún día cambian de cliente OAuth, pongan el nuevo en los dos lugares
+(deben coincidir exactamente); las variables sobrescriben el valor por defecto:
 
 ```bash
 # backend/.env
-GOOGLE_CLIENT_ID=tu-client-id.apps.googleusercontent.com
-ADMIN_EMAILS=correo1@ejemplo.com,correo2@ejemplo.com   # quienes entran como admin
+GOOGLE_CLIENT_ID=otro-client-id.apps.googleusercontent.com
 
 # frontend/.env
-VITE_GOOGLE_CLIENT_ID=tu-client-id.apps.googleusercontent.com
+VITE_GOOGLE_CLIENT_ID=otro-client-id.apps.googleusercontent.com
 ```
+
+Además, cada integrante tiene que estar en **OAuth consent screen → Test users**
+mientras la app siga en modo Testing (ver la nota al final).
 
 ## 3. Probar
 
