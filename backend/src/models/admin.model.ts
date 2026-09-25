@@ -66,16 +66,18 @@ export async function findAllProjectsForAdmin(
 }
 
 export interface AdminProjectDetail extends AdminProjectRow {
+  descripcion: string | null;
   miembros: { codigo_cucei: string; nombre: string }[];
 }
 
 export async function findProjectDetailForAdmin(
   id_proyecto: number,
 ): Promise<AdminProjectDetail | null> {
-  const res = await pool.query<AdminProjectRow>(
+  const res = await pool.query<AdminProjectRow & { descripcion: string | null }>(
     `SELECT
        p.id_proyecto,
        p.titulo,
+       p.descripcion,
        p.estado_actual,
        f.codigo_folio,
        f.fecha_emision AS fecha_folio,
