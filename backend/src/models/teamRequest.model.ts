@@ -114,8 +114,11 @@ export async function isAlumnoInProject(
 }
 
 /** Cuenta los integrantes actuales del proyecto. */
-export async function countProjectMembers(id_proyecto: number): Promise<number> {
-  const res = await pool.query<{ count: string }>(
+export async function countProjectMembers(
+  id_proyecto: number,
+  db: pg.Pool | pg.PoolClient = pool,
+): Promise<number> {
+  const res = await db.query<{ count: string }>(
     `SELECT COUNT(*) AS count FROM project_members WHERE id_proyecto = $1`,
     [id_proyecto],
   );
@@ -126,8 +129,11 @@ export async function countProjectMembers(id_proyecto: number): Promise<number> 
  * ¿El alumno tiene un proyecto activo?
  * Activo = pertenece a project_members de un proyecto con estado != 'cancelado'.
  */
-export async function hasActiveProject(codigo_alumno: string): Promise<boolean> {
-  const res = await pool.query<{ exists: boolean }>(
+export async function hasActiveProject(
+  codigo_alumno: string,
+  db: pg.Pool | pg.PoolClient = pool,
+): Promise<boolean> {
+  const res = await db.query<{ exists: boolean }>(
     `SELECT EXISTS(
        SELECT 1
        FROM project_members pm
