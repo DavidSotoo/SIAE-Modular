@@ -74,7 +74,8 @@ export class MiProyectoPage {
       if (currentActualState === 'cancelado') {
         cssClass = 'disabled';
         markerContent = '';
-      } else if (index < effectiveStateIndex) {
+      } else if (index < effectiveStateIndex || currentActualState === 'registrado') {
+        // 'registrado' es el estado final: no queda ningún paso en curso
         cssClass = 'completed';
         markerContent = '<span class="material-symbols-outlined">check</span>';
       } else if (index === effectiveStateIndex) {
@@ -103,6 +104,14 @@ export class MiProyectoPage {
         <div class="banner-alert mt-4">
           <span class="material-symbols-outlined">error</span>
           <div>El proyecto requiere correcciones antes de continuar. Revisa el historial de cambios para más detalle.</div>
+        </div>
+      `;
+    } else if (currentActualState === 'registrado') {
+      const folioText = this.project.codigo_folio ? ` con el folio <strong>${this.project.codigo_folio}</strong>` : '';
+      bannerHtml = `
+        <div class="banner-alert banner-alert--success mt-4">
+          <span class="material-symbols-outlined">verified</span>
+          <div>Tu proyecto quedó registrado${folioText}. El protocolo ya no se puede modificar.</div>
         </div>
       `;
     } else if (currentActualState === 'cancelado') {
@@ -191,6 +200,14 @@ export class MiProyectoPage {
     const state = this.project!.estado_actual;
     const canUpload = state === 'borrador' || state === 'correccion';
     const hasDoc = !!this.project!.pdf_path;
+    const PROTOCOL_MSG: Partial<Record<ProjectState, string>> = {
+      pendiente:  'Tu asesor está revisando el protocolo; no se puede reemplazar por ahora.',
+      validado:   'Tu asesor validó el protocolo; falta que administración emita el folio.',
+      registrado: 'El protocolo quedó registrado y ya no se puede reemplazar.',
+    };
+    const protocolMsg = hasDoc
+      ? (PROTOCOL_MSG[state] ?? 'El protocolo no se puede reemplazar en este estado.')
+      : 'Aún no se ha subido un protocolo.';
 
     const viewLink = hasDoc
       ? `<button class="btn btn--ghost btn--sm mt-2" id="btn-view-document"><span class="material-symbols-outlined">description</span> Ver protocolo actual</button>`
@@ -206,7 +223,7 @@ export class MiProyectoPage {
       </div>
     ` : `
       <div class="state-empty" style="padding: 16px 0;">
-        <div class="state-empty__msg">${hasDoc ? 'El protocolo está en revisión, no se puede reemplazar por ahora.' : 'Aún no se ha subido un protocolo.'}</div>
+        <div class="state-empty__msg">${protocolMsg}</div>
       </div>
     `;
 

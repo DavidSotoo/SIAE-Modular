@@ -40,6 +40,6 @@ export async function createStudentProject(
 
 export async function getMyActiveProject(
   codigo_alumno: string,
-): Promise<ProjectWithMembers | null> {
+): Promise<(ProjectWithMembers & { codigo_folio: string | null }) | null> {
   return findActiveProjectByAlumno(codigo_alumno);
 }

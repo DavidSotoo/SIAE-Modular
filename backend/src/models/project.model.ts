@@ -47,11 +47,12 @@ export async function createProject(
 
 export async function findActiveProjectByAlumno(
   codigo_alumno: string,
-): Promise<ProjectWithMembers | null> {
-  const projRes = await pool.query<ProjectRow>(
-    `SELECT p.*
+): Promise<(ProjectWithMembers & { codigo_folio: string | null }) | null> {
+  const projRes = await pool.query<ProjectRow & { codigo_folio: string | null }>(
+    `SELECT p.*, f.codigo_folio
      FROM projects p
      JOIN project_members pm ON pm.id_proyecto = p.id_proyecto
+     LEFT JOIN folios f ON f.id_proyecto = p.id_proyecto
      WHERE pm.codigo_alumno = $1 AND p.estado_actual != 'cancelado'
      LIMIT 1`,
     [codigo_alumno],
