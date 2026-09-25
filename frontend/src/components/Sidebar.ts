@@ -3,20 +3,27 @@
 export interface SidebarLink { href: string; icon: string; label: string; }
 export type Rol = 'alumno' | 'mentor' | 'admin';
 
-const LINKS: SidebarLink[] = [
+const ALUMNO_LINKS: SidebarLink[] = [
   { href: '#/perfil',      icon: 'person',         label: 'Mi Perfil'     },
   { href: '#/equipo',      icon: 'group_search',   label: 'Buscar Equipo' },
   { href: '#/asesores',    icon: 'school',         label: 'Buscar Asesor' },
   { href: '#/proyecto',    icon: 'folder_managed', label: 'Mi Proyecto'   },
 ];
 
-// Rutas exclusivas de alumno (mentor/admin aun no tienen su propio panel en
-// esta rama — solo ven "Mi Perfil" hasta que se integren etapa4/etapa5).
-const ALUMNO_ONLY_HREFS = new Set(['#/equipo', '#/asesores', '#/proyecto']);
+const MENTOR_LINKS: SidebarLink[] = [
+  { href: '#/mentor', icon: 'supervisor_account', label: 'Panel de Asesor' },
+  { href: '#/perfil', icon: 'person',             label: 'Mi Perfil'       },
+];
+
+const ADMIN_LINKS: SidebarLink[] = [
+  { href: '#/admin',  icon: 'admin_panel_settings', label: 'Panel Admin' },
+  { href: '#/perfil', icon: 'person',               label: 'Mi Perfil'   },
+];
 
 function linksForRol(rol?: Rol): SidebarLink[] {
-  if (rol === 'alumno' || !rol) return LINKS;
-  return LINKS.filter(l => !ALUMNO_ONLY_HREFS.has(l.href));
+  if (rol === 'admin') return ADMIN_LINKS;
+  if (rol === 'mentor') return MENTOR_LINKS;
+  return ALUMNO_LINKS;
 }
 
 // ─── Theme management ──────────────────────────────────────────────────────

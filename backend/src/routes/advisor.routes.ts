@@ -4,6 +4,7 @@ import {
   getMyAdvisorAvailability,
   putMyAdvisorAvailability,
   searchAdvisorsHandler,
+  getAdvisorByIdHandler,
 } from '../controllers/advisor.controller.js';
 
 const router = Router();
@@ -30,6 +31,13 @@ router.get(
   authenticate,
   requireRole('alumno'),
   searchAdvisorsHandler,
+);
+
+// GET /api/advisors/:id_mentor — perfil público de un asesor (para mostrar en Mi Proyecto)
+router.get(
+  '/advisors/:id_mentor',
+  authenticate,
+  getAdvisorByIdHandler,
 );
 
 export default router;
