@@ -715,6 +715,13 @@ textarea.form-control { resize: vertical; min-height: 100px; }
 .banner-alert--neutral .material-symbols-outlined {
   color: var(--color-on-surface-variant);
 }
+.banner-alert--success {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+.banner-alert--success .material-symbols-outlined {
+  color: var(--color-success-text);
+}
 
 /* Dropzone */
 .dropzone {
