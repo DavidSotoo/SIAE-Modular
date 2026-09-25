@@ -35,6 +35,7 @@ export class MiProyectoPage {
             <div class="form-group">
               <label class="form-label" for="titulo">Título provisional del proyecto</label>
               <input type="text" id="titulo" name="titulo" class="form-control" placeholder="Ej. Sistema Integral de Administración..." required>
+              <div id="titulo-counter" class="text-label-sm text-muted mt-1">0/20 palabras</div>
               <div id="titulo-error" class="form-error hidden"></div>
             </div>
             <div class="mt-4 flex justify-end">
@@ -46,6 +47,14 @@ export class MiProyectoPage {
 
       const form = document.getElementById('create-project-form') as HTMLFormElement;
       form.addEventListener('submit', (e) => this.handleCreate(e));
+
+      const tituloInput = document.getElementById('titulo') as HTMLInputElement;
+      const counter = document.getElementById('titulo-counter')!;
+      tituloInput.addEventListener('input', () => {
+        const count = this.countWords(tituloInput.value);
+        counter.textContent = `${count}/20 palabras`;
+        counter.classList.toggle('text-error', count > 20);
+      });
       return;
     }
 
@@ -317,6 +326,11 @@ export class MiProyectoPage {
     }
   }
 
+  private countWords(text: string): number {
+    const trimmed = text.trim();
+    return trimmed.length === 0 ? 0 : trimmed.split(/\s+/).length;
+  }
+
   private async handleCreate(e: Event) {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
@@ -334,9 +348,9 @@ export class MiProyectoPage {
       errorDiv.classList.remove('hidden');
       return;
     }
-    if (titulo.length > 200) {
+    if (this.countWords(titulo) > 20) {
       input.classList.add('is-invalid');
-      errorDiv.textContent = 'El título no debe exceder 200 caracteres';
+      errorDiv.textContent = 'El título no debe exceder 20 palabras';
       errorDiv.classList.remove('hidden');
       return;
     }

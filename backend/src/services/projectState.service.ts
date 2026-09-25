@@ -1,9 +1,33 @@
 import pool from '../config/db.js';
-import { updateProjectStateAndPdf, findProjectMentorId } from '../models/project.model.js';
+import {
+  updateProjectStateAndPdf,
+  findProjectMentorId,
+  findProjectPdfPath,
+  isProjectPdfVisualizado,
+  markPdfVisualizado,
+} from '../models/project.model.js';
 import { insertStateLog, getProjectHistory as getHistoryDb } from '../models/stateLog.model.js';
 import { isAlumnoInProject } from '../models/teamRequest.model.js';
 import { getNextFolioSequence, insertFolio } from '../models/folio.model.js';
-import { conflict, forbidden, badRequest } from '../utils/errors.js';
+import { conflict, forbidden, badRequest, notFound } from '../utils/errors.js';
+
+async function assertProjectAccess(
+  id_proyecto: number,
+  id_usuario: number,
+  codigo_cucei: string | null,
+  rol: string
+): Promise<void> {
+  if (rol === 'alumno') {
+    // Un alumno recién registrado con Google aún no tiene código CUCEI
+    const isMember = codigo_cucei ? await isAlumnoInProject(id_proyecto, codigo_cucei) : false;
+    if (!isMember) throw forbidden('No eres miembro de este proyecto');
+  } else if (rol === 'mentor') {
+    const mentorId = await findProjectMentorId(id_proyecto);
+    if (mentorId !== id_usuario) throw forbidden('No eres el mentor de este proyecto');
+  } else if (rol !== 'admin') {
+    throw forbidden('Rol no autorizado');
+  }
+}
 
 export function generateFolioCode(sequence: number): string {
   const seqStr = sequence.toString().padStart(3, '0');
@@ -31,7 +55,19 @@ export async function submitProtocol(
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    
+
+    // Bloquea la fila y obtiene el estado real vigente, para que el log de
+    // auditoría (IMF-05) registre la transición exacta en vez de un null fijo
+    // (importa distinguir Borrador->Pendiente de Corrección->Pendiente).
+    const lockRes = await client.query<{ estado_actual: string }>(
+      `SELECT estado_actual FROM projects WHERE id_proyecto = $1 FOR UPDATE`,
+      [id_proyecto],
+    );
+    if (lockRes.rows.length === 0) {
+      throw notFound('Proyecto no encontrado');
+    }
+    const estadoAnterior = lockRes.rows[0].estado_actual;
+
     // El proyecto debe estar en 'borrador' o 'correccion'
     const updated = await updateProjectStateAndPdf(
       id_proyecto,
@@ -40,20 +76,14 @@ export async function submitProtocol(
       pdf_path,
       client
     );
-    
+
     if (!updated) {
       throw conflict('El proyecto ya no está en el estado esperado, actualiza la página');
     }
-    
-    // Nota: El log no requiere saber exactamente el estado anterior en este helper,
-    // o podemos insertarlo con NULL o con una consulta extra. Para simplicidad,
-    // como solo queremos registrar la acción, ponemos estado_nuevo = 'pendiente'.
-    // Idealmente el estado_anterior se recuperaría con SELECT FOR UPDATE.
-    // Asumiremos que el frontend/history mostrará la transición lógicamente, o recuperamos:
-    
+
     await insertStateLog(
       id_proyecto,
-      null, // Simplificación: se omite el estado_anterior en el log o requiere fetch previo
+      estadoAnterior,
       'pendiente',
       id_usuario,
       'Protocolo subido',
@@ -69,47 +99,102 @@ export async function submitProtocol(
   }
 }
 
-export async function approveProject(
+/**
+ * Transición 2 del motor de estados (Sprint 2 de Diseño, sección 5.1):
+ * Pendiente → Validado. La ejecuta el mentor asignado; NO genera folio
+ * ni pasa a Registrado — esa es una transición aparte (ver registerProject),
+ * ejecutada por el administrador.
+ */
+export async function validateProject(
   id_proyecto: number,
   id_mentor_solicitante: number
-): Promise<{ codigo_folio: string }> {
+): Promise<void> {
   const mentorId = await findProjectMentorId(id_proyecto);
   if (mentorId !== id_mentor_solicitante) {
     throw forbidden('No eres el mentor asignado a este proyecto');
   }
 
+  // IMF-03 (Sprint 2/4 de Diseño): no se puede aprobar sin haber visualizado el PDF.
+  const visualizado = await isProjectPdfVisualizado(id_proyecto);
+  if (!visualizado) {
+    throw conflict('Debes abrir y revisar el protocolo antes de aprobarlo', 'PDF_NOT_VIEWED');
+  }
+
   const client = await pool.connect();
-  let generatedFolio = '';
-  
   try {
     await client.query('BEGIN');
-    
+
     const updated = await updateProjectStateAndPdf(
       id_proyecto,
       ['pendiente'],
-      'registrado',
-      undefined, // No actualiza el PDF
+      'validado',
+      undefined,
       client
     );
-    
+
     if (!updated) {
       throw conflict('El proyecto ya no está en el estado esperado, actualiza la página');
     }
-    
-    const seq = await getNextFolioSequence(client);
-    generatedFolio = generateFolioCode(seq);
-    
-    await insertFolio(generatedFolio, id_proyecto, client);
-    
+
     await insertStateLog(
       id_proyecto,
       'pendiente',
-      'registrado',
+      'validado',
       id_mentor_solicitante,
+      'Protocolo aprobado por el mentor',
+      client
+    );
+
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * Transición 5 del motor de estados (Sprint 2 de Diseño, sección 5.1):
+ * Validado → Registrado. La ejecuta el administrador/coordinación —no el
+ * mentor— y es el único punto donde se emite el folio oficial.
+ */
+export async function registerProject(
+  id_proyecto: number,
+  id_admin: number
+): Promise<{ codigo_folio: string }> {
+  const client = await pool.connect();
+  let generatedFolio = '';
+
+  try {
+    await client.query('BEGIN');
+
+    const updated = await updateProjectStateAndPdf(
+      id_proyecto,
+      ['validado'],
+      'registrado',
+      undefined,
+      client
+    );
+
+    if (!updated) {
+      throw conflict('El proyecto debe estar validado por el mentor antes de registrarse', 'NOT_VALIDATED');
+    }
+
+    const seq = await getNextFolioSequence(client);
+    generatedFolio = generateFolioCode(seq);
+
+    await insertFolio(generatedFolio, id_proyecto, client);
+
+    await insertStateLog(
+      id_proyecto,
+      'validado',
+      'registrado',
+      id_admin,
       `Proyecto registrado. Folio: ${generatedFolio}`,
       client
     );
-    
+
     await client.query('COMMIT');
     return { codigo_folio: generatedFolio };
   } catch (err) {
@@ -174,19 +259,31 @@ export async function getProjectHistory(
   codigo_cucei: string | null,
   rol: string
 ) {
-  if (rol === 'alumno') {
-    const isMember = codigo_cucei ? await isAlumnoInProject(id_proyecto, codigo_cucei) : false;
-    if (!isMember) {
-      throw forbidden('No eres miembro de este proyecto');
-    }
-  } else if (rol === 'mentor') {
-    const mentorId = await findProjectMentorId(id_proyecto);
-    if (mentorId !== id_usuario) {
-      throw forbidden('No eres el mentor de este proyecto');
-    }
-  } else if (rol !== 'admin') {
-    throw forbidden('Rol no autorizado');
+  await assertProjectAccess(id_proyecto, id_usuario, codigo_cucei, rol);
+  return await getHistoryDb(id_proyecto);
+}
+
+/**
+ * Devuelve la ruta del PDF vigente para descarga/visualización. Cuando quien
+ * abre el archivo es el mentor asignado, marca pdf_visualizado = true —esta
+ * es la señal que exige el IMF-03 antes de permitir validateProject().
+ */
+export async function getProtocolFilePath(
+  id_proyecto: number,
+  id_usuario: number,
+  codigo_cucei: string | null,
+  rol: string
+): Promise<string> {
+  await assertProjectAccess(id_proyecto, id_usuario, codigo_cucei, rol);
+
+  const pdf_path = await findProjectPdfPath(id_proyecto);
+  if (!pdf_path) {
+    throw notFound('Este proyecto aún no tiene un protocolo subido');
   }
 
-  return await getHistoryDb(id_proyecto);
+  if (rol === 'mentor') {
+    await markPdfVisualizado(id_proyecto);
+  }
+
+  return pdf_path;
 }
