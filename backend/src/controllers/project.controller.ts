@@ -5,9 +5,9 @@ import { findProjectsByMentor } from '../models/project.model.js';
 export async function createProjectHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const user = req.user as any;
-    const { titulo } = req.body;
+    const { titulo, descripcion } = req.body;
     
-    const project = await createStudentProject(user.id, user.codigo_cucei, titulo);
+    const project = await createStudentProject(user.id, user.codigo_cucei, titulo, descripcion);
     res.status(201).json(project);
   } catch (error) {
     next(error);

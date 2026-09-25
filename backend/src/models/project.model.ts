@@ -7,6 +7,7 @@ import { notFound } from '../utils/errors.js';
 export interface ProjectRow {
   id_proyecto: number;
   titulo: string;
+  descripcion: string | null;
   id_mentor: number | null;
   estado_actual: string;
   pdf_path: string | null;
@@ -35,12 +36,13 @@ export async function findProjectMentorId(
 export async function createProject(
   client: pg.PoolClient,
   titulo: string,
+  descripcion: string,
 ): Promise<ProjectRow> {
   const res = await client.query<ProjectRow>(
-    `INSERT INTO projects (titulo, estado_actual, id_mentor)
-     VALUES ($1, 'borrador', NULL)
+    `INSERT INTO projects (titulo, descripcion, estado_actual, id_mentor)
+     VALUES ($1, $2, 'borrador', NULL)
      RETURNING *`,
-    [titulo],
+    [titulo, descripcion],
   );
   return res.rows[0];
 }

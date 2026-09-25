@@ -4,6 +4,7 @@ import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
 import type { AdvisorRequest, Project } from '../types/index.js';
+import { escapeHtml } from '../utils/escapeHtml.js';
 
 export class MentorDashboardPage {
   private container: HTMLElement;
@@ -70,7 +71,7 @@ export class MentorDashboardPage {
     return `
       <div class="request-card">
         <div class="request-card__header">
-          <div class="request-card__from">${r.titulo_proyecto ?? 'Proyecto #' + r.id_proyecto}</div>
+          <div class="request-card__from">${r.titulo_proyecto ? escapeHtml(r.titulo_proyecto) : 'Proyecto #' + r.id_proyecto}</div>
           <div class="badge badge--pendiente">PENDIENTE</div>
         </div>
         ${r.mensaje ? `<div class="request-card__msg">"${r.mensaje}"</div>` : ''}
@@ -134,7 +135,7 @@ export class MentorDashboardPage {
               ${this.projects.map(p => `
                 <tr data-id="${p.id_proyecto}">
                   <td>${p.codigo_folio ?? '<span class="text-muted">—</span>'}</td>
-                  <td>${p.titulo}</td>
+                  <td>${escapeHtml(p.titulo)}</td>
                   <td><span class="badge badge--${p.estado_actual}">${p.estado_actual}</span></td>
                   <td>${p.miembros.map(m => m.nombre).join(', ')}</td>
                 </tr>
@@ -162,7 +163,7 @@ export class MentorDashboardPage {
 
     const modal = new Modal({
       id: 'mentor-project-modal',
-      title: project.titulo,
+      title: escapeHtml(project.titulo),
       contentHtml: '<div class="state-loading"><span class="spinner"></span></div>',
       confirmLabel: 'Cerrar',
       confirmClass: 'btn--ghost',
@@ -190,6 +191,10 @@ export class MentorDashboardPage {
       <div class="mb-4" style="display:flex; gap: var(--sp-6); align-items:center;">
         <span class="badge badge--${project.estado_actual}">${project.estado_actual}</span>
         ${project.codigo_folio ? `<span class="badge badge--folio">Folio: ${project.codigo_folio}</span>` : ''}
+      </div>
+      <div class="mb-4">
+        <div class="text-label-sm text-muted mb-2">DESCRIPCIÓN</div>
+        <p style="white-space: pre-line; margin: 0;">${project.descripcion ? escapeHtml(project.descripcion) : '<span class="text-muted">Sin descripción</span>'}</p>
       </div>
       <div class="mb-4">
         <div class="text-label-sm text-muted mb-2">EQUIPO</div>
@@ -272,7 +277,7 @@ export class MentorDashboardPage {
     let comentarioInput: HTMLTextAreaElement;
     const modal = new Modal({
       id: 'mentor-reject-modal',
-      title: 'Rechazar protocolo — ' + project.titulo,
+      title: 'Rechazar protocolo — ' + escapeHtml(project.titulo),
       contentHtml: `
         <div class="form-group">
           <label class="form-label" for="reject-comentario">Comentario de corrección (obligatorio)</label>

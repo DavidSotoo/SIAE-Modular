@@ -4,8 +4,8 @@ import type { Project, ProjectStateLog } from '../types/index.js';
 export const getMyProject = (): Promise<Project | null> =>
   api.get('/students/me/project');
 
-export const createProject = (titulo: string): Promise<Project> =>
-  api.post('/projects', { titulo });
+export const createProject = (titulo: string, descripcion: string): Promise<Project> =>
+  api.post('/projects', { titulo, descripcion });
 
 export const getProjectHistory = (id_proyecto: number): Promise<ProjectStateLog[]> =>
   api.get('/projects/' + id_proyecto + '/history');

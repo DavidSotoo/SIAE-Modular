@@ -8,6 +8,7 @@ export async function createStudentProject(
   id_usuario: number,
   codigo_alumno: string,
   titulo: string,
+  descripcion: string,
 ): Promise<ProjectWithMembers> {
   if (!titulo || titulo.trim().length === 0) {
     throw badRequest('El título del proyecto es requerido.');
@@ -17,6 +18,13 @@ export async function createStudentProject(
   if (wordCount > 20) {
     throw badRequest('El título del proyecto no debe exceder 20 palabras.');
   }
+  // SM-40: descripción obligatoria, no más de 100 palabras.
+  if (typeof descripcion !== 'string' || descripcion.trim().length === 0) {
+    throw badRequest('La descripción del proyecto es requerida.');
+  }
+  if (descripcion.trim().split(/\s+/).length > 100) {
+    throw badRequest('La descripción del proyecto no debe exceder 100 palabras.');
+  }
 
   const alreadyHas = await hasActiveProject(codigo_alumno);
   if (alreadyHas) {
@@ -25,7 +33,7 @@ export async function createStudentProject(
 
   await withTransaction(async (client) => {
     // 1. Create project
-    const proj = await createProject(client, titulo.trim());
+    const proj = await createProject(client, titulo.trim(), descripcion.trim());
     
     // 2. Add creator to project_members
     await insertProjectMember(client, proj.id_proyecto, codigo_alumno);
