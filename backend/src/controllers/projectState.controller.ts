@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import path from 'path';
+import fs from 'fs/promises';
 import { submitProtocol, validateProject, registerProject, rejectProject, getProjectHistory, getProtocolFilePath } from '../services/projectState.service.js';
 import { badRequest } from '../utils/errors.js';
 
@@ -17,6 +18,11 @@ export const uploadProtocolHandler = async (req: Request, res: Response, next: N
     await submitProtocol(id_proyecto, id, codigo_cucei!, pdf_path);
     res.json({ message: 'Protocolo subido exitosamente' });
   } catch (err) {
+    // multer ya guardó el archivo antes de validar permisos y estado; si la
+    // subida se rechaza, se borra para no dejar PDFs huérfanos en uploads/ (SM-62)
+    if (req.file) {
+      await fs.unlink(req.file.path).catch(() => {});
+    }
     next(err);
   }
 };
