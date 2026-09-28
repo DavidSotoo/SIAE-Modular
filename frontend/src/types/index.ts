@@ -74,6 +74,7 @@ export type ProjectState = 'borrador' | 'pendiente' | 'validado' | 'registrado' 
 export interface Project {
   id_proyecto: number;
   titulo: string;
+  descripcion?: string | null;
   estado_actual: ProjectState;
   codigo_folio?: string | null;
   pdf_path?: string | null;
@@ -198,6 +199,7 @@ export interface AdminProjectRow {
 }
 
 export interface AdminProjectDetail extends AdminProjectRow {
+  descripcion: string | null;
   miembros: ProjectMember[];
   historial: ProjectStateLog[];
 }
