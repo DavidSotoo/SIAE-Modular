@@ -1,4 +1,5 @@
 import { getMyProject, createProject, getProjectHistory, uploadProtocol, downloadProtocol } from '../services/project.service.js';
+import { escapeHtml } from '../utils/escapeHtml.js';
 import { getAdvisorById } from '../services/advisor.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
@@ -118,9 +119,9 @@ export class MiProyectoPage {
     this.project.miembros.forEach(m => {
       membersHtml += `
         <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--color-outline-variant);">
-          <div class="profile-card__avatar" style="width: 32px; height: 32px; font-size: 14px; margin-right: 12px;">${m.nombre.charAt(0)}</div>
+          <div class="profile-card__avatar" style="width: 32px; height: 32px; font-size: 14px; margin-right: 12px;">${escapeHtml(m.nombre.charAt(0))}</div>
           <div>
-            <div style="font-weight: 500;">${m.nombre}</div>
+            <div style="font-weight: 500;">${escapeHtml(m.nombre)}${m.es_lider ? ' <span class="badge badge--lider">Líder</span>' : ''}</div>
             <div style="font-size: 0.85rem; color: var(--color-on-surface-variant);">${m.codigo_cucei}</div>
           </div>
         </div>

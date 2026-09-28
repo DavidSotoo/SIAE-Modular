@@ -15,8 +15,14 @@ export interface ProjectRow {
   updated_at: string;
 }
 
+export interface ProjectMember {
+  codigo_cucei: string;
+  nombre: string;
+  es_lider: boolean;
+}
+
 export interface ProjectWithMembers extends ProjectRow {
-  miembros: { codigo_cucei: string; nombre: string }[];
+  miembros: ProjectMember[];
 }
 
 // ─── Queries ───────────────────────────────────────────────────────────────
@@ -60,11 +66,12 @@ export async function findActiveProjectByAlumno(
   if (projRes.rows.length === 0) return null;
   const project = projRes.rows[0];
 
-  const memRes = await pool.query<{ codigo_cucei: string; nombre: string }>(
-    `SELECT u.codigo_cucei, u.nombre
+  const memRes = await pool.query<ProjectMember>(
+    `SELECT u.codigo_cucei, u.nombre, pm.es_lider
      FROM users u
      JOIN project_members pm ON pm.codigo_alumno = u.codigo_cucei
-     WHERE pm.id_proyecto = $1`,
+     WHERE pm.id_proyecto = $1
+     ORDER BY pm.es_lider DESC, u.nombre`,
     [project.id_proyecto],
   );
 
@@ -85,18 +92,19 @@ export async function findProjectsByMentor(
   if (projRes.rows.length === 0) return [];
 
   const ids = projRes.rows.map((r) => r.id_proyecto);
-  const memRes = await pool.query<{ id_proyecto: number; codigo_cucei: string; nombre: string }>(
-    `SELECT pm.id_proyecto, u.codigo_cucei, u.nombre
+  const memRes = await pool.query<ProjectMember & { id_proyecto: number }>(
+    `SELECT pm.id_proyecto, u.codigo_cucei, u.nombre, pm.es_lider
      FROM users u
      JOIN project_members pm ON pm.codigo_alumno = u.codigo_cucei
-     WHERE pm.id_proyecto = ANY($1)`,
+     WHERE pm.id_proyecto = ANY($1)
+     ORDER BY pm.es_lider DESC, u.nombre`,
     [ids],
   );
 
-  const membersByProject = new Map<number, { codigo_cucei: string; nombre: string }[]>();
+  const membersByProject = new Map<number, ProjectMember[]>();
   memRes.rows.forEach((r) => {
     if (!membersByProject.has(r.id_proyecto)) membersByProject.set(r.id_proyecto, []);
-    membersByProject.get(r.id_proyecto)!.push({ codigo_cucei: r.codigo_cucei, nombre: r.nombre });
+    membersByProject.get(r.id_proyecto)!.push({ codigo_cucei: r.codigo_cucei, nombre: r.nombre, es_lider: r.es_lider });
   });
 
   return projRes.rows.map((p) => ({ ...p, miembros: membersByProject.get(p.id_proyecto) ?? [] }));

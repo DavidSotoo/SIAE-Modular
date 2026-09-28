@@ -80,10 +80,13 @@ export interface Project {
   pdf_visualizado?: boolean;
   id_mentor: number | null;
   created_at: string;
-  miembros: Array<{
-    codigo_cucei: string;
-    nombre: string;
-  }>;
+  miembros: ProjectMember[];
+}
+
+export interface ProjectMember {
+  codigo_cucei: string;
+  nombre: string;
+  es_lider: boolean;
 }
 
 export interface ProjectStateLog {
@@ -195,7 +198,7 @@ export interface AdminProjectRow {
 }
 
 export interface AdminProjectDetail extends AdminProjectRow {
-  miembros: Array<{ codigo_cucei: string; nombre: string }>;
+  miembros: ProjectMember[];
   historial: ProjectStateLog[];
 }
 

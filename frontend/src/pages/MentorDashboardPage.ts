@@ -4,6 +4,7 @@ import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
 import type { AdvisorRequest, Project } from '../types/index.js';
+import { escapeHtml } from '../utils/escapeHtml.js';
 
 export class MentorDashboardPage {
   private container: HTMLElement;
@@ -136,7 +137,7 @@ export class MentorDashboardPage {
                   <td>${p.codigo_folio ?? '<span class="text-muted">—</span>'}</td>
                   <td>${p.titulo}</td>
                   <td><span class="badge badge--${p.estado_actual}">${p.estado_actual}</span></td>
-                  <td>${p.miembros.map(m => m.nombre).join(', ')}</td>
+                  <td>${p.miembros.map(m => escapeHtml(m.nombre) + (m.es_lider ? ' (líder)' : '')).join(', ')}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -193,7 +194,7 @@ export class MentorDashboardPage {
       </div>
       <div class="mb-4">
         <div class="text-label-sm text-muted mb-2">EQUIPO</div>
-        ${project.miembros.map(m => `<div class="text-label">${m.nombre} <span class="text-muted">(${m.codigo_cucei})</span></div>`).join('')}
+        ${project.miembros.map(m => `<div class="text-label">${escapeHtml(m.nombre)} <span class="text-muted">(${m.codigo_cucei})</span>${m.es_lider ? ' <span class="badge badge--lider">Líder</span>' : ''}</div>`).join('')}
       </div>
       <hr class="divider">
       <div class="mb-4">
