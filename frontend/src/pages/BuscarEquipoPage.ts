@@ -1,4 +1,5 @@
 ﻿import { searchStudents, getMyTeamRequests, getProjectTeamRequests, getSkills, getAreas, getMyProfile, createTeamRequest, acceptTeamRequest, rejectTeamRequest, cancelTeamRequest } from '../services/student.service.js';
+import { MAX_INTEGRANTES } from '../constants.js';
 import { getMyProject } from '../services/project.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
@@ -136,7 +137,7 @@ export class BuscarEquipoPage {
         return;
       }
 
-      const teamIsFull = this.myProject && this.myProject.miembros.length >= 3;
+      const teamIsFull = this.myProject && this.myProject.miembros.length >= MAX_INTEGRANTES;
 
       let html = '<div class="cards-grid">';
       students.forEach(student => {

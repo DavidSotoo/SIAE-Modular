@@ -1,6 +1,7 @@
 ﻿// ─── Error Messages ──────────────────────────────────────────────────────────
 // Mapeo centralizado de códigos de error del backend a mensajes amigables en español.
 // Diseñado para ser extensible: agregar nuevos códigos aquí afecta todos los componentes.
+import { MAX_INTEGRANTES } from '../constants.js';
 
 /** Código de error devuelto por el backend en { error, code } */
 type ApiErrorCode = string;
@@ -8,7 +9,7 @@ type ApiErrorCode = string;
 const ERROR_MESSAGES: Record<string, string> = {
   // Team Requests
   ALREADY_MEMBER:        'Este alumno ya es integrante del proyecto.',
-  PROJECT_FULL:          'El proyecto ya alcanzó el máximo de 3 integrantes.',
+  PROJECT_FULL:          `El proyecto ya alcanzó el máximo de ${MAX_INTEGRANTES} integrantes.`,
   ALUMNO_HAS_PROJECT:    'El alumno ya tiene un proyecto activo y no puede unirse a otro.',
   DUPLICATE_REQUEST:     'Ya existe una solicitud pendiente para este alumno en este proyecto.',
   NOT_PROJECT_MEMBER:    'Debes ser integrante del proyecto para realizar esta acción.',

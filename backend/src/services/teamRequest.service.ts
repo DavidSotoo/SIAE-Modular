@@ -18,7 +18,8 @@ import {
 import { updateEstadoBusqueda } from '../models/student.model.js';
 import { badRequest, notFound, conflict, forbidden } from '../utils/errors.js';
 
-const MAX_MEMBERS = 3;
+// SM-40: equipo de hasta 5 integrantes (incluyendo a quien crea el proyecto)
+export const MAX_MEMBERS = 5;
 
 export interface CreateTeamRequestBody {
   /**
@@ -95,10 +96,10 @@ export async function createTeamRequestService(
     throw conflict('El alumno ya es integrante del proyecto', 'ALREADY_MEMBER');
   }
 
-  // Proyecto no debe tener ya 3 integrantes
+  // Proyecto no debe estar lleno
   const memberCount = await countProjectMembers(id_proyecto);
   if (memberCount >= MAX_MEMBERS) {
-    throw conflict('El proyecto ya tiene el máximo de integrantes (3)', 'PROJECT_FULL');
+    throw conflict(`El proyecto ya tiene el máximo de integrantes (${MAX_MEMBERS})`, 'PROJECT_FULL');
   }
 
   // El candidato no debe tener otro proyecto activo
@@ -198,6 +199,20 @@ export async function acceptTeamRequest(
   if (!nuevoUserId) throw notFound('Usuario no encontrado');
 
   await withTransaction(async (client) => {
+    // Las validaciones de la creación pudieron cambiar desde entonces (otro
+    // alumno ocupó el último lugar, o este alumno ya se unió a otro proyecto).
+    // Se bloquean el proyecto y el alumno para serializar aceptaciones
+    // simultáneas y se vuelve a validar con los datos actuales.
+    await client.query('SELECT 1 FROM projects WHERE id_proyecto = $1 FOR UPDATE', [solicitud.id_proyecto]);
+    await client.query('SELECT 1 FROM users WHERE codigo_cucei = $1 FOR UPDATE', [nuevoCodigo]);
+
+    if (await countProjectMembers(solicitud.id_proyecto, client) >= MAX_MEMBERS) {
+      throw conflict(`El proyecto ya tiene el máximo de integrantes (${MAX_MEMBERS})`, 'PROJECT_FULL');
+    }
+    if (await hasActiveProject(nuevoCodigo, client)) {
+      throw conflict('El alumno ya tiene un proyecto activo', 'ALUMNO_HAS_PROJECT');
+    }
+
     // 1. Insertar el nuevo miembro correcto
     await insertProjectMember(client, solicitud.id_proyecto, nuevoCodigo);
 
@@ -207,7 +222,7 @@ export async function acceptTeamRequest(
     // 3. Actualizar estado_busqueda del alumno que se une
     await updateEstadoBusqueda(client, nuevoUserId, 'en_equipo');
 
-    // 4. Si el proyecto ahora tiene 3 integrantes, cancelar otras pendientes
+    // 4. Si el proyecto quedó lleno, cancelar las demás pendientes
     const newCount = await client.query<{ count: string }>(
       'SELECT COUNT(*) AS count FROM project_members WHERE id_proyecto = $1',
       [solicitud.id_proyecto],
