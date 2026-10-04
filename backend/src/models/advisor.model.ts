@@ -182,19 +182,27 @@ export async function advisorHasCupo(
   db: pg.Pool | pg.PoolClient = pool,
   forUpdate = false,
 ): Promise<boolean> {
-  const lockClause = forUpdate ? 'FOR UPDATE OF ap' : '';
-  const res = await db.query<{ disponible: boolean; cupo_maximo: number; activos: string }>(
-    `SELECT ap.disponible, ap.cupo_maximo,
-            COUNT(p.id_proyecto) FILTER (WHERE p.estado_actual != 'cancelado') AS activos
-     FROM advisor_profiles ap
-     LEFT JOIN projects p ON p.id_mentor = ap.id_usuario
-     WHERE ap.id_usuario = $1
-     GROUP BY ap.id_usuario, ap.disponible, ap.cupo_maximo
+  // PostgreSQL no permite FOR UPDATE junto con GROUP BY/COUNT, así que primero
+  // se lee (y bloquea, si aplica) la fila del asesor y después se cuentan sus
+  // proyectos activos en una consulta aparte.
+  const lockClause = forUpdate ? 'FOR UPDATE' : '';
+  const profile = await db.query<{ disponible: boolean; cupo_maximo: number }>(
+    `SELECT disponible, cupo_maximo
+     FROM advisor_profiles
+     WHERE id_usuario = $1
      ${lockClause}`,
     [id_mentor],
   );
 
-  if (res.rows.length === 0) return false;
-  const { disponible, cupo_maximo, activos } = res.rows[0];
-  return disponible && parseInt(activos, 10) < cupo_maximo;
+  if (profile.rows.length === 0) return false;
+  const { disponible, cupo_maximo } = profile.rows[0];
+  if (!disponible) return false;
+
+  const count = await db.query<{ activos: string }>(
+    `SELECT COUNT(*) AS activos
+     FROM projects
+     WHERE id_mentor = $1 AND estado_actual != 'cancelado'`,
+    [id_mentor],
+  );
+  return parseInt(count.rows[0].activos, 10) < cupo_maximo;
 }
