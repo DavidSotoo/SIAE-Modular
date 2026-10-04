@@ -172,7 +172,7 @@ export class AdminDashboardPage {
       const detail = await getAdminProjectDetail(id_proyecto);
 
       const membersHtml = detail.miembros.map(m =>
-        `<div class="text-label">${m.nombre} <span class="text-muted">(${m.codigo_cucei})</span></div>`
+        `<div class="text-label">${escapeHtml(m.nombre)} <span class="text-muted">(${m.codigo_cucei})</span>${m.es_lider ? ' <span class="badge badge--lider">Líder</span>' : ''}</div>`
       ).join('');
 
       const historyHtml = detail.historial.length === 0

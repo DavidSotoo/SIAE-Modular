@@ -67,7 +67,7 @@ export async function findAllProjectsForAdmin(
 
 export interface AdminProjectDetail extends AdminProjectRow {
   descripcion: string | null;
-  miembros: { codigo_cucei: string; nombre: string }[];
+  miembros: { codigo_cucei: string; nombre: string; es_lider: boolean }[];
 }
 
 export async function findProjectDetailForAdmin(
@@ -96,11 +96,12 @@ export async function findProjectDetailForAdmin(
   );
   if (res.rows.length === 0) return null;
 
-  const memRes = await pool.query<{ codigo_cucei: string; nombre: string }>(
-    `SELECT u.codigo_cucei, u.nombre
+  const memRes = await pool.query<{ codigo_cucei: string; nombre: string; es_lider: boolean }>(
+    `SELECT u.codigo_cucei, u.nombre, pm.es_lider
      FROM users u
      JOIN project_members pm ON pm.codigo_alumno = u.codigo_cucei
-     WHERE pm.id_proyecto = $1`,
+     WHERE pm.id_proyecto = $1
+     ORDER BY pm.es_lider DESC, u.nombre`,
     [id_proyecto],
   );
 
