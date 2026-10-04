@@ -74,15 +74,20 @@ export type ProjectState = 'borrador' | 'pendiente' | 'validado' | 'registrado' 
 export interface Project {
   id_proyecto: number;
   titulo: string;
+  descripcion?: string | null;
   estado_actual: ProjectState;
   codigo_folio?: string | null;
   pdf_path?: string | null;
+  pdf_visualizado?: boolean;
   id_mentor: number | null;
   created_at: string;
-  miembros: Array<{
-    codigo_cucei: string;
-    nombre: string;
-  }>;
+  miembros: ProjectMember[];
+}
+
+export interface ProjectMember {
+  codigo_cucei: string;
+  nombre: string;
+  es_lider: boolean;
 }
 
 export interface ProjectStateLog {
@@ -168,12 +173,46 @@ export interface AdvisorRequest {
   estado: AdvisorRequestEstado;
   created_at: string;
   updated_at: string;
+  /** Solo presente en GET /mentors/me/advisor-requests */
+  titulo_proyecto?: string;
 }
 
 /** Body para POST /api/projects/:id_proyecto/advisor-requests */
 export interface AdvisorRequestCreate {
   id_mentor: number;
   mensaje?: string | null;
+}
+
+// ─── Admin ───────────────────────────────────────────────────────────────────
+
+export interface AdminProjectRow {
+  id_proyecto: number;
+  titulo: string;
+  estado_actual: ProjectState;
+  codigo_folio: string | null;
+  fecha_folio: string | null;
+  id_mentor: number | null;
+  mentor_nombre: string | null;
+  num_integrantes: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminProjectDetail extends AdminProjectRow {
+  descripcion: string | null;
+  miembros: ProjectMember[];
+  historial: ProjectStateLog[];
+}
+
+export interface AdminProjectFilters {
+  estado?: ProjectState;
+  search?: string;
+}
+
+export interface AdminStats {
+  total_proyectos: number;
+  por_estado: Record<string, number>;
+  total_folios: number;
 }
 
 // ─── Respuesta de error ──────────────────────────────────────────────────────

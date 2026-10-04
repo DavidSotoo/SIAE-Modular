@@ -4,7 +4,8 @@ import {
   updateMyAvailability,
   searchAdvisorsService,
 } from '../services/advisor.service.js';
-import { badRequest } from '../utils/errors.js';
+import { findAdvisorProfileByUserId } from '../models/advisor.model.js';
+import { badRequest, notFound } from '../utils/errors.js';
 
 export async function getMyAdvisorAvailability(
   req: Request,
@@ -27,6 +28,24 @@ export async function putMyAdvisorAvailability(
   try {
     const updated = await updateMyAvailability(req.user!.id, req.body);
     res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getAdvisorByIdHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const id_mentor = parseInt(req.params.id_mentor, 10);
+    if (isNaN(id_mentor)) throw badRequest('id_mentor debe ser un número');
+
+    const advisor = await findAdvisorProfileByUserId(id_mentor);
+    if (!advisor) throw notFound('Asesor no encontrado');
+
+    res.json(advisor);
   } catch (err) {
     next(err);
   }

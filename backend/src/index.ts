@@ -10,6 +10,7 @@ import advisorRoutes      from './routes/advisor.routes.js';
 import advisorRequestRoutes from './routes/advisorRequest.routes.js';
 import projectRoutes      from './routes/project.routes.js';
 import authRoutes         from './routes/auth.routes.js';
+import adminRoutes        from './routes/admin.routes.js';
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use('/api', teamRequestRoutes);
 app.use('/api', advisorRoutes);
 app.use('/api', advisorRequestRoutes);
 app.use('/api', projectRoutes);
+app.use('/api', adminRoutes);
 
 // Health check
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));

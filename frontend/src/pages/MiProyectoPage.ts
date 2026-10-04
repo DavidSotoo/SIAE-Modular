@@ -1,4 +1,5 @@
-import { getMyProject, createProject, getProjectHistory, uploadProtocol } from '../services/project.service.js';
+import { getMyProject, createProject, getProjectHistory, uploadProtocol, downloadProtocol } from '../services/project.service.js';
+import { escapeHtml } from '../utils/escapeHtml.js';
 import { getAdvisorById } from '../services/advisor.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
@@ -35,7 +36,14 @@ export class MiProyectoPage {
             <div class="form-group">
               <label class="form-label" for="titulo">Título provisional del proyecto</label>
               <input type="text" id="titulo" name="titulo" class="form-control" placeholder="Ej. Sistema Integral de Administración..." required>
+              <div id="titulo-counter" class="text-label-sm text-muted mt-1">0/20 palabras</div>
               <div id="titulo-error" class="form-error hidden"></div>
+            </div>
+            <div class="form-group mt-4">
+              <label class="form-label" for="descripcion">Descripción breve</label>
+              <textarea id="descripcion" name="descripcion" class="form-control" rows="4" placeholder="¿Qué problema resuelve el proyecto y cómo? Tu asesor la verá al revisar tu solicitud." required></textarea>
+              <div id="descripcion-counter" class="text-label-sm text-muted mt-1">0/100 palabras</div>
+              <div id="descripcion-error" class="form-error hidden"></div>
             </div>
             <div class="mt-4 flex justify-end">
               <button type="submit" class="btn btn--primary" id="btn-create">Crear Proyecto</button>
@@ -46,6 +54,22 @@ export class MiProyectoPage {
 
       const form = document.getElementById('create-project-form') as HTMLFormElement;
       form.addEventListener('submit', (e) => this.handleCreate(e));
+
+      const tituloInput = document.getElementById('titulo') as HTMLInputElement;
+      const counter = document.getElementById('titulo-counter')!;
+      tituloInput.addEventListener('input', () => {
+        const count = this.countWords(tituloInput.value);
+        counter.textContent = `${count}/20 palabras`;
+        counter.classList.toggle('text-error', count > 20);
+      });
+
+      const descripcionInput = document.getElementById('descripcion') as HTMLTextAreaElement;
+      const descCounter = document.getElementById('descripcion-counter')!;
+      descripcionInput.addEventListener('input', () => {
+        const count = this.countWords(descripcionInput.value);
+        descCounter.textContent = `${count}/100 palabras`;
+        descCounter.classList.toggle('text-error', count > 100);
+      });
       return;
     }
 
@@ -65,7 +89,8 @@ export class MiProyectoPage {
       if (currentActualState === 'cancelado') {
         cssClass = 'disabled';
         markerContent = '';
-      } else if (index < effectiveStateIndex) {
+      } else if (index < effectiveStateIndex || currentActualState === 'registrado') {
+        // 'registrado' es el estado final: no queda ningún paso en curso
         cssClass = 'completed';
         markerContent = '<span class="material-symbols-outlined">check</span>';
       } else if (index === effectiveStateIndex) {
@@ -96,6 +121,14 @@ export class MiProyectoPage {
           <div>El proyecto requiere correcciones antes de continuar. Revisa el historial de cambios para más detalle.</div>
         </div>
       `;
+    } else if (currentActualState === 'registrado') {
+      const folioText = this.project.codigo_folio ? ` con el folio <strong>${this.project.codigo_folio}</strong>` : '';
+      bannerHtml = `
+        <div class="banner-alert banner-alert--success mt-4">
+          <span class="material-symbols-outlined">verified</span>
+          <div>Tu proyecto quedó registrado${folioText}. El protocolo ya no se puede modificar.</div>
+        </div>
+      `;
     } else if (currentActualState === 'cancelado') {
       bannerHtml = `
         <div class="banner-alert banner-alert--neutral mt-4">
@@ -109,9 +142,9 @@ export class MiProyectoPage {
     this.project.miembros.forEach(m => {
       membersHtml += `
         <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--color-outline-variant);">
-          <div class="profile-card__avatar" style="width: 32px; height: 32px; font-size: 14px; margin-right: 12px;">${m.nombre.charAt(0)}</div>
+          <div class="profile-card__avatar" style="width: 32px; height: 32px; font-size: 14px; margin-right: 12px;">${escapeHtml(m.nombre.charAt(0))}</div>
           <div>
-            <div style="font-weight: 500;">${m.nombre}</div>
+            <div style="font-weight: 500;">${escapeHtml(m.nombre)}${m.es_lider ? ' <span class="badge badge--lider">Líder</span>' : ''}</div>
             <div style="font-size: 0.85rem; color: var(--color-on-surface-variant);">${m.codigo_cucei}</div>
           </div>
         </div>
@@ -137,25 +170,15 @@ export class MiProyectoPage {
           <div style="display:flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
             <div>
               <div class="text-label-sm">TÍTULO</div>
-              <h3 class="text-title">${this.project.titulo}</h3>
+              <h3 class="text-title">${escapeHtml(this.project.titulo)}</h3>
+              ${this.project.descripcion ? `<p class="text-muted mt-2" style="white-space: pre-line; max-width: 70ch;">${escapeHtml(this.project.descripcion)}</p>` : ''}
             </div>
           </div>
 
           ${stepperHtml}
           ${bannerHtml}
 
-          ${currentActualState === 'cancelado' ? '' : `
-          <hr class="divider">
-
-          <h3 class="text-title mb-4">Documentación Principal</h3>
-          <div class="dropzone" id="protocol-dropzone">
-            <span class="material-symbols-outlined">upload_file</span>
-            <p class="text-label mt-2">Arrastra tu protocolo PDF aquí o</p>
-            <button class="btn btn--secondary btn--sm mt-2" id="btn-select-file">Seleccionar Archivo</button>
-            <input type="file" id="file-input" accept="application/pdf" class="hidden">
-            <div id="file-error" class="form-error hidden mt-2"></div>
-          </div>
-          `}
+          ${currentActualState === 'cancelado' ? '' : this.renderDocumentSection()}
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--sp-6);">
@@ -184,8 +207,65 @@ export class MiProyectoPage {
     `;
 
     this.setupDropzone();
+    this.setupViewDocument();
     this.loadAdvisor();
     this.loadHistory();
+  }
+
+  private renderDocumentSection(): string {
+    const state = this.project!.estado_actual;
+    const canUpload = state === 'borrador' || state === 'correccion';
+    const hasDoc = !!this.project!.pdf_path;
+    const PROTOCOL_MSG: Partial<Record<ProjectState, string>> = {
+      pendiente:  'Tu asesor está revisando el protocolo; no se puede reemplazar por ahora.',
+      validado:   'Tu asesor validó el protocolo; falta que administración emita el folio.',
+      registrado: 'El protocolo quedó registrado y ya no se puede reemplazar.',
+    };
+    const protocolMsg = hasDoc
+      ? (PROTOCOL_MSG[state] ?? 'El protocolo no se puede reemplazar en este estado.')
+      : 'Aún no se ha subido un protocolo.';
+
+    const viewLink = hasDoc
+      ? `<button class="btn btn--ghost btn--sm mt-2" id="btn-view-document"><span class="material-symbols-outlined">description</span> Ver protocolo actual</button>`
+      : '';
+
+    const dropzone = canUpload ? `
+      <div class="dropzone" id="protocol-dropzone">
+        <span class="material-symbols-outlined">upload_file</span>
+        <p class="text-label mt-2">Arrastra tu protocolo PDF aquí o</p>
+        <button class="btn btn--secondary btn--sm mt-2" id="btn-select-file">${hasDoc ? 'Reemplazar Archivo' : 'Seleccionar Archivo'}</button>
+        <input type="file" id="file-input" accept="application/pdf" class="hidden">
+        <div id="file-error" class="form-error hidden mt-2"></div>
+      </div>
+    ` : `
+      <div class="state-empty" style="padding: 16px 0;">
+        <div class="state-empty__msg">${protocolMsg}</div>
+      </div>
+    `;
+
+    return `
+      <hr class="divider">
+      <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 class="text-title" style="margin: 0;">Documentación Principal</h3>
+        ${viewLink}
+      </div>
+      ${dropzone}
+    `;
+  }
+
+  private setupViewDocument() {
+    const btn = document.getElementById('btn-view-document');
+    if (!btn) return;
+
+    btn.addEventListener('click', async () => {
+      try {
+        const blob = await downloadProtocol(this.project!.id_proyecto);
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      } catch (err: any) {
+        showToast(getErrorMessage(err.code, err.status), { type: 'error' });
+      }
+    });
   }
 
   private setupDropzone() {
@@ -207,13 +287,15 @@ export class MiProyectoPage {
         errorDiv.classList.remove('hidden');
         return;
       }
-      
+
       uploadProtocol(this.project!.id_proyecto, file)
-        .then(() => {
+        .then(async () => {
           showToast('Protocolo subido exitosamente.', { type: 'success' });
+          this.project = await getMyProject();
+          this.buildView();
         })
-        .catch(() => {
-          showToast('Esta función estará disponible próximamente.', { type: 'info' });
+        .catch((err: any) => {
+          showToast(getErrorMessage(err.code, err.status), { type: 'error' });
         });
     };
 
@@ -317,6 +399,11 @@ export class MiProyectoPage {
     }
   }
 
+  private countWords(text: string): number {
+    const trimmed = text.trim();
+    return trimmed.length === 0 ? 0 : trimmed.split(/\s+/).length;
+  }
+
   private async handleCreate(e: Event) {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
@@ -324,9 +411,15 @@ export class MiProyectoPage {
     const btn = document.getElementById('btn-create') as HTMLButtonElement;
     const errorDiv = document.getElementById('titulo-error')!;
     
+    const descInput = document.getElementById('descripcion') as HTMLTextAreaElement;
+    const descErrorDiv = document.getElementById('descripcion-error')!;
+
     const titulo = input.value.trim();
+    const descripcion = descInput.value.trim();
     input.classList.remove('is-invalid');
     errorDiv.classList.add('hidden');
+    descInput.classList.remove('is-invalid');
+    descErrorDiv.classList.add('hidden');
 
     if (titulo.length === 0) {
       input.classList.add('is-invalid');
@@ -334,10 +427,22 @@ export class MiProyectoPage {
       errorDiv.classList.remove('hidden');
       return;
     }
-    if (titulo.length > 200) {
+    if (this.countWords(titulo) > 20) {
       input.classList.add('is-invalid');
-      errorDiv.textContent = 'El título no debe exceder 200 caracteres';
+      errorDiv.textContent = 'El título no debe exceder 20 palabras';
       errorDiv.classList.remove('hidden');
+      return;
+    }
+    if (descripcion.length === 0) {
+      descInput.classList.add('is-invalid');
+      descErrorDiv.textContent = 'Escribe una breve descripción del proyecto';
+      descErrorDiv.classList.remove('hidden');
+      return;
+    }
+    if (this.countWords(descripcion) > 100) {
+      descInput.classList.add('is-invalid');
+      descErrorDiv.textContent = 'La descripción no debe exceder 100 palabras';
+      descErrorDiv.classList.remove('hidden');
       return;
     }
 
@@ -345,7 +450,7 @@ export class MiProyectoPage {
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span> Creando...';
       
-      this.project = await createProject(titulo);
+      this.project = await createProject(titulo, descripcion);
       showToast('Proyecto creado exitosamente', { type: 'success' });
       this.buildView();
     } catch (err: any) {
