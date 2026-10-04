@@ -198,17 +198,21 @@ export async function updateTeamRequestEstado(
   );
 }
 
-/** Inserta un nuevo integrante al proyecto (dentro de transacción). */
+/**
+ * Inserta un nuevo integrante al proyecto (dentro de transacción).
+ * esLider = true solo para quien crea el proyecto (SM-40).
+ */
 export async function insertProjectMember(
   client: pg.PoolClient,
   id_proyecto: number,
   codigo_alumno: string,
+  esLider = false,
 ): Promise<void> {
   await client.query(
-    `INSERT INTO project_members (id_proyecto, codigo_alumno)
-     VALUES ($1, $2)
+    `INSERT INTO project_members (id_proyecto, codigo_alumno, es_lider)
+     VALUES ($1, $2, $3)
      ON CONFLICT DO NOTHING`,
-    [id_proyecto, codigo_alumno],
+    [id_proyecto, codigo_alumno, esLider],
   );
 }
 

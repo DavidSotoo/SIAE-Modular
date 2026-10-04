@@ -11,6 +11,7 @@ import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
 import type { AdminProjectRow, AdminProjectFilters, ProjectState } from '../types/index.js';
+import { escapeHtml } from '../utils/escapeHtml.js';
 
 const ESTADOS: ProjectState[] = ['borrador', 'pendiente', 'validado', 'registrado', 'correccion', 'cancelado'];
 
@@ -147,7 +148,7 @@ export class AdminDashboardPage {
     return `
       <tr data-id="${p.id_proyecto}">
         <td>${p.codigo_folio ?? '<span class="text-muted">—</span>'}</td>
-        <td>${p.titulo}</td>
+        <td>${escapeHtml(p.titulo)}</td>
         <td><span class="badge badge--${p.estado_actual}">${p.estado_actual}</span></td>
         <td>${p.mentor_nombre ?? '<span class="text-muted">Sin asignar</span>'}</td>
         <td>${p.num_integrantes}</td>
@@ -171,7 +172,7 @@ export class AdminDashboardPage {
       const detail = await getAdminProjectDetail(id_proyecto);
 
       const membersHtml = detail.miembros.map(m =>
-        `<div class="text-label">${m.nombre} <span class="text-muted">(${m.codigo_cucei})</span></div>`
+        `<div class="text-label">${escapeHtml(m.nombre)} <span class="text-muted">(${m.codigo_cucei})</span>${m.es_lider ? ' <span class="badge badge--lider">Líder</span>' : ''}</div>`
       ).join('');
 
       const historyHtml = detail.historial.length === 0
@@ -190,7 +191,11 @@ export class AdminDashboardPage {
       modal.bodyEl.innerHTML = `
         <div class="mb-4">
           <div class="text-label-sm text-muted">TÍTULO</div>
-          <div class="text-title">${detail.titulo}</div>
+          <div class="text-title">${escapeHtml(detail.titulo)}</div>
+        </div>
+        <div class="mb-4">
+          <div class="text-label-sm text-muted">DESCRIPCIÓN</div>
+          <p style="white-space: pre-line; margin: 0;">${detail.descripcion ? escapeHtml(detail.descripcion) : '<span class="text-muted">Sin descripción</span>'}</p>
         </div>
         <div class="mb-4" style="display:flex; gap: var(--sp-6);">
           <div>

@@ -1,4 +1,5 @@
 import { getMyProject, createProject, getProjectHistory, uploadProtocol, downloadProtocol } from '../services/project.service.js';
+import { escapeHtml } from '../utils/escapeHtml.js';
 import { getAdvisorById } from '../services/advisor.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
@@ -38,6 +39,12 @@ export class MiProyectoPage {
               <div id="titulo-counter" class="text-label-sm text-muted mt-1">0/20 palabras</div>
               <div id="titulo-error" class="form-error hidden"></div>
             </div>
+            <div class="form-group mt-4">
+              <label class="form-label" for="descripcion">Descripción breve</label>
+              <textarea id="descripcion" name="descripcion" class="form-control" rows="4" placeholder="¿Qué problema resuelve el proyecto y cómo? Tu asesor la verá al revisar tu solicitud." required></textarea>
+              <div id="descripcion-counter" class="text-label-sm text-muted mt-1">0/100 palabras</div>
+              <div id="descripcion-error" class="form-error hidden"></div>
+            </div>
             <div class="mt-4 flex justify-end">
               <button type="submit" class="btn btn--primary" id="btn-create">Crear Proyecto</button>
             </div>
@@ -54,6 +61,14 @@ export class MiProyectoPage {
         const count = this.countWords(tituloInput.value);
         counter.textContent = `${count}/20 palabras`;
         counter.classList.toggle('text-error', count > 20);
+      });
+
+      const descripcionInput = document.getElementById('descripcion') as HTMLTextAreaElement;
+      const descCounter = document.getElementById('descripcion-counter')!;
+      descripcionInput.addEventListener('input', () => {
+        const count = this.countWords(descripcionInput.value);
+        descCounter.textContent = `${count}/100 palabras`;
+        descCounter.classList.toggle('text-error', count > 100);
       });
       return;
     }
@@ -118,9 +133,9 @@ export class MiProyectoPage {
     this.project.miembros.forEach(m => {
       membersHtml += `
         <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--color-outline-variant);">
-          <div class="profile-card__avatar" style="width: 32px; height: 32px; font-size: 14px; margin-right: 12px;">${m.nombre.charAt(0)}</div>
+          <div class="profile-card__avatar" style="width: 32px; height: 32px; font-size: 14px; margin-right: 12px;">${escapeHtml(m.nombre.charAt(0))}</div>
           <div>
-            <div style="font-weight: 500;">${m.nombre}</div>
+            <div style="font-weight: 500;">${escapeHtml(m.nombre)}${m.es_lider ? ' <span class="badge badge--lider">Líder</span>' : ''}</div>
             <div style="font-size: 0.85rem; color: var(--color-on-surface-variant);">${m.codigo_cucei}</div>
           </div>
         </div>
@@ -146,7 +161,8 @@ export class MiProyectoPage {
           <div style="display:flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
             <div>
               <div class="text-label-sm">TÍTULO</div>
-              <h3 class="text-title">${this.project.titulo}</h3>
+              <h3 class="text-title">${escapeHtml(this.project.titulo)}</h3>
+              ${this.project.descripcion ? `<p class="text-muted mt-2" style="white-space: pre-line; max-width: 70ch;">${escapeHtml(this.project.descripcion)}</p>` : ''}
             </div>
           </div>
 
@@ -378,9 +394,15 @@ export class MiProyectoPage {
     const btn = document.getElementById('btn-create') as HTMLButtonElement;
     const errorDiv = document.getElementById('titulo-error')!;
     
+    const descInput = document.getElementById('descripcion') as HTMLTextAreaElement;
+    const descErrorDiv = document.getElementById('descripcion-error')!;
+
     const titulo = input.value.trim();
+    const descripcion = descInput.value.trim();
     input.classList.remove('is-invalid');
     errorDiv.classList.add('hidden');
+    descInput.classList.remove('is-invalid');
+    descErrorDiv.classList.add('hidden');
 
     if (titulo.length === 0) {
       input.classList.add('is-invalid');
@@ -394,12 +416,24 @@ export class MiProyectoPage {
       errorDiv.classList.remove('hidden');
       return;
     }
+    if (descripcion.length === 0) {
+      descInput.classList.add('is-invalid');
+      descErrorDiv.textContent = 'Escribe una breve descripción del proyecto';
+      descErrorDiv.classList.remove('hidden');
+      return;
+    }
+    if (this.countWords(descripcion) > 100) {
+      descInput.classList.add('is-invalid');
+      descErrorDiv.textContent = 'La descripción no debe exceder 100 palabras';
+      descErrorDiv.classList.remove('hidden');
+      return;
+    }
 
     try {
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span> Creando...';
       
-      this.project = await createProject(titulo);
+      this.project = await createProject(titulo, descripcion);
       showToast('Proyecto creado exitosamente', { type: 'success' });
       this.buildView();
     } catch (err: any) {

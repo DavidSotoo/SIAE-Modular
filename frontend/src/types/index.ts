@@ -74,16 +74,20 @@ export type ProjectState = 'borrador' | 'pendiente' | 'validado' | 'registrado' 
 export interface Project {
   id_proyecto: number;
   titulo: string;
+  descripcion?: string | null;
   estado_actual: ProjectState;
   codigo_folio?: string | null;
   pdf_path?: string | null;
   pdf_visualizado?: boolean;
   id_mentor: number | null;
   created_at: string;
-  miembros: Array<{
-    codigo_cucei: string;
-    nombre: string;
-  }>;
+  miembros: ProjectMember[];
+}
+
+export interface ProjectMember {
+  codigo_cucei: string;
+  nombre: string;
+  es_lider: boolean;
 }
 
 export interface ProjectStateLog {
@@ -195,7 +199,8 @@ export interface AdminProjectRow {
 }
 
 export interface AdminProjectDetail extends AdminProjectRow {
-  miembros: Array<{ codigo_cucei: string; nombre: string }>;
+  descripcion: string | null;
+  miembros: ProjectMember[];
   historial: ProjectStateLog[];
 }
 
