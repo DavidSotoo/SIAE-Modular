@@ -74,7 +74,7 @@ export class MentorDashboardPage {
           <div class="request-card__from">${r.titulo_proyecto ? escapeHtml(r.titulo_proyecto) : 'Proyecto #' + r.id_proyecto}</div>
           <div class="badge badge--pendiente">PENDIENTE</div>
         </div>
-        ${r.mensaje ? `<div class="request-card__msg">"${r.mensaje}"</div>` : ''}
+        ${r.mensaje ? `<div class="request-card__msg">"${escapeHtml(r.mensaje)}"</div>` : ''}
         <div class="request-card__meta">Recibida: ${new Date(r.created_at).toLocaleDateString()}</div>
         <div class="request-card__actions">
           <button class="btn btn--sm btn--primary btn-accept-req" data-id="${r.id_solicitud}">Aceptar</button>
@@ -262,7 +262,7 @@ export class MentorDashboardPage {
             <div class="timeline-content">
               <div class="text-label-sm text-muted">${new Date(log.timestamp).toLocaleString()}</div>
               <div>Cambio de <strong>${log.estado_anterior ?? 'N/A'}</strong> a <strong>${log.estado_nuevo}</strong></div>
-              ${log.comentario ? `<div class="text-label mt-1 text-muted">"${log.comentario}"</div>` : ''}
+              ${log.comentario ? `<div class="text-label mt-1 text-muted">"${escapeHtml(log.comentario)}"</div>` : ''}
             </div>
           </div>
         `).join('') + '</div>';

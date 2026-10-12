@@ -343,10 +343,10 @@ export class MiProyectoPage {
       const advisor = await getAdvisorById(this.project!.id_mentor!);
       container.innerHTML = `
         <div class="profile-card__header">
-          <div class="profile-card__avatar">${advisor.nombre.charAt(0)}</div>
+          <div class="profile-card__avatar">${escapeHtml(advisor.nombre.charAt(0))}</div>
           <div>
-            <div class="profile-card__name">${advisor.nombre}</div>
-            <div class="profile-card__sub">${advisor.especialidad || 'Sin especialidad registrada'}</div>
+            <div class="profile-card__name">${escapeHtml(advisor.nombre)}</div>
+            <div class="profile-card__sub">${advisor.especialidad ? escapeHtml(advisor.especialidad) : 'Sin especialidad registrada'}</div>
           </div>
         </div>
       `;
@@ -375,7 +375,7 @@ export class MiProyectoPage {
         const dateStr = new Date(log.timestamp).toLocaleString();
         const prev = log.estado_anterior ? log.estado_anterior : 'N/A';
         const current = log.estado_nuevo;
-        const comment = log.comentario ? `<div class="text-label mt-1 text-muted">"${log.comentario}"</div>` : '';
+        const comment = log.comentario ? `<div class="text-label mt-1 text-muted">"${escapeHtml(log.comentario)}"</div>` : '';
 
         timelineHtml += `
           <div class="timeline-item">

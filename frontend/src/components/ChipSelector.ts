@@ -11,6 +11,7 @@
 // CONTRATO PÚBLICO INMUTABLE: getValue() sigue devolviendo ChipSelection[], idéntico a v1.
 
 import type { NivelSkill } from '../types/index.js';
+import { escapeHtml } from '../utils/escapeHtml.js';
 
 export interface ChipItem { id: number; label: string; category?: string; }
 export interface ChipSelection { id: number; nivel?: NivelSkill; }
@@ -131,7 +132,7 @@ export class ChipSelector {
         const createBtn = document.createElement('button');
         createBtn.type = 'button';
         createBtn.className = `cs-chip-available cs-chip-available--${cat}`;
-        createBtn.innerHTML = `<span class="material-symbols-outlined">add</span>Agregar "${this.searchQuery}"`;
+        createBtn.innerHTML = `<span class="material-symbols-outlined">add</span>Agregar "${escapeHtml(this.searchQuery)}"`;
         createBtn.addEventListener('click', async () => {
           createBtn.disabled = true;
           createBtn.innerHTML = '<span class="spinner" style="width:14px;height:14px;border-width:2px;margin-right:4px;"></span>Creando...';
@@ -240,7 +241,7 @@ export class ChipSelector {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = `cs-chip-available cs-chip-available--${cat}`;
-    btn.innerHTML = '<span class="material-symbols-outlined">add</span>' + item.label;
+    btn.innerHTML = '<span class="material-symbols-outlined">add</span>' + escapeHtml(item.label);
     btn.addEventListener('click', () => {
       this.selected.set(item.id, {
         id: item.id,
@@ -262,7 +263,7 @@ export class ChipSelector {
 
     if (isSelected) {
       btn.className = 'cs-chip-area-selected';
-      btn.innerHTML = '<span class="material-symbols-outlined">check</span>' + item.label;
+      btn.innerHTML = '<span class="material-symbols-outlined">check</span>' + escapeHtml(item.label);
       btn.setAttribute('aria-pressed', 'true');
       btn.addEventListener('click', () => {
         this.selected.delete(item.id);

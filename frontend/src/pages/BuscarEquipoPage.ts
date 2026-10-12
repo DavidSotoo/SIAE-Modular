@@ -2,6 +2,7 @@
 import { MAX_INTEGRANTES } from '../constants.js';
 import { getMyProject } from '../services/project.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
+import { escapeHtml } from '../utils/escapeHtml.js';
 import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
 import type { Skill, Area, StudentProfile, StudentSearchResult, TeamRequest, Project } from '../types/index.js';
@@ -53,14 +54,14 @@ export class BuscarEquipoPage {
             <label class="form-label text-label-sm" for="filter-skill">Habilidad</label>
             <select id="filter-skill" name="skill" class="form-control">
               <option value="">Cualquiera</option>
-              ${this.skills.map(s => `<option value="${s.id_skill}">${s.nombre}</option>`).join('')}
+              ${this.skills.map(s => `<option value="${s.id_skill}">${escapeHtml(s.nombre)}</option>`).join('')}
             </select>
           </div>
           <div class="form-group">
             <label class="form-label text-label-sm" for="filter-area">Área</label>
             <select id="filter-area" name="area" class="form-control">
               <option value="">Cualquiera</option>
-              ${this.areas.map(a => `<option value="${a.id_area}">${a.nombre}</option>`).join('')}
+              ${this.areas.map(a => `<option value="${a.id_area}">${escapeHtml(a.nombre)}</option>`).join('')}
             </select>
           </div>
           <div class="form-group">
@@ -143,29 +144,29 @@ export class BuscarEquipoPage {
       students.forEach(student => {
         if (student.codigo_cucei === this.myProfile?.codigo_cucei) return;
         
-        const hardChips = student.skills.filter(s => s.tipo === 'hard').map(s => '<span class="chip chip--hard">' + s.nombre + '</span>').join('');
-        const softChips = student.skills.filter(s => s.tipo === 'soft').map(s => '<span class="chip chip--soft">' + s.nombre + '</span>').join('');
-        const areaChips = student.areas.map(a => '<span class="chip chip--area">' + a.nombre + '</span>').join('');
+        const hardChips = student.skills.filter(s => s.tipo === 'hard').map(s => '<span class="chip chip--hard">' + escapeHtml(s.nombre) + '</span>').join('');
+        const softChips = student.skills.filter(s => s.tipo === 'soft').map(s => '<span class="chip chip--soft">' + escapeHtml(s.nombre) + '</span>').join('');
+        const areaChips = student.areas.map(a => '<span class="chip chip--area">' + escapeHtml(a.nombre) + '</span>').join('');
         
         let buttonHtml = '';
         if (this.myProject) {
           if (teamIsFull) {
             buttonHtml = '<button class="btn btn--secondary btn--full" disabled title="Tu equipo ya está completo">Equipo completo</button>';
           } else {
-            buttonHtml = `<button class="btn btn--primary btn--full btn-invitar" data-codigo="${student.codigo_cucei}" data-nombre="${student.nombre}">Invitar a mi equipo</button>`;
+            buttonHtml = `<button class="btn btn--primary btn--full btn-invitar" data-codigo="${escapeHtml(student.codigo_cucei)}" data-nombre="${escapeHtml(student.nombre)}">Invitar a mi equipo</button>`;
           }
         }
 
         html += `
           <div class="profile-card">
             <div class="profile-card__header">
-              <div class="profile-card__avatar">${student.nombre.charAt(0)}</div>
+              <div class="profile-card__avatar">${escapeHtml(student.nombre.charAt(0))}</div>
               <div>
-                <div class="profile-card__name">${student.nombre}</div>
-                <div class="profile-card__sub">${student.semestre ? 'Semestre ' + student.semestre : 'Semestre no definido'}</div>
+                <div class="profile-card__name">${escapeHtml(student.nombre)}</div>
+                <div class="profile-card__sub">${student.semestre ? 'Semestre ' + escapeHtml(String(student.semestre)) : 'Semestre no definido'}</div>
               </div>
             </div>
-            <div class="profile-card__bio">${student.bio || 'Sin biografía'}</div>
+            <div class="profile-card__bio">${student.bio ? escapeHtml(student.bio) : 'Sin biografía'}</div>
             <div class="profile-card__chips">
               ${hardChips} ${softChips} ${areaChips}
             </div>
@@ -303,7 +304,7 @@ export class BuscarEquipoPage {
             <div class="request-card__from">${title}</div>
             <div class="badge ${bgClass}">${req.estado.toUpperCase()}</div>
           </div>
-          ${req.mensaje ? `<div class="request-card__msg">"${req.mensaje}"</div>` : ''}
+          ${req.mensaje ? `<div class="request-card__msg">"${escapeHtml(req.mensaje)}"</div>` : ''}
           <div class="request-card__meta">Actualizado: ${new Date(req.updated_at).toLocaleDateString()}</div>
           ${req.estado === 'pendiente' ? `
             <div class="request-card__actions">
