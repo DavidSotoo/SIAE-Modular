@@ -10,6 +10,9 @@ import {
   registerProjectHandler,
   rejectProjectHandler
 } from '../controllers/projectState.controller.js';
+import { validateParams, validateBody } from '../middleware/validate.js';
+import { paramsIdProyecto } from '../schemas/common.schema.js';
+import { crearProyectoBody, rechazarProyectoBody } from '../schemas/project.schema.js';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
@@ -51,6 +54,7 @@ router.post(
   authenticate,
   requireRole('alumno'),
   requireOnboarded,
+  validateBody(crearProyectoBody),
   createProjectHandler,
 );
 
@@ -60,6 +64,7 @@ router.post(
   authenticate,
   requireRole('alumno'),
   requireOnboarded,
+  validateParams(paramsIdProyecto),
   (req, res, next) => {
     upload.single('file')(req, res, (err) => {
       if (err) {
@@ -84,6 +89,7 @@ router.get(
 router.get(
   '/projects/:id_proyecto/protocol',
   authenticate,
+  validateParams(paramsIdProyecto),
   downloadProtocolHandler
 );
 
@@ -91,6 +97,7 @@ router.get(
 router.get(
   '/projects/:id_proyecto/history',
   authenticate,
+  validateParams(paramsIdProyecto),
   // requireRole no se usa estricto aquí porque puede ser alumno o mentor, el servicio valida
   getHistoryHandler
 );
@@ -100,6 +107,7 @@ router.post(
   '/projects/:id_proyecto/validate',
   authenticate,
   requireRole('mentor'),
+  validateParams(paramsIdProyecto),
   validateProjectHandler
 );
 
@@ -108,6 +116,7 @@ router.post(
   '/projects/:id_proyecto/register',
   authenticate,
   requireRole('admin'),
+  validateParams(paramsIdProyecto),
   registerProjectHandler
 );
 
@@ -116,6 +125,8 @@ router.post(
   '/projects/:id_proyecto/reject',
   authenticate,
   requireRole('mentor'),
+  validateParams(paramsIdProyecto),
+  validateBody(rechazarProyectoBody),
   rejectProjectHandler
 );
 

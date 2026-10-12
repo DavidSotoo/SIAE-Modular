@@ -7,6 +7,8 @@ import {
   rejectTeamRequestHandler,
   cancelTeamRequestHandler,
 } from '../controllers/teamRequest.controller.js';
+import { validateParams } from '../middleware/validate.js';
+import { paramsIdProyecto, paramsIdSolicitud } from '../schemas/common.schema.js';
 
 const router = Router();
 
@@ -16,6 +18,7 @@ router.post(
   authenticate,
   requireRole('alumno'),
   requireOnboarded,
+  validateParams(paramsIdProyecto),
   postTeamRequest,
 );
 
@@ -25,6 +28,7 @@ router.get(
   authenticate,
   requireRole('alumno'),
   requireOnboarded,
+  validateParams(paramsIdProyecto),
   getProjectTeamRequests,
 );
 
@@ -34,6 +38,7 @@ router.post(
   authenticate,
   requireRole('alumno'),
   requireOnboarded,
+  validateParams(paramsIdSolicitud),
   acceptTeamRequestHandler,
 );
 
@@ -43,6 +48,7 @@ router.post(
   authenticate,
   requireRole('alumno'),
   requireOnboarded,
+  validateParams(paramsIdSolicitud),
   rejectTeamRequestHandler,
 );
 
@@ -52,6 +58,7 @@ router.post(
   authenticate,
   requireRole('alumno'),
   requireOnboarded,
+  validateParams(paramsIdSolicitud),
   cancelTeamRequestHandler,
 );
 
