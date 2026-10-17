@@ -13,6 +13,7 @@ import { Modal } from '../components/Modal.js';
 import type { AdminProjectRow, AdminProjectFilters, ProjectState } from '../types/index.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
 import { estadoBadge, etiquetaDeEstado } from '../components/EstadoBadge.js';
+import { skeletonTabla, skeletonLineas } from '../components/Skeleton.js';
 
 const ESTADOS: ProjectState[] = [
   'borrador',
@@ -32,8 +33,7 @@ export class AdminDashboardPage {
   }
 
   async render() {
-    this.container.innerHTML =
-      '<div class="state-loading"><span class="spinner"></span> Cargando panel...</div>';
+    this.container.innerHTML = skeletonTabla(4, 5);
     try {
       await this.buildLayout();
     } catch (err: any) {
@@ -122,8 +122,7 @@ export class AdminDashboardPage {
 
   private async loadTable() {
     const tableContainer = document.getElementById('admin-table-container')!;
-    tableContainer.innerHTML =
-      '<div class="state-loading"><span class="spinner"></span> Cargando proyectos...</div>';
+    tableContainer.innerHTML = skeletonTabla(4, 5);
 
     try {
       const projects = await listAdminProjects(this.filters);
@@ -186,7 +185,7 @@ export class AdminDashboardPage {
     const modal = new Modal({
       id: 'admin-detail-modal',
       title: 'Detalle del Proyecto',
-      contentHtml: '<div class="state-loading"><span class="spinner"></span></div>',
+      contentHtml: skeletonLineas(4),
       confirmLabel: 'Cerrar',
       confirmClass: 'btn--ghost',
       onConfirm: (m) => m.close(),

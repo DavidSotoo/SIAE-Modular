@@ -16,6 +16,7 @@ import { Modal } from '../components/Modal.js';
 import type { AdvisorRequest, Project } from '../types/index.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
 import { estadoBadge, etiquetaDeEstado } from '../components/EstadoBadge.js';
+import { skeletonTabla, skeletonLineas } from '../components/Skeleton.js';
 
 export class MentorDashboardPage {
   private container: HTMLElement;
@@ -26,8 +27,7 @@ export class MentorDashboardPage {
   }
 
   async render() {
-    this.container.innerHTML =
-      '<div class="state-loading"><span class="spinner"></span> Cargando panel...</div>';
+    this.container.innerHTML = skeletonTabla(4, 4);
     try {
       this.buildLayout();
     } catch (err: any) {
@@ -60,7 +60,7 @@ export class MentorDashboardPage {
 
   private async loadRequests() {
     const container = document.getElementById('requests-container')!;
-    container.innerHTML = '<div class="state-loading"><span class="spinner"></span></div>';
+    container.innerHTML = skeletonLineas(3);
 
     try {
       const requests = await listMentorAdvisorRequests();
@@ -135,7 +135,7 @@ export class MentorDashboardPage {
 
   private async loadProjects() {
     const container = document.getElementById('projects-container')!;
-    container.innerHTML = '<div class="state-loading"><span class="spinner"></span></div>';
+    container.innerHTML = skeletonLineas(3);
 
     try {
       this.projects = await getMentorProjects();
@@ -197,7 +197,7 @@ export class MentorDashboardPage {
     const modal = new Modal({
       id: 'mentor-project-modal',
       title: escapeHtml(project.titulo),
-      contentHtml: '<div class="state-loading"><span class="spinner"></span></div>',
+      contentHtml: skeletonLineas(4),
       confirmLabel: 'Cerrar',
       confirmClass: 'btn--ghost',
       onConfirm: (m) => m.close(),

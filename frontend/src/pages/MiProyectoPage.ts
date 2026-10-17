@@ -7,6 +7,7 @@ import {
 } from '../services/project.service.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
 import { estadoBadge, etiquetaDeEstado } from '../components/EstadoBadge.js';
+import { skeletonPerfil, skeletonLineas } from '../components/Skeleton.js';
 import { getAdvisorById } from '../services/advisor.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
@@ -21,8 +22,7 @@ export class MiProyectoPage {
   }
 
   async render() {
-    this.container.innerHTML =
-      '<div class="state-loading"><span class="spinner"></span> Cargando proyecto...</div>';
+    this.container.innerHTML = skeletonPerfil();
 
     try {
       this.project = await getMyProject();
@@ -211,7 +211,7 @@ export class MiProyectoPage {
           <div class="card card--md">
             <h3 class="text-title mb-4">Asesor / Mentor</h3>
             <div id="advisor-container">
-              <div class="state-loading"><span class="spinner"></span></div>
+              ${skeletonLineas(2)}
             </div>
           </div>
         </div>
@@ -219,7 +219,7 @@ export class MiProyectoPage {
         <div class="card card--md">
           <h3 class="text-title mb-4">Historial de Cambios</h3>
           <div id="history-container">
-            <div class="state-loading"><span class="spinner"></span></div>
+            ${skeletonLineas(2)}
           </div>
         </div>
 

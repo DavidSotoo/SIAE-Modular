@@ -1,6 +1,13 @@
-import { getMyProfile, getSkills, getAreas, updateMyProfile, createSkill } from '../services/student.service.js';
+import {
+  getMyProfile,
+  getSkills,
+  getAreas,
+  updateMyProfile,
+  createSkill,
+} from '../services/student.service.js';
 import { getMe } from '../services/auth.service.js';
 import { escapeHtml, safeUrl } from '../utils/escapeHtml.js';
+import { skeletonPerfil } from '../components/Skeleton.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
 import { ChipSelector } from '../components/ChipSelector.js';
@@ -15,29 +22,29 @@ const ROL_LABEL: Record<string, string> = {
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 const DISPONIBILIDAD_LABEL: Record<string, string> = {
-  tiempo_completo:  'Tiempo completo',
-  medio_tiempo:     'Medio tiempo',
-  fines_de_semana:  'Fines de semana',
-  flexible:         'Flexible',
+  tiempo_completo: 'Tiempo completo',
+  medio_tiempo: 'Medio tiempo',
+  fines_de_semana: 'Fines de semana',
+  flexible: 'Flexible',
 };
 
 const NIVEL_LABEL: Record<string, string> = {
-  basico:     'Básico',
+  basico: 'Básico',
   intermedio: 'Intermedio',
-  avanzado:   'Avanzado',
+  avanzado: 'Avanzado',
 };
 
 const ESTADO_LABEL: Record<string, { label: string; cls: string; icon: string }> = {
-  buscando_equipo: { label: 'Buscando equipo',  cls: 'pv-badge--status-searching',   icon: 'search' },
-  en_equipo:       { label: 'En equipo',         cls: 'pv-badge--status-team',         icon: 'group' },
-  no_disponible:   { label: 'No disponible',     cls: 'pv-badge--status-unavailable',  icon: 'block' },
+  buscando_equipo: { label: 'Buscando equipo', cls: 'pv-badge--status-searching', icon: 'search' },
+  en_equipo: { label: 'En equipo', cls: 'pv-badge--status-team', icon: 'group' },
+  no_disponible: { label: 'No disponible', cls: 'pv-badge--status-unavailable', icon: 'block' },
 };
 
 function initials(nombre: string): string {
   return nombre
     .split(' ')
     .slice(0, 2)
-    .map(w => w[0] ?? '')
+    .map((w) => w[0] ?? '')
     .join('');
 }
 
@@ -69,33 +76,8 @@ export class PerfilPage {
     this.container = container;
   }
 
-  private static skeletonHtml(): string {
-    return `
-      <div class="sk-hero">
-        <div class="skeleton sk-cover"></div>
-        <div class="sk-hero-body">
-          <div class="skeleton sk-avatar"></div>
-          <div class="sk-lines">
-            <div class="skeleton sk-line" style="width:180px;height:22px;"></div>
-            <div class="skeleton sk-line" style="width:120px;"></div>
-            <div class="skeleton sk-line" style="width:140px;height:24px;border-radius:9999px;"></div>
-          </div>
-        </div>
-      </div>
-      <div class="sk-card">
-        <div class="skeleton sk-line" style="width:140px;"></div>
-        <div class="skeleton sk-line" style="width:90%;"></div>
-        <div class="skeleton sk-line" style="width:70%;"></div>
-      </div>
-      <div class="sk-card">
-        <div class="skeleton sk-line" style="width:160px;"></div>
-        <div class="skeleton sk-line" style="width:80%;"></div>
-      </div>
-    `;
-  }
-
   async render() {
-    this.container.innerHTML = PerfilPage.skeletonHtml();
+    this.container.innerHTML = skeletonPerfil();
 
     try {
       const me = await getMe();
@@ -105,11 +87,7 @@ export class PerfilPage {
         return;
       }
 
-      const [profile, skills, areas] = await Promise.all([
-        getMyProfile(),
-        getSkills(),
-        getAreas(),
-      ]);
+      const [profile, skills, areas] = await Promise.all([getMyProfile(), getSkills(), getAreas()]);
       this.profile = profile;
       this.skills = skills;
       this.areas = areas;
@@ -120,14 +98,21 @@ export class PerfilPage {
         '<div class="state-empty">' +
         '<span class="material-symbols-outlined">error</span>' +
         '<div class="state-empty__title">Error</div>' +
-        '<div class="state-empty__msg">' + getErrorMessage(err.code, err.status) + '</div>' +
+        '<div class="state-empty__msg">' +
+        getErrorMessage(err.code, err.status) +
+        '</div>' +
         '</div>';
     }
   }
 
   // ─── Vista básica para mentor/admin (sin perfil de alumno) ────────────────
 
-  private buildBasicView(me: { nombre: string; email: string | null; rol: string; foto_url: string | null }) {
+  private buildBasicView(me: {
+    nombre: string;
+    email: string | null;
+    rol: string;
+    foto_url: string | null;
+  }) {
     const avatarInner = avatarContent(me.nombre, me.foto_url);
 
     this.container.innerHTML = `
@@ -138,10 +123,14 @@ export class PerfilPage {
             <div class="pv-avatar">${avatarInner}</div>
             <div class="pv-hero-info">
               <div class="pv-name">${escapeHtml(me.nombre)}</div>
-              ${me.email ? `<div class="pv-code">
+              ${
+                me.email
+                  ? `<div class="pv-code">
                 <span class="material-symbols-outlined" style="font-size:14px">mail</span>
                 ${escapeHtml(me.email)}
-              </div>` : ''}
+              </div>`
+                  : ''
+              }
               <div class="pv-badges">
                 <span class="pv-badge pv-badge--semestre">
                   <span class="material-symbols-outlined" style="font-size:13px">badge</span>
@@ -164,22 +153,31 @@ export class PerfilPage {
     const estado = ESTADO_LABEL[p.estado_busqueda] ?? ESTADO_LABEL['no_disponible'];
     const avatarInner = avatarContent(p.nombre, p.foto_url);
 
-    const hardSkills = p.skills.filter(s => s.tipo === 'hard');
-    const softSkills = p.skills.filter(s => s.tipo === 'soft');
+    const hardSkills = p.skills.filter((s) => s.tipo === 'hard');
+    const softSkills = p.skills.filter((s) => s.tipo === 'soft');
 
     const skillChips = (list: typeof hardSkills, cls: string) =>
       list.length === 0
         ? '<span class="pv-empty-hint">Sin habilidades registradas aún.</span>'
-        : list.map(s =>
-            `<span class="pv-skill-chip pv-skill-chip--${cls}">
+        : list
+            .map(
+              (s) =>
+                `<span class="pv-skill-chip pv-skill-chip--${cls}">
               ${escapeHtml(s.nombre)}
               ${cls === 'hard' ? `<span class="pv-skill-chip-level">· ${escapeHtml(NIVEL_LABEL[s.nivel] ?? s.nivel)}</span>` : ''}
-            </span>`
-          ).join('');
+            </span>`,
+            )
+            .join('');
 
-    const areaChips = p.areas.length === 0
-      ? '<span class="pv-empty-hint">Sin áreas de interés registradas aún.</span>'
-      : p.areas.map(a => `<span class="pv-area-chip"><span class="material-symbols-outlined" style="font-size:14px">label</span>${escapeHtml(a.nombre)}</span>`).join('');
+    const areaChips =
+      p.areas.length === 0
+        ? '<span class="pv-empty-hint">Sin áreas de interés registradas aún.</span>'
+        : p.areas
+            .map(
+              (a) =>
+                `<span class="pv-area-chip"><span class="material-symbols-outlined" style="font-size:14px">label</span>${escapeHtml(a.nombre)}</span>`,
+            )
+            .join('');
 
     const bioSection = p.bio
       ? `<div class="pv-card">
@@ -218,14 +216,22 @@ export class PerfilPage {
                   <span class="material-symbols-outlined" style="font-size:13px">${estado.icon}</span>
                   ${estado.label}
                 </span>
-                ${p.semestre ? `<span class="pv-badge pv-badge--semestre">
+                ${
+                  p.semestre
+                    ? `<span class="pv-badge pv-badge--semestre">
                   <span class="material-symbols-outlined" style="font-size:13px">school</span>
                   Semestre ${p.semestre}
-                </span>` : ''}
-                ${p.disponibilidad ? `<span class="pv-badge pv-badge--disponibilidad">
+                </span>`
+                    : ''
+                }
+                ${
+                  p.disponibilidad
+                    ? `<span class="pv-badge pv-badge--disponibilidad">
                   <span class="material-symbols-outlined" style="font-size:13px">schedule</span>
                   ${DISPONIBILIDAD_LABEL[p.disponibilidad]}
-                </span>` : ''}
+                </span>`
+                    : ''
+                }
               </div>
             </div>
             <div class="pv-hero-actions">
@@ -243,7 +249,9 @@ export class PerfilPage {
         <!-- Skills card -->
         <div class="pv-card">
           <div class="pv-card-title"><span class="material-symbols-outlined">code</span>Habilidades</div>
-          ${hardSkills.length > 0 || softSkills.length > 0 ? `
+          ${
+            hardSkills.length > 0 || softSkills.length > 0
+              ? `
             <div class="pv-skills-group">
               <div class="pv-skills-group-label">Hard Skills</div>
               <div class="pv-skills-list">${skillChips(hardSkills, 'hard')}</div>
@@ -252,7 +260,9 @@ export class PerfilPage {
               <div class="pv-skills-group-label">Soft Skills</div>
               <div class="pv-skills-list">${skillChips(softSkills, 'soft')}</div>
             </div>
-          ` : '<span class="pv-empty-hint">Aún no se han registrado habilidades.</span>'}
+          `
+              : '<span class="pv-empty-hint">Aún no se han registrado habilidades.</span>'
+          }
         </div>
 
         <!-- Areas card -->
@@ -346,13 +356,21 @@ export class PerfilPage {
       </form>
     `;
 
-    const hardSkillItems = this.skills.filter(s => s.tipo === 'hard').map(s => ({ id: s.id_skill, label: s.nombre }));
-    const softSkillItems = this.skills.filter(s => s.tipo === 'soft').map(s => ({ id: s.id_skill, label: s.nombre }));
-    const areasItems = this.areas.map(a => ({ id: a.id_area, label: a.nombre }));
+    const hardSkillItems = this.skills
+      .filter((s) => s.tipo === 'hard')
+      .map((s) => ({ id: s.id_skill, label: s.nombre }));
+    const softSkillItems = this.skills
+      .filter((s) => s.tipo === 'soft')
+      .map((s) => ({ id: s.id_skill, label: s.nombre }));
+    const areasItems = this.areas.map((a) => ({ id: a.id_area, label: a.nombre }));
 
-    const userHardSkills = this.profile.skills.filter(s => s.tipo === 'hard').map(s => ({ id: s.id_skill, nivel: s.nivel }));
-    const userSoftSkills = this.profile.skills.filter(s => s.tipo === 'soft').map(s => ({ id: s.id_skill, nivel: s.nivel }));
-    const userAreas = this.profile.areas.map(a => ({ id: a.id_area }));
+    const userHardSkills = this.profile.skills
+      .filter((s) => s.tipo === 'hard')
+      .map((s) => ({ id: s.id_skill, nivel: s.nivel }));
+    const userSoftSkills = this.profile.skills
+      .filter((s) => s.tipo === 'soft')
+      .map((s) => ({ id: s.id_skill, nivel: s.nivel }));
+    const userAreas = this.profile.areas.map((a) => ({ id: a.id_area }));
 
     this.hardSkillsSelector = new ChipSelector({
       container: document.getElementById('hard-skills-container')!,
@@ -367,7 +385,10 @@ export class PerfilPage {
         return { id: newSkill.id_skill, label: newSkill.nombre, category: 'hard' };
       },
     });
-    this.hardSkillsSelector.mountHeader(document.getElementById('hard-skills-header')!, 'Hard Skills');
+    this.hardSkillsSelector.mountHeader(
+      document.getElementById('hard-skills-header')!,
+      'Hard Skills',
+    );
 
     this.softSkillsSelector = new ChipSelector({
       container: document.getElementById('soft-skills-container')!,
@@ -382,7 +403,10 @@ export class PerfilPage {
         return { id: newSkill.id_skill, label: newSkill.nombre, category: 'soft' };
       },
     });
-    this.softSkillsSelector.mountHeader(document.getElementById('soft-skills-header')!, 'Soft Skills');
+    this.softSkillsSelector.mountHeader(
+      document.getElementById('soft-skills-header')!,
+      'Soft Skills',
+    );
 
     this.areasSelector = new ChipSelector({
       container: document.getElementById('areas-container')!,
@@ -449,9 +473,15 @@ export class PerfilPage {
     if (hasError) return;
 
     const formData = new FormData(form);
-    const hs = this.hardSkillsSelector!.getValue().map(s => ({ id_skill: s.id, nivel: s.nivel! }));
-    const ss = this.softSkillsSelector!.getValue().map(s => ({ id_skill: s.id, nivel: s.nivel! }));
-    const ar = this.areasSelector!.getValue().map(a => a.id);
+    const hs = this.hardSkillsSelector!.getValue().map((s) => ({
+      id_skill: s.id,
+      nivel: s.nivel!,
+    }));
+    const ss = this.softSkillsSelector!.getValue().map((s) => ({
+      id_skill: s.id,
+      nivel: s.nivel!,
+    }));
+    const ar = this.areasSelector!.getValue().map((a) => a.id);
 
     const payload: StudentProfileUpdate = {
       semestre,
@@ -476,7 +506,10 @@ export class PerfilPage {
       this.mode = 'view';
       this.buildView();
     } catch (err: any) {
-      showToast(getErrorMessage(err.code, err.status), { type: 'error', title: 'Error al guardar' });
+      showToast(getErrorMessage(err.code, err.status), {
+        type: 'error',
+        title: 'Error al guardar',
+      });
       btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined">save</span> Guardar Perfil';
     }
