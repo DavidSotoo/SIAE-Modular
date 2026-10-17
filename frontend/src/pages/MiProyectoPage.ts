@@ -6,6 +6,7 @@ import {
   downloadProtocol,
 } from '../services/project.service.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
+import { estadoBadge, etiquetaDeEstado } from '../components/EstadoBadge.js';
 import { getAdvisorById } from '../services/advisor.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
@@ -164,9 +165,15 @@ export class MiProyectoPage {
       `;
     });
 
-    const folioBadge = this.project.codigo_folio
-      ? `<div class="badge badge--folio">Folio: ${this.project.codigo_folio}</div>`
-      : '';
+    // El alumno no veia el estado de su propio proyecto como insignia: solo
+    // lo deducia del stepper. Se muestra junto al folio.
+    const folioBadge =
+      `<div class="badges-row">` +
+      estadoBadge(this.project.estado_actual) +
+      (this.project.codigo_folio
+        ? `<span class="badge badge--folio">Folio: ${escapeHtml(this.project.codigo_folio)}</span>`
+        : '') +
+      `</div>`;
 
     this.container.innerHTML = `
       <div class="section-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
@@ -388,8 +395,8 @@ export class MiProyectoPage {
       let timelineHtml = '<div class="timeline">';
       logs.forEach((log) => {
         const dateStr = new Date(log.timestamp).toLocaleString();
-        const prev = log.estado_anterior ? log.estado_anterior : 'N/A';
-        const current = log.estado_nuevo;
+        const prev = etiquetaDeEstado(log.estado_anterior);
+        const current = etiquetaDeEstado(log.estado_nuevo);
         const comment = log.comentario
           ? `<div class="text-label mt-1 text-muted">"${escapeHtml(log.comentario)}"</div>`
           : '';

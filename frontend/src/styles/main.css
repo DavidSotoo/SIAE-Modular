@@ -1928,3 +1928,16 @@ textarea.form-control {
     scroll-behavior: auto !important;
   }
 }
+
+/* Fila de insignias (estado + folio) en la cabecera de Mi Proyecto. */
+.badges-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: center;
+}
+/* El icono dentro de una insignia acompana al texto, sin agrandarla. */
+.badge .material-symbols-outlined {
+  font-size: 14px;
+  line-height: 1;
+}
