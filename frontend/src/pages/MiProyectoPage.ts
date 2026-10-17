@@ -8,6 +8,7 @@ import {
 import { escapeHtml } from '../utils/escapeHtml.js';
 import { estadoBadge, etiquetaDeEstado } from '../components/EstadoBadge.js';
 import { skeletonPerfil, skeletonLineas } from '../components/Skeleton.js';
+import { validarCampo, maximoPalabras, contarPalabras } from '../utils/validacion.js';
 import { getAdvisorById } from '../services/advisor.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
@@ -66,21 +67,42 @@ export class MiProyectoPage {
       const form = document.getElementById('create-project-form') as HTMLFormElement;
       form.addEventListener('submit', (e) => this.handleCreate(e));
 
+      const btnCrear = document.getElementById('btn-create') as HTMLButtonElement;
       const tituloInput = document.getElementById('titulo') as HTMLInputElement;
       const counter = document.getElementById('titulo-counter')!;
-      tituloInput.addEventListener('input', () => {
-        const count = this.countWords(tituloInput.value);
-        counter.textContent = `${count}/20 palabras`;
-        counter.classList.toggle('text-error', count > 20);
-      });
-
       const descripcionInput = document.getElementById('descripcion') as HTMLTextAreaElement;
       const descCounter = document.getElementById('descripcion-counter')!;
-      descripcionInput.addEventListener('input', () => {
-        const count = this.countWords(descripcionInput.value);
-        descCounter.textContent = `${count}/100 palabras`;
-        descCounter.classList.toggle('text-error', count > 100);
+
+      // Los contadores ya existian, pero solo pintaban de rojo: se podia
+      // enviar igual y el rechazo llegaba del backend. Ahora el boton se
+      // bloquea mientras algo no cumpla.
+      const actualizarContadores = () => {
+        const palabrasTitulo = contarPalabras(tituloInput.value);
+        counter.textContent = `${palabrasTitulo}/20 palabras`;
+        counter.classList.toggle('text-error', palabrasTitulo > 20);
+
+        const palabrasDesc = contarPalabras(descripcionInput.value);
+        descCounter.textContent = `${palabrasDesc}/100 palabras`;
+        descCounter.classList.toggle('text-error', palabrasDesc > 100);
+
+        const vacio = !tituloInput.value.trim() || !descripcionInput.value.trim();
+        btnCrear.disabled = vacio || palabrasTitulo > 20 || palabrasDesc > 100;
+      };
+
+      validarCampo({
+        input: tituloInput,
+        errorEl: document.getElementById('titulo-error')!,
+        validar: maximoPalabras(20, 'El título'),
       });
+      validarCampo({
+        input: descripcionInput,
+        errorEl: document.getElementById('descripcion-error')!,
+        validar: maximoPalabras(100, 'La descripción'),
+      });
+
+      tituloInput.addEventListener('input', actualizarContadores);
+      descripcionInput.addEventListener('input', actualizarContadores);
+      actualizarContadores();
       return;
     }
 
@@ -423,11 +445,6 @@ export class MiProyectoPage {
     }
   }
 
-  private countWords(text: string): number {
-    const trimmed = text.trim();
-    return trimmed.length === 0 ? 0 : trimmed.split(/\s+/).length;
-  }
-
   private async handleCreate(e: Event) {
     e.preventDefault();
     const input = document.getElementById('titulo') as HTMLInputElement;
@@ -450,7 +467,7 @@ export class MiProyectoPage {
       errorDiv.classList.remove('hidden');
       return;
     }
-    if (this.countWords(titulo) > 20) {
+    if (contarPalabras(titulo) > 20) {
       input.classList.add('is-invalid');
       errorDiv.textContent = 'El título no debe exceder 20 palabras';
       errorDiv.classList.remove('hidden');
@@ -462,7 +479,7 @@ export class MiProyectoPage {
       descErrorDiv.classList.remove('hidden');
       return;
     }
-    if (this.countWords(descripcion) > 100) {
+    if (contarPalabras(descripcion) > 100) {
       descInput.classList.add('is-invalid');
       descErrorDiv.textContent = 'La descripción no debe exceder 100 palabras';
       descErrorDiv.classList.remove('hidden');

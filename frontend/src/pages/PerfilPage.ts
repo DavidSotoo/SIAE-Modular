@@ -8,6 +8,12 @@ import {
 import { getMe } from '../services/auth.service.js';
 import { escapeHtml, safeUrl } from '../utils/escapeHtml.js';
 import { skeletonPerfil } from '../components/Skeleton.js';
+import {
+  validarCampo,
+  bloquearHastaValido,
+  semestreValido,
+  urlValida,
+} from '../utils/validacion.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
 import { ChipSelector } from '../components/ChipSelector.js';
@@ -419,6 +425,25 @@ export class PerfilPage {
     this.areasSelector.mountHeader(document.getElementById('areas-header')!, 'Áreas de Interés');
 
     document.getElementById('perfil-form')!.addEventListener('submit', (e) => this.handleSubmit(e));
+
+    // Antes estos dos solo se validaban al guardar, despues de rellenar todo.
+    const btnGuardar = document.getElementById('save-btn') as HTMLButtonElement;
+    let revisarFormulario = () => {};
+    const campos = [
+      validarCampo({
+        input: document.getElementById('semestre') as HTMLInputElement,
+        errorEl: document.getElementById('semestre-error')!,
+        validar: semestreValido,
+        alCambiar: () => revisarFormulario(),
+      }),
+      validarCampo({
+        input: document.getElementById('portafolio_url') as HTMLInputElement,
+        errorEl: document.getElementById('portafolio-error')!,
+        validar: urlValida,
+        alCambiar: () => revisarFormulario(),
+      }),
+    ];
+    revisarFormulario = bloquearHastaValido(btnGuardar, campos);
     document.getElementById('back-to-view-btn')!.addEventListener('click', () => {
       this.mode = 'view';
       this.buildView();
