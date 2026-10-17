@@ -1941,3 +1941,60 @@ textarea.form-control {
   font-size: 14px;
   line-height: 1;
 }
+
+/* ─── Tablas en movil ────────────────────────────────────────────────────
+   Una tabla de 6 columnas no cabe en 375px: quedaba un scroll horizontal
+   incomodo y la mayoria de las columnas fuera de vista. En pantallas
+   estrechas cada fila se apila como tarjeta y cada celda muestra su
+   encabezado desde data-label. */
+@media (max-width: 768px) {
+  .table thead {
+    /* Oculto visualmente pero disponible para lectores de pantalla. */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .table,
+  .table tbody,
+  .table tr,
+  .table td {
+    display: block;
+    width: 100%;
+  }
+  .table tbody tr {
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--sp-3);
+    padding: var(--sp-2) 0;
+  }
+  .table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--sp-4);
+    white-space: normal;
+    border: none;
+    padding: var(--sp-2) var(--sp-4);
+  }
+  .table td::before {
+    content: attr(data-label);
+    font-size: var(--fs-label-sm);
+    font-weight: var(--fw-semibold);
+    color: var(--color-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    flex-shrink: 0;
+  }
+  /* El contenido de la celda se alinea a la derecha, frente a su etiqueta. */
+  .table td > * {
+    text-align: right;
+  }
+  .table-wrap {
+    overflow-x: visible;
+    background: transparent;
+    box-shadow: none;
+  }
+}

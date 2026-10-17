@@ -171,12 +171,12 @@ export class AdminDashboardPage {
     const fecha = new Date(p.created_at).toLocaleDateString();
     return `
       <tr data-id="${p.id_proyecto}">
-        <td>${p.codigo_folio ?? '<span class="text-muted">—</span>'}</td>
-        <td>${escapeHtml(p.titulo)}</td>
-        <td>${estadoBadge(p.estado_actual)}</td>
-        <td>${p.mentor_nombre ?? '<span class="text-muted">Sin asignar</span>'}</td>
-        <td>${p.num_integrantes}</td>
-        <td>${fecha}</td>
+        <td data-label="Folio">${p.codigo_folio ?? '<span class="text-muted">—</span>'}</td>
+        <td data-label="Título">${escapeHtml(p.titulo)}</td>
+        <td data-label="Estado">${estadoBadge(p.estado_actual)}</td>
+        <td data-label="Mentor">${p.mentor_nombre ?? '<span class="text-muted">Sin asignar</span>'}</td>
+        <td data-label="Integrantes">${p.num_integrantes}</td>
+        <td data-label="Creado">${fecha}</td>
       </tr>
     `;
   }

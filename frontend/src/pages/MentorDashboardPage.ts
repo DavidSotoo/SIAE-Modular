@@ -162,10 +162,10 @@ export class MentorDashboardPage {
                 .map(
                   (p) => `
                 <tr data-id="${p.id_proyecto}">
-                  <td>${p.codigo_folio ?? '<span class="text-muted">—</span>'}</td>
-                  <td>${escapeHtml(p.titulo)}</td>
-                  <td>${estadoBadge(p.estado_actual)}</td>
-                  <td>${p.miembros.map((m) => escapeHtml(m.nombre) + (m.es_lider ? ' (líder)' : '')).join(', ')}</td>
+                  <td data-label="Folio">${p.codigo_folio ?? '<span class="text-muted">—</span>'}</td>
+                  <td data-label="Título">${escapeHtml(p.titulo)}</td>
+                  <td data-label="Estado">${estadoBadge(p.estado_actual)}</td>
+                  <td data-label="Equipo">${p.miembros.map((m) => escapeHtml(m.nombre) + (m.es_lider ? ' (líder)' : '')).join(', ')}</td>
                 </tr>
               `,
                 )
