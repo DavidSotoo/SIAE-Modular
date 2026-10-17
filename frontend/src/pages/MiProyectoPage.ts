@@ -1,4 +1,10 @@
-import { getMyProject, createProject, getProjectHistory, uploadProtocol, downloadProtocol } from '../services/project.service.js';
+import {
+  getMyProject,
+  createProject,
+  getProjectHistory,
+  uploadProtocol,
+  downloadProtocol,
+} from '../services/project.service.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
 import { getAdvisorById } from '../services/advisor.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
@@ -14,13 +20,17 @@ export class MiProyectoPage {
   }
 
   async render() {
-    this.container.innerHTML = '<div class="state-loading"><span class="spinner"></span> Cargando proyecto...</div>';
+    this.container.innerHTML =
+      '<div class="state-loading"><span class="spinner"></span> Cargando proyecto...</div>';
 
     try {
       this.project = await getMyProject();
       this.buildView();
     } catch (err: any) {
-      this.container.innerHTML = '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' + getErrorMessage(err.code, err.status) + '</div></div>';
+      this.container.innerHTML =
+        '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
+        getErrorMessage(err.code, err.status) +
+        '</div></div>';
     }
   }
 
@@ -75,17 +85,18 @@ export class MiProyectoPage {
 
     const orderedStates: ProjectState[] = ['borrador', 'pendiente', 'validado', 'registrado'];
     const currentActualState = this.project.estado_actual;
-    
+
     // Determinar índice efectivo: 'correccion' se mapea a 'pendiente' para estado activo
-    const effectiveStateIndex = currentActualState === 'correccion' 
-      ? orderedStates.indexOf('pendiente') 
-      : orderedStates.indexOf(currentActualState);
+    const effectiveStateIndex =
+      currentActualState === 'correccion'
+        ? orderedStates.indexOf('pendiente')
+        : orderedStates.indexOf(currentActualState);
 
     let stepperHtml = '<div class="stepper">';
     orderedStates.forEach((state, index) => {
       let cssClass = '';
       let markerContent = '';
-      
+
       if (currentActualState === 'cancelado') {
         cssClass = 'disabled';
         markerContent = '';
@@ -102,7 +113,7 @@ export class MiProyectoPage {
           markerContent = '';
         }
       }
-      
+
       const labelStr = state.charAt(0).toUpperCase() + state.slice(1);
       stepperHtml += `
         <div class="stepper-item ${cssClass}">
@@ -122,7 +133,9 @@ export class MiProyectoPage {
         </div>
       `;
     } else if (currentActualState === 'registrado') {
-      const folioText = this.project.codigo_folio ? ` con el folio <strong>${this.project.codigo_folio}</strong>` : '';
+      const folioText = this.project.codigo_folio
+        ? ` con el folio <strong>${this.project.codigo_folio}</strong>`
+        : '';
       bannerHtml = `
         <div class="banner-alert banner-alert--success mt-4">
           <span class="material-symbols-outlined">verified</span>
@@ -139,7 +152,7 @@ export class MiProyectoPage {
     }
 
     let membersHtml = '';
-    this.project.miembros.forEach(m => {
+    this.project.miembros.forEach((m) => {
       membersHtml += `
         <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--color-outline-variant);">
           <div class="profile-card__avatar" style="width: 32px; height: 32px; font-size: 14px; margin-right: 12px;">${escapeHtml(m.nombre.charAt(0))}</div>
@@ -151,8 +164,8 @@ export class MiProyectoPage {
       `;
     });
 
-    const folioBadge = this.project.codigo_folio 
-      ? `<div class="badge badge--folio">Folio: ${this.project.codigo_folio}</div>` 
+    const folioBadge = this.project.codigo_folio
+      ? `<div class="badge badge--folio">Folio: ${this.project.codigo_folio}</div>`
       : '';
 
     this.container.innerHTML = `
@@ -217,8 +230,8 @@ export class MiProyectoPage {
     const canUpload = state === 'borrador' || state === 'correccion';
     const hasDoc = !!this.project!.pdf_path;
     const PROTOCOL_MSG: Partial<Record<ProjectState, string>> = {
-      pendiente:  'Tu asesor está revisando el protocolo; no se puede reemplazar por ahora.',
-      validado:   'Tu asesor validó el protocolo; falta que administración emita el folio.',
+      pendiente: 'Tu asesor está revisando el protocolo; no se puede reemplazar por ahora.',
+      validado: 'Tu asesor validó el protocolo; falta que administración emita el folio.',
       registrado: 'El protocolo quedó registrado y ya no se puede reemplazar.',
     };
     const protocolMsg = hasDoc
@@ -229,7 +242,8 @@ export class MiProyectoPage {
       ? `<button class="btn btn--ghost btn--sm mt-2" id="btn-view-document"><span class="material-symbols-outlined">description</span> Ver protocolo actual</button>`
       : '';
 
-    const dropzone = canUpload ? `
+    const dropzone = canUpload
+      ? `
       <div class="dropzone" id="protocol-dropzone">
         <span class="material-symbols-outlined">upload_file</span>
         <p class="text-label mt-2">Arrastra tu protocolo PDF aquí o</p>
@@ -237,7 +251,8 @@ export class MiProyectoPage {
         <input type="file" id="file-input" accept="application/pdf" class="hidden">
         <div id="file-error" class="form-error hidden mt-2"></div>
       </div>
-    ` : `
+    `
+      : `
       <div class="state-empty" style="padding: 16px 0;">
         <div class="state-empty__msg">${protocolMsg}</div>
       </div>
@@ -300,7 +315,7 @@ export class MiProyectoPage {
     };
 
     btnSelect.addEventListener('click', () => fileInput.click());
-    
+
     fileInput.addEventListener('change', () => {
       if (fileInput.files && fileInput.files.length > 0) {
         handleFile(fileInput.files[0]);
@@ -371,11 +386,13 @@ export class MiProyectoPage {
       }
 
       let timelineHtml = '<div class="timeline">';
-      logs.forEach(log => {
+      logs.forEach((log) => {
         const dateStr = new Date(log.timestamp).toLocaleString();
         const prev = log.estado_anterior ? log.estado_anterior : 'N/A';
         const current = log.estado_nuevo;
-        const comment = log.comentario ? `<div class="text-label mt-1 text-muted">"${escapeHtml(log.comentario)}"</div>` : '';
+        const comment = log.comentario
+          ? `<div class="text-label mt-1 text-muted">"${escapeHtml(log.comentario)}"</div>`
+          : '';
 
         timelineHtml += `
           <div class="timeline-item">
@@ -406,11 +423,10 @@ export class MiProyectoPage {
 
   private async handleCreate(e: Event) {
     e.preventDefault();
-    const form = e.target as HTMLFormElement;
     const input = document.getElementById('titulo') as HTMLInputElement;
     const btn = document.getElementById('btn-create') as HTMLButtonElement;
     const errorDiv = document.getElementById('titulo-error')!;
-    
+
     const descInput = document.getElementById('descripcion') as HTMLTextAreaElement;
     const descErrorDiv = document.getElementById('descripcion-error')!;
 
@@ -449,7 +465,7 @@ export class MiProyectoPage {
     try {
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span> Creando...';
-      
+
       this.project = await createProject(titulo, descripcion);
       showToast('Proyecto creado exitosamente', { type: 'success' });
       this.buildView();

@@ -13,17 +13,24 @@
 import type { NivelSkill } from '../types/index.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
 
-export interface ChipItem { id: number; label: string; category?: string; }
-export interface ChipSelection { id: number; nivel?: NivelSkill; }
+export interface ChipItem {
+  id: number;
+  label: string;
+  category?: string;
+}
+export interface ChipSelection {
+  id: number;
+  nivel?: NivelSkill;
+}
 
 export interface ChipSelectorOptions {
   container: HTMLElement;
   items: ChipItem[];
   initial?: ChipSelection[];
-  withLevel?: boolean;       // true para skills (muestra segmented control), false para áreas
+  withLevel?: boolean; // true para skills (muestra segmented control), false para áreas
   chipClass?: (item: ChipItem) => string; // Compatibilidad retroactiva; ignorado si category está presente
-  category?: 'hard' | 'soft' | 'area';   // Categoría semántica → paleta visual automática
-  emptyLabel?: string;       // Texto del estado vacío en búsqueda sin resultados
+  category?: 'hard' | 'soft' | 'area'; // Categoría semántica → paleta visual automática
+  emptyLabel?: string; // Texto del estado vacío en búsqueda sin resultados
   onCreateItem?: (label: string) => Promise<ChipItem>;
   onChange?: (selected: ChipSelection[]) => void;
 }
@@ -40,7 +47,7 @@ export class ChipSelector {
   private searchQuery = '';
 
   constructor(private opts: ChipSelectorOptions) {
-    if (opts.initial) opts.initial.forEach(s => this.selected.set(s.id, s));
+    if (opts.initial) opts.initial.forEach((s) => this.selected.set(s.id, s));
     this.render();
   }
 
@@ -61,20 +68,23 @@ export class ChipSelector {
 
   /** Normaliza texto para búsqueda: minúsculas sin diacríticos. */
   private normalize(s: string): string {
-    return s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+    return s
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '');
   }
 
   /** Lista de items filtrada por la búsqueda actual. */
   private filteredItems(): ChipItem[] {
     if (!this.searchQuery) return this.opts.items;
     const q = this.normalize(this.searchQuery);
-    return this.opts.items.filter(it => this.normalize(it.label).includes(q));
+    return this.opts.items.filter((it) => this.normalize(it.label).includes(q));
   }
 
   // ─── Render principal ────────────────────────────────────────────────────────
 
   private render(): void {
-    const { container, withLevel, emptyLabel, onChange } = this.opts;
+    const { container, emptyLabel, onChange } = this.opts;
     const cat = this.categoryKey();
     const isArea = cat === 'area';
     const items = this.filteredItems();
@@ -89,11 +99,12 @@ export class ChipSelector {
       const selectedZone = document.createElement('div');
       selectedZone.className = 'cs-selected-zone';
 
-      const selectedItems = this.opts.items.filter(it => selectedIds.has(it.id));
+      const selectedItems = this.opts.items.filter((it) => selectedIds.has(it.id));
       if (selectedItems.length === 0) {
-        selectedZone.innerHTML = '<div class="cs-placeholder">Haz clic en una habilidad para agregarla</div>';
+        selectedZone.innerHTML =
+          '<div class="cs-placeholder">Haz clic en una habilidad para agregarla</div>';
       } else {
-        selectedItems.forEach(item => {
+        selectedItems.forEach((item) => {
           const sel = this.selected.get(item.id)!;
           selectedZone.appendChild(this.buildSelectedChip(item, sel, cat, onChange));
         });
@@ -105,9 +116,11 @@ export class ChipSelector {
     const availableZone = document.createElement('div');
     availableZone.className = 'cs-available-zone';
 
-    const availableItems = isArea ? items : items.filter(it => !selectedIds.has(it.id));
+    const availableItems = isArea ? items : items.filter((it) => !selectedIds.has(it.id));
 
-    const exactMatch = this.opts.items.some(it => this.normalize(it.label) === this.normalize(this.searchQuery));
+    const exactMatch = this.opts.items.some(
+      (it) => this.normalize(it.label) === this.normalize(this.searchQuery),
+    );
     const showCreateButton = this.opts.onCreateItem && this.searchQuery && !exactMatch;
 
     if (availableItems.length === 0 && this.searchQuery && !showCreateButton) {
@@ -117,10 +130,12 @@ export class ChipSelector {
       empty.innerHTML =
         '<span class="material-symbols-outlined">search_off</span>' +
         '<div class="cs-empty-state__title">Sin resultados</div>' +
-        '<div class="cs-empty-state__msg">' + (emptyLabel ?? 'No se encontraron opciones. Prueba con otro término.') + '</div>';
+        '<div class="cs-empty-state__msg">' +
+        (emptyLabel ?? 'No se encontraron opciones. Prueba con otro término.') +
+        '</div>';
       availableZone.appendChild(empty);
     } else {
-      availableItems.forEach(item => {
+      availableItems.forEach((item) => {
         if (isArea) {
           availableZone.appendChild(this.buildAreaChip(item, selectedIds.has(item.id), onChange));
         } else {
@@ -135,7 +150,8 @@ export class ChipSelector {
         createBtn.innerHTML = `<span class="material-symbols-outlined">add</span>Agregar "${escapeHtml(this.searchQuery)}"`;
         createBtn.addEventListener('click', async () => {
           createBtn.disabled = true;
-          createBtn.innerHTML = '<span class="spinner" style="width:14px;height:14px;border-width:2px;margin-right:4px;"></span>Creando...';
+          createBtn.innerHTML =
+            '<span class="spinner" style="width:14px;height:14px;border-width:2px;margin-right:4px;"></span>Creando...';
           try {
             const newItem = await this.opts.onCreateItem!(this.searchQuery);
             this.opts.items.push(newItem);
@@ -144,17 +160,17 @@ export class ChipSelector {
               nivel: this.opts.withLevel ? 'basico' : undefined,
             });
             this.searchQuery = '';
-            
-            // Try to clear the input if it's attached via mountHeader
-            const headerInput = document.querySelector(`.cs-search-input`) as HTMLInputElement;
-            // A more robust way is to just find the input relative to this component, but the header is detached sometimes.
-            // Since there can be multiple headers on the page, we'll try to rely on render() to let the user clear it manually 
-            // or we clear all inputs that match this searchQuery.
-            // A simpler way is to just trigger render, and if the user keeps typing, they can clear it.
-            // But let's try to clear the specific input if we know its value:
-            document.querySelectorAll('.cs-search-input').forEach(el => {
+
+            // El buscador se monta aparte con mountHeader y puede haber varios
+            // en la pagina, asi que se limpia el que coincide con lo escrito.
+            document.querySelectorAll('.cs-search-input').forEach((el) => {
               const inp = el as HTMLInputElement;
-              if (this.normalize(inp.value) === this.normalize(createBtn.textContent?.replace('Agregar "', '').replace('"', '') || '')) {
+              if (
+                this.normalize(inp.value) ===
+                this.normalize(
+                  createBtn.textContent?.replace('Agregar "', '').replace('"', '') || '',
+                )
+              ) {
                 inp.value = '';
               }
             });
@@ -196,7 +212,7 @@ export class ChipSelector {
       control.className = 'cs-level-control';
       const currentNivel: NivelSkill = sel.nivel ?? 'basico';
 
-      NIVELES.forEach(nivel => {
+      NIVELES.forEach((nivel) => {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'cs-level-btn';
@@ -263,7 +279,8 @@ export class ChipSelector {
 
     if (isSelected) {
       btn.className = 'cs-chip-area-selected';
-      btn.innerHTML = '<span class="material-symbols-outlined">check</span>' + escapeHtml(item.label);
+      btn.innerHTML =
+        '<span class="material-symbols-outlined">check</span>' + escapeHtml(item.label);
       btn.setAttribute('aria-pressed', 'true');
       btn.addEventListener('click', () => {
         this.selected.delete(item.id);

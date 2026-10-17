@@ -5,7 +5,7 @@ import { getErrorMessage } from '../services/errorMessages.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
 import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
-import type { Area, Project, AdvisorSearchResult } from '../types/index.js';
+import type { Area, Project } from '../types/index.js';
 
 export class BuscarAsesorPage {
   private container: HTMLElement;
@@ -17,17 +17,18 @@ export class BuscarAsesorPage {
   }
 
   async render() {
-    this.container.innerHTML = '<div class="state-loading"><span class="spinner"></span> Cargando página...</div>';
+    this.container.innerHTML =
+      '<div class="state-loading"><span class="spinner"></span> Cargando página...</div>';
     try {
-      const [project, areas] = await Promise.all([
-        getMyProject(),
-        getAreas()
-      ]);
+      const [project, areas] = await Promise.all([getMyProject(), getAreas()]);
       this.myProject = project;
       this.areas = areas;
       this.buildLayout();
     } catch (err: any) {
-      this.container.innerHTML = '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' + getErrorMessage(err.code, err.status) + '</div></div>';
+      this.container.innerHTML =
+        '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
+        getErrorMessage(err.code, err.status) +
+        '</div></div>';
     }
   }
 
@@ -42,7 +43,7 @@ export class BuscarAsesorPage {
           <label class="form-label text-label-sm" for="filter-area">Área</label>
           <select id="filter-area" name="area" class="form-control">
             <option value="">Cualquiera</option>
-            ${this.areas.map(a => `<option value="${a.id_area}">${escapeHtml(a.nombre)}</option>`).join('')}
+            ${this.areas.map((a) => `<option value="${a.id_area}">${escapeHtml(a.nombre)}</option>`).join('')}
           </select>
         </div>
         <div class="form-group" style="flex: 0 0 auto;">
@@ -64,27 +65,32 @@ export class BuscarAsesorPage {
 
   private async performSearch(fd: FormData) {
     const resultsContainer = document.getElementById('search-results-container')!;
-    resultsContainer.innerHTML = '<div class="state-loading"><span class="spinner"></span> Buscando...</div>';
+    resultsContainer.innerHTML =
+      '<div class="state-loading"><span class="spinner"></span> Buscando...</div>';
 
     const params: any = {};
     if (fd.get('area')) params.area = Number(fd.get('area'));
 
     try {
       const advisors = await searchAdvisors(params);
-      
+
       if (advisors.length === 0) {
-        resultsContainer.innerHTML = '<div class="state-empty"><span class="material-symbols-outlined">person_search</span><div class="state-empty__title">Sin resultados</div><div class="state-empty__msg">No se encontraron asesores con esos filtros.</div></div>';
+        resultsContainer.innerHTML =
+          '<div class="state-empty"><span class="material-symbols-outlined">person_search</span><div class="state-empty__title">Sin resultados</div><div class="state-empty__msg">No se encontraron asesores con esos filtros.</div></div>';
         return;
       }
 
       let html = '<div class="cards-grid">';
-      advisors.forEach(advisor => {
-        const areaChips = advisor.areas.map(a => `<span class="chip chip--area">${escapeHtml(a.nombre)}</span>`).join(' ');
-        
+      advisors.forEach((advisor) => {
+        const areaChips = advisor.areas
+          .map((a) => `<span class="chip chip--area">${escapeHtml(a.nombre)}</span>`)
+          .join(' ');
+
         let buttonHtml = '';
         if (this.myProject) {
           if (this.myProject.id_mentor !== null) {
-            buttonHtml = '<button class="btn btn--secondary btn--full" disabled title="Ya tienes un asesor asignado">Ya tienes asesor</button>';
+            buttonHtml =
+              '<button class="btn btn--secondary btn--full" disabled title="Ya tienes un asesor asignado">Ya tienes asesor</button>';
           } else {
             buttonHtml = `<button class="btn btn--primary btn--full btn-solicitar" data-id="${advisor.id_usuario}" data-nombre="${escapeHtml(advisor.nombre)}">Solicitar Asesoría</button>`;
           }
@@ -112,7 +118,8 @@ export class BuscarAsesorPage {
       html += '</div>';
 
       if (!this.myProject) {
-        html = `
+        html =
+          `
           <div class="info-box mb-6">
             <span class="material-symbols-outlined">info</span>
             <div>No tienes un proyecto activo. <a href="#/proyecto" style="text-decoration: underline; font-weight: 500;">Crea uno aquí</a> para poder solicitar asesor.</div>
@@ -124,7 +131,7 @@ export class BuscarAsesorPage {
 
       resultsContainer.innerHTML = html;
 
-      resultsContainer.querySelectorAll('.btn-solicitar').forEach(btn => {
+      resultsContainer.querySelectorAll('.btn-solicitar').forEach((btn) => {
         btn.addEventListener('click', (e) => {
           const target = e.currentTarget as HTMLButtonElement;
           const id = Number(target.getAttribute('data-id'));
@@ -132,16 +139,17 @@ export class BuscarAsesorPage {
           this.openRequestModal(id, nombre);
         });
       });
-
     } catch (err: any) {
-      resultsContainer.innerHTML = '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' + getErrorMessage(err.code, err.status) + '</div></div>';
+      resultsContainer.innerHTML =
+        '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
+        getErrorMessage(err.code, err.status) +
+        '</div></div>';
     }
   }
 
   private openRequestModal(id_mentor: number, nombre: string) {
     if (!this.myProject) return;
 
-    let mensajeInput: HTMLTextAreaElement;
     const modal = new Modal({
       id: 'request-modal',
       title: 'Solicitar Asesoría a ' + nombre,
@@ -157,7 +165,7 @@ export class BuscarAsesorPage {
           m.setLoading(true);
           await createAdvisorRequest(this.myProject!.id_proyecto, {
             id_mentor,
-            mensaje: mensajeInput.value
+            mensaje: mensajeInput.value,
           });
           showToast('Solicitud enviada exitosamente', { type: 'success' });
           m.close();
@@ -166,10 +174,12 @@ export class BuscarAsesorPage {
         } finally {
           m.setLoading(false);
         }
-      }
+      },
     });
-    
-    mensajeInput = modal.bodyEl.querySelector('#request-mensaje') as HTMLTextAreaElement;
+
+    // Se declara aqui, despues de construir el modal: onConfirm solo se
+    // ejecuta al pulsar, cuando esta constante ya esta inicializada.
+    const mensajeInput = modal.bodyEl.querySelector('#request-mensaje') as HTMLTextAreaElement;
     modal.open();
   }
 }

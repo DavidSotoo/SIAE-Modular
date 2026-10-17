@@ -5,14 +5,14 @@ import helmet from 'helmet';
 import { AppError } from './utils/errors.js';
 import { limitadorGeneral, limitadorLogin } from './middleware/rateLimit.js';
 
-import catalogRoutes      from './routes/catalog.routes.js';
-import studentRoutes      from './routes/student.routes.js';
-import teamRequestRoutes  from './routes/teamRequest.routes.js';
-import advisorRoutes      from './routes/advisor.routes.js';
+import catalogRoutes from './routes/catalog.routes.js';
+import studentRoutes from './routes/student.routes.js';
+import teamRequestRoutes from './routes/teamRequest.routes.js';
+import advisorRoutes from './routes/advisor.routes.js';
 import advisorRequestRoutes from './routes/advisorRequest.routes.js';
-import projectRoutes      from './routes/project.routes.js';
-import authRoutes         from './routes/auth.routes.js';
-import adminRoutes        from './routes/admin.routes.js';
+import projectRoutes from './routes/project.routes.js';
+import authRoutes from './routes/auth.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 
 const app = express();
 
@@ -76,12 +76,10 @@ app.use('/api', adminRoutes);
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
 // ─── Manejador global de errores ─────────────────────────────────────────
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof AppError) {
-    return res
-      .status(err.statusCode)
-      .json({ error: err.message, code: err.code });
+    return res.status(err.statusCode).json({ error: err.message, code: err.code });
   }
   console.error('[Unhandled error]', err);
   res.status(500).json({ error: 'Error interno del servidor' });

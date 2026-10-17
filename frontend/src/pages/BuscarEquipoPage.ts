@@ -1,11 +1,22 @@
-﻿import { searchStudents, getMyTeamRequests, getProjectTeamRequests, getSkills, getAreas, getMyProfile, createTeamRequest, acceptTeamRequest, rejectTeamRequest, cancelTeamRequest } from '../services/student.service.js';
+﻿import {
+  searchStudents,
+  getMyTeamRequests,
+  getProjectTeamRequests,
+  getSkills,
+  getAreas,
+  getMyProfile,
+  createTeamRequest,
+  acceptTeamRequest,
+  rejectTeamRequest,
+  cancelTeamRequest,
+} from '../services/student.service.js';
 import { MAX_INTEGRANTES } from '../constants.js';
 import { getMyProject } from '../services/project.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
 import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
-import type { Skill, Area, StudentProfile, StudentSearchResult, TeamRequest, Project } from '../types/index.js';
+import type { Skill, Area, StudentProfile, TeamRequest, Project } from '../types/index.js';
 
 export class BuscarEquipoPage {
   private container: HTMLElement;
@@ -20,13 +31,14 @@ export class BuscarEquipoPage {
   }
 
   async render() {
-    this.container.innerHTML = '<div class="state-loading"><span class="spinner"></span> Cargando página...</div>';
+    this.container.innerHTML =
+      '<div class="state-loading"><span class="spinner"></span> Cargando página...</div>';
     try {
       const [profile, project, skills, areas] = await Promise.all([
         getMyProfile(),
         getMyProject(),
         getSkills(),
-        getAreas()
+        getAreas(),
       ]);
       this.myProfile = profile;
       this.myProject = project;
@@ -34,7 +46,10 @@ export class BuscarEquipoPage {
       this.areas = areas;
       this.buildLayout();
     } catch (err: any) {
-      this.container.innerHTML = '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' + getErrorMessage(err.code, err.status) + '</div></div>';
+      this.container.innerHTML =
+        '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
+        getErrorMessage(err.code, err.status) +
+        '</div></div>';
     }
   }
 
@@ -54,14 +69,14 @@ export class BuscarEquipoPage {
             <label class="form-label text-label-sm" for="filter-skill">Habilidad</label>
             <select id="filter-skill" name="skill" class="form-control">
               <option value="">Cualquiera</option>
-              ${this.skills.map(s => `<option value="${s.id_skill}">${escapeHtml(s.nombre)}</option>`).join('')}
+              ${this.skills.map((s) => `<option value="${s.id_skill}">${escapeHtml(s.nombre)}</option>`).join('')}
             </select>
           </div>
           <div class="form-group">
             <label class="form-label text-label-sm" for="filter-area">Área</label>
             <select id="filter-area" name="area" class="form-control">
               <option value="">Cualquiera</option>
-              ${this.areas.map(a => `<option value="${a.id_area}">${escapeHtml(a.nombre)}</option>`).join('')}
+              ${this.areas.map((a) => `<option value="${a.id_area}">${escapeHtml(a.nombre)}</option>`).join('')}
             </select>
           </div>
           <div class="form-group">
@@ -97,10 +112,10 @@ export class BuscarEquipoPage {
 
     const tabs = this.container.querySelectorAll('.tab-btn');
     const panels = this.container.querySelectorAll('.tab-panel');
-    tabs.forEach(tab => {
+    tabs.forEach((tab) => {
       tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active'));
-        panels.forEach(p => p.classList.remove('active'));
+        tabs.forEach((t) => t.classList.remove('active'));
+        panels.forEach((p) => p.classList.remove('active'));
         tab.classList.add('active');
         const target = tab.getAttribute('data-target')!;
         document.getElementById(target)!.classList.add('active');
@@ -121,7 +136,8 @@ export class BuscarEquipoPage {
 
   private async performSearch(fd: FormData) {
     const resultsContainer = document.getElementById('search-results-container')!;
-    resultsContainer.innerHTML = '<div class="state-loading"><span class="spinner"></span> Buscando...</div>';
+    resultsContainer.innerHTML =
+      '<div class="state-loading"><span class="spinner"></span> Buscando...</div>';
 
     const params: any = {};
     if (fd.get('skill')) params.skill = Number(fd.get('skill'));
@@ -132,26 +148,36 @@ export class BuscarEquipoPage {
 
     try {
       const students = await searchStudents(params);
-      
+
       if (students.length === 0) {
-        resultsContainer.innerHTML = '<div class="state-empty"><span class="material-symbols-outlined">person_search</span><div class="state-empty__title">Sin resultados</div><div class="state-empty__msg">No se encontraron alumnos con esos filtros.</div></div>';
+        resultsContainer.innerHTML =
+          '<div class="state-empty"><span class="material-symbols-outlined">person_search</span><div class="state-empty__title">Sin resultados</div><div class="state-empty__msg">No se encontraron alumnos con esos filtros.</div></div>';
         return;
       }
 
       const teamIsFull = this.myProject && this.myProject.miembros.length >= MAX_INTEGRANTES;
 
       let html = '<div class="cards-grid">';
-      students.forEach(student => {
+      students.forEach((student) => {
         if (student.codigo_cucei === this.myProfile?.codigo_cucei) return;
-        
-        const hardChips = student.skills.filter(s => s.tipo === 'hard').map(s => '<span class="chip chip--hard">' + escapeHtml(s.nombre) + '</span>').join('');
-        const softChips = student.skills.filter(s => s.tipo === 'soft').map(s => '<span class="chip chip--soft">' + escapeHtml(s.nombre) + '</span>').join('');
-        const areaChips = student.areas.map(a => '<span class="chip chip--area">' + escapeHtml(a.nombre) + '</span>').join('');
-        
+
+        const hardChips = student.skills
+          .filter((s) => s.tipo === 'hard')
+          .map((s) => '<span class="chip chip--hard">' + escapeHtml(s.nombre) + '</span>')
+          .join('');
+        const softChips = student.skills
+          .filter((s) => s.tipo === 'soft')
+          .map((s) => '<span class="chip chip--soft">' + escapeHtml(s.nombre) + '</span>')
+          .join('');
+        const areaChips = student.areas
+          .map((a) => '<span class="chip chip--area">' + escapeHtml(a.nombre) + '</span>')
+          .join('');
+
         let buttonHtml = '';
         if (this.myProject) {
           if (teamIsFull) {
-            buttonHtml = '<button class="btn btn--secondary btn--full" disabled title="Tu equipo ya está completo">Equipo completo</button>';
+            buttonHtml =
+              '<button class="btn btn--secondary btn--full" disabled title="Tu equipo ya está completo">Equipo completo</button>';
           } else {
             buttonHtml = `<button class="btn btn--primary btn--full btn-invitar" data-codigo="${escapeHtml(student.codigo_cucei)}" data-nombre="${escapeHtml(student.nombre)}">Invitar a mi equipo</button>`;
           }
@@ -179,7 +205,8 @@ export class BuscarEquipoPage {
       html += '</div>';
 
       if (!this.myProject) {
-        html = `
+        html =
+          `
           <div class="info-box mb-6">
             <span class="material-symbols-outlined">info</span>
             <div>No tienes un proyecto activo. <a href="#/proyecto" style="text-decoration: underline; font-weight: 500;">Crea uno aquí</a> para poder invitar compañeros.</div>
@@ -189,7 +216,7 @@ export class BuscarEquipoPage {
 
       resultsContainer.innerHTML = html;
 
-      resultsContainer.querySelectorAll('.btn-invitar').forEach(btn => {
+      resultsContainer.querySelectorAll('.btn-invitar').forEach((btn) => {
         btn.addEventListener('click', (e) => {
           const target = e.currentTarget as HTMLButtonElement;
           const codigo = target.getAttribute('data-codigo')!;
@@ -197,16 +224,17 @@ export class BuscarEquipoPage {
           this.openInviteModal(codigo, nombre);
         });
       });
-
     } catch (err: any) {
-      resultsContainer.innerHTML = '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' + getErrorMessage(err.code, err.status) + '</div></div>';
+      resultsContainer.innerHTML =
+        '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
+        getErrorMessage(err.code, err.status) +
+        '</div></div>';
     }
   }
 
   private openInviteModal(codigo: string, nombre: string) {
     if (!this.myProject) return;
 
-    let mensajeInput: HTMLTextAreaElement;
     const modal = new Modal({
       id: 'invite-modal',
       title: 'Invitar a ' + nombre,
@@ -223,7 +251,7 @@ export class BuscarEquipoPage {
           await createTeamRequest(this.myProject!.id_proyecto, {
             tipo: 'invitacion',
             codigo_alumno: codigo,
-            mensaje: mensajeInput.value
+            mensaje: mensajeInput.value,
           });
           showToast('Invitación enviada exitosamente', { type: 'success' });
           m.close();
@@ -232,49 +260,57 @@ export class BuscarEquipoPage {
         } finally {
           m.setLoading(false);
         }
-      }
+      },
     });
-    
-    mensajeInput = modal.bodyEl.querySelector('#invite-mensaje') as HTMLTextAreaElement;
+
+    // Se declara aqui, despues de construir el modal: onConfirm solo se
+    // ejecuta al pulsar, cuando esta constante ya esta inicializada.
+    const mensajeInput = modal.bodyEl.querySelector('#invite-mensaje') as HTMLTextAreaElement;
     modal.open();
   }
 
   private async loadSolicitudes() {
     const recibidasContainer = document.getElementById('req-recibidas')!;
     const enviadasContainer = document.getElementById('req-enviadas')!;
-    
+
     recibidasContainer.innerHTML = '<div class="state-loading"><span class="spinner"></span></div>';
     enviadasContainer.innerHTML = '<div class="state-loading"><span class="spinner"></span></div>';
 
     try {
       const p1 = getMyTeamRequests();
-      const p2 = this.myProject ? getProjectTeamRequests(this.myProject.id_proyecto) : Promise.resolve([]);
-      
+      const p2 = this.myProject
+        ? getProjectTeamRequests(this.myProject.id_proyecto)
+        : Promise.resolve([]);
+
       const [personalReqs, projectReqs] = await Promise.all([p1, p2]);
-      
+
       const map = new Map<number, TeamRequest>();
-      personalReqs.forEach(r => map.set(r.id_solicitud, r));
-      projectReqs.forEach(r => map.set(r.id_solicitud, r));
-      
-      this.requests = Array.from(map.values()).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      personalReqs.forEach((r) => map.set(r.id_solicitud, r));
+      projectReqs.forEach((r) => map.set(r.id_solicitud, r));
+
+      this.requests = Array.from(map.values()).sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      );
 
       const me = this.myProfile!.codigo_cucei;
 
-      const recibidas = this.requests.filter(r => 
-        (r.codigo_alumno_candidato === me && r.tipo === 'invitacion') || 
-        (r.codigo_alumno_candidato !== me && r.tipo === 'solicitud')
+      const recibidas = this.requests.filter(
+        (r) =>
+          (r.codigo_alumno_candidato === me && r.tipo === 'invitacion') ||
+          (r.codigo_alumno_candidato !== me && r.tipo === 'solicitud'),
       );
 
-      const enviadas = this.requests.filter(r => 
-        (r.codigo_alumno_candidato === me && r.tipo === 'solicitud') ||
-        (r.codigo_alumno_candidato !== me && r.tipo === 'invitacion')
+      const enviadas = this.requests.filter(
+        (r) =>
+          (r.codigo_alumno_candidato === me && r.tipo === 'solicitud') ||
+          (r.codigo_alumno_candidato !== me && r.tipo === 'invitacion'),
       );
 
       this.renderRequestCards(recibidasContainer, recibidas, true);
       this.renderRequestCards(enviadasContainer, enviadas, false);
-
     } catch (err: any) {
-      recibidasContainer.innerHTML = '<div class="text-error">' + getErrorMessage(err.code, err.status) + '</div>';
+      recibidasContainer.innerHTML =
+        '<div class="text-error">' + getErrorMessage(err.code, err.status) + '</div>';
       enviadasContainer.innerHTML = '';
     }
   }
@@ -286,16 +322,25 @@ export class BuscarEquipoPage {
     }
 
     let html = '';
-    list.forEach(req => {
-      const bgClass = req.estado === 'pendiente' ? 'badge--pendiente' : 
-                      req.estado === 'aceptada' ? 'badge--aceptada' : 
-                      req.estado === 'rechazada' ? 'badge--rechazada' : 'badge--cancelada';
-      
-      let title = '';
+    list.forEach((req) => {
+      const bgClass =
+        req.estado === 'pendiente'
+          ? 'badge--pendiente'
+          : req.estado === 'aceptada'
+            ? 'badge--aceptada'
+            : req.estado === 'rechazada'
+              ? 'badge--rechazada'
+              : 'badge--cancelada';
+
+      let title: string;
       if (req.tipo === 'invitacion') {
-        title = isRecibida ? `Invitación de proyecto ${req.id_proyecto}` : `Invitaste a ${req.codigo_alumno_candidato} al proyecto ${req.id_proyecto}`;
+        title = isRecibida
+          ? `Invitación de proyecto ${req.id_proyecto}`
+          : `Invitaste a ${req.codigo_alumno_candidato} al proyecto ${req.id_proyecto}`;
       } else {
-        title = isRecibida ? `${req.codigo_alumno_candidato} solicita unirse al proyecto ${req.id_proyecto}` : `Solicitaste unirte al proyecto ${req.id_proyecto}`;
+        title = isRecibida
+          ? `${req.codigo_alumno_candidato} solicita unirse al proyecto ${req.id_proyecto}`
+          : `Solicitaste unirte al proyecto ${req.id_proyecto}`;
       }
 
       html += `
@@ -306,39 +351,53 @@ export class BuscarEquipoPage {
           </div>
           ${req.mensaje ? `<div class="request-card__msg">"${escapeHtml(req.mensaje)}"</div>` : ''}
           <div class="request-card__meta">Actualizado: ${new Date(req.updated_at).toLocaleDateString()}</div>
-          ${req.estado === 'pendiente' ? `
+          ${
+            req.estado === 'pendiente'
+              ? `
             <div class="request-card__actions">
-              ${isRecibida ? `
+              ${
+                isRecibida
+                  ? `
                 <button class="btn btn--sm btn--primary btn-accept" data-id="${req.id_solicitud}">Aceptar</button>
                 <button class="btn btn--sm btn--ghost btn-reject" data-id="${req.id_solicitud}">Rechazar</button>
-              ` : `
+              `
+                  : `
                 <button class="btn btn--sm btn--danger btn-cancel" data-id="${req.id_solicitud}">Cancelar</button>
-              `}
+              `
+              }
             </div>
-          ` : ''}
+          `
+              : ''
+          }
         </div>
       `;
     });
     container.innerHTML = html;
 
-    container.querySelectorAll('.btn-accept').forEach(btn => btn.addEventListener('click', e => this.handleAction(e, 'accept')));
-    container.querySelectorAll('.btn-reject').forEach(btn => btn.addEventListener('click', e => this.handleAction(e, 'reject')));
-    container.querySelectorAll('.btn-cancel').forEach(btn => btn.addEventListener('click', e => this.handleAction(e, 'cancel')));
+    container
+      .querySelectorAll('.btn-accept')
+      .forEach((btn) => btn.addEventListener('click', (e) => this.handleAction(e, 'accept')));
+    container
+      .querySelectorAll('.btn-reject')
+      .forEach((btn) => btn.addEventListener('click', (e) => this.handleAction(e, 'reject')));
+    container
+      .querySelectorAll('.btn-cancel')
+      .forEach((btn) => btn.addEventListener('click', (e) => this.handleAction(e, 'cancel')));
   }
 
   private async handleAction(e: Event, action: 'accept' | 'reject' | 'cancel') {
     const btn = e.currentTarget as HTMLButtonElement;
     const id = Number(btn.getAttribute('data-id'));
     const originalText = btn.textContent;
-    
+
     try {
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span>';
-      
+
       if (action === 'accept') await acceptTeamRequest(id);
       else if (action === 'reject') await rejectTeamRequest(id);
       else if (action === 'cancel') await cancelTeamRequest(id);
-      
+
       showToast('Acción completada', { type: 'success' });
       this.loadSolicitudes(); // Refresh list
     } catch (err: any) {
