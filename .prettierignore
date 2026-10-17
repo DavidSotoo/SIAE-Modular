@@ -1,0 +1,9 @@
+node_modules
+dist
+build
+coverage
+package-lock.json
+stitch_*
+frontend/public
+database/migrations
+database/seeds

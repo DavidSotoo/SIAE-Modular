@@ -1,0 +1,31 @@
+{
+  "name": "siae-modular",
+  "private": true,
+  "type": "module",
+  "description": "Herramientas de calidad compartidas por backend y frontend. El codigo de la app vive en backend/ y frontend/, cada uno con su propio package.json.",
+  "scripts": {
+    "lint": "eslint backend/src backend/tests frontend/src",
+    "lint:fix": "eslint backend/src backend/tests frontend/src --fix",
+    "format": "prettier --write \"{backend,frontend}/src/**/*.{ts,css}\" \"backend/tests/**/*.ts\"",
+    "format:check": "prettier --check \"{backend,frontend}/src/**/*.{ts,css}\" \"backend/tests/**/*.ts\"",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{css,json,md,yml}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.9.10",
+    "typescript-eslint": "^8.71.2"
+  }
+}
