@@ -3,6 +3,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { AppError } from './utils/errors.js';
+import { limitadorGeneral, limitadorLogin } from './middleware/rateLimit.js';
 
 import catalogRoutes      from './routes/catalog.routes.js';
 import studentRoutes      from './routes/student.routes.js';
@@ -45,6 +46,21 @@ app.use(
 );
 
 app.use(express.json({ limit: '100kb' }));
+
+// ─── Limites de peticiones por IP ─────────────────────────────────────────
+// En produccion la app corre detras del proxy de Vercel, asi que hay que
+// confiar en exactamente un salto para leer la IP real de X-Forwarded-For.
+// Confiar en todos permitiria falsificar la IP y esquivar el limite.
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
+// Las pruebas lanzan cientos de peticiones desde la misma IP; el limitador
+// se cubre aparte en tests/rateLimit.test.ts con su propio contador.
+if (process.env.NODE_ENV !== 'test') {
+  app.use('/api/auth/google', limitadorLogin);
+  app.use('/api', limitadorGeneral);
+}
 
 // ─── Rutas ───────────────────────────────────────────────────────────────
 app.use('/api', authRoutes);
