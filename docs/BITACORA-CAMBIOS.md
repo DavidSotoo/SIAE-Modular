@@ -55,28 +55,28 @@ decir, ejecución de código en la sesión ajena.
 
 ### Qué se decidió
 
-| Hallazgo | Corrección |
-|---|---|
-| C1 XSS almacenado | `escapeHtml()` en los 21 puntos de interpolación de datos de usuario, en 7 archivos; nuevo `safeUrl()` para URL de portafolio y foto de perfil; iniciales del avatar movidas a un `data-attribute` en vez de interpolarse dentro del `onerror` |
-| C2 JWT con fallback | Eliminado el fallback: el backend ahora falla al emitir tokens si `JWT_SECRET` no está configurado |
-| A1 CORS abierto | `cors()` restringido por `CORS_ORIGINS`; obligatoria en producción, puertos locales de Vite por defecto en desarrollo |
-| A3 Sin cabeceras | `helmet()` añadido; límite de 100 kb en el cuerpo JSON |
-| A4 PDF sin verificar | Validación por cabecera real (`%PDF-`) además del `mimetype` declarado por el cliente |
-| A6 Dependencias | `bcrypt` eliminado (código muerto desde el login con Google) y `npm audit fix` |
-| — Build roto | `searchStudents` no seleccionaba `foto_url` pese a exigirlo el tipo: `tsc` del backend fallaba en `main` |
+| Hallazgo             | Corrección                                                                                                                                                                                                                                     |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| C1 XSS almacenado    | `escapeHtml()` en los 21 puntos de interpolación de datos de usuario, en 7 archivos; nuevo `safeUrl()` para URL de portafolio y foto de perfil; iniciales del avatar movidas a un `data-attribute` en vez de interpolarse dentro del `onerror` |
+| C2 JWT con fallback  | Eliminado el fallback: el backend ahora falla al emitir tokens si `JWT_SECRET` no está configurado                                                                                                                                             |
+| A1 CORS abierto      | `cors()` restringido por `CORS_ORIGINS`; obligatoria en producción, puertos locales de Vite por defecto en desarrollo                                                                                                                          |
+| A3 Sin cabeceras     | `helmet()` añadido; límite de 100 kb en el cuerpo JSON                                                                                                                                                                                         |
+| A4 PDF sin verificar | Validación por cabecera real (`%PDF-`) además del `mimetype` declarado por el cliente                                                                                                                                                          |
+| A6 Dependencias      | `bcrypt` eliminado (código muerto desde el login con Google) y `npm audit fix`                                                                                                                                                                 |
+| — Build roto         | `searchStudents` no seleccionaba `foto_url` pese a exigirlo el tipo: `tsc` del backend fallaba en `main`                                                                                                                                       |
 
 ### Resultado medido
 
-| Métrica | Antes | Después |
-|---|---|---|
-| XSS entre usuarios | **Ejecuta** (`window.__XSS__ === 1`) | **Neutralizado**: 0 elementos inyectados, la carga útil se muestra como texto |
-| Vulnerabilidades backend | 2 críticas, 3 altas, 5 moderadas | **0 críticas, 0 altas**, 2 moderadas |
-| Vulnerabilidades frontend | 3 altas, 1 moderada | 1 alta, 1 moderada |
-| `tsc` backend | **Falla** (TS2322) | Limpio |
-| Cabeceras de seguridad | Ninguna | CSP, HSTS, X-Frame-Options, nosniff, Referrer-Policy |
-| CORS | Cualquier origen | Solo orígenes en lista blanca |
-| Pruebas de API | 108/108 | **108/108** (sin regresión) |
-| Bundle (gzip) | 21.88 kB | 21.97 kB (+0.09 kB) |
+| Métrica                   | Antes                                | Después                                                                       |
+| ------------------------- | ------------------------------------ | ----------------------------------------------------------------------------- |
+| XSS entre usuarios        | **Ejecuta** (`window.__XSS__ === 1`) | **Neutralizado**: 0 elementos inyectados, la carga útil se muestra como texto |
+| Vulnerabilidades backend  | 2 críticas, 3 altas, 5 moderadas     | **0 críticas, 0 altas**, 2 moderadas                                          |
+| Vulnerabilidades frontend | 3 altas, 1 moderada                  | 1 alta, 1 moderada                                                            |
+| `tsc` backend             | **Falla** (TS2322)                   | Limpio                                                                        |
+| Cabeceras de seguridad    | Ninguna                              | CSP, HSTS, X-Frame-Options, nosniff, Referrer-Policy                          |
+| CORS                      | Cualquier origen                     | Solo orígenes en lista blanca                                                 |
+| Pruebas de API            | 108/108                              | **108/108** (sin regresión)                                                   |
+| Bundle (gzip)             | 21.88 kB                             | 21.97 kB (+0.09 kB)                                                           |
 
 Los 7 invariantes de negocio se verificaron intactos con la suite de 108 pruebas
 de API tras los cambios.
@@ -137,13 +137,13 @@ ejecutara.
 
 ### Resultado medido
 
-| Métrica | Antes | Después |
-|---|---|---|
-| Pruebas versionadas | **0** | **105** en 6 suites |
-| Framework de pruebas | Ninguno | Vitest + Supertest |
-| Integración continua | Ninguna | GitHub Actions (typecheck, pruebas, build) |
-| `:id` no numérico | **HTTP 500** (`22P02` de Postgres) | **HTTP 400** `VALIDATION_ERROR` |
-| Rutas con params validados | 0 de 13 | **13 de 13** |
+| Métrica                    | Antes                              | Después                                    |
+| -------------------------- | ---------------------------------- | ------------------------------------------ |
+| Pruebas versionadas        | **0**                              | **105** en 6 suites                        |
+| Framework de pruebas       | Ninguno                            | Vitest + Supertest                         |
+| Integración continua       | Ninguna                            | GitHub Actions (typecheck, pruebas, build) |
+| `:id` no numérico          | **HTTP 500** (`22P02` de Postgres) | **HTTP 400** `VALIDATION_ERROR`            |
+| Rutas con params validados | 0 de 13                            | **13 de 13**                               |
 
 Verificado además simulando el entorno de CI en local: base de datos creada
 desde cero, las 7 migraciones aplicadas en orden sin errores, `npm ci` en
@@ -160,3 +160,65 @@ ambos paquetes y la suite completa en verde (105/105) contra esa base limpia.
   crece conviene una base por worker.
 - `tsconfig.json` solo incluye `src`, así que `npm run typecheck` no cubre los
   archivos de prueba; los valida Vitest al ejecutarlos.
+
+---
+
+## 2026-10-17 — Límite de peticiones y herramientas de calidad
+
+**Rama:** `angel/rate-limiting-y-calidad` (apilada sobre `angel/validacion-y-pruebas`)
+
+### Qué se identificó
+
+1. **Sin límite de peticiones (A2).** Ningún endpoint lo tenía, incluido
+   `/auth/google`, que es el más caro de abusar porque verifica cada token
+   contra un servicio externo de Google.
+2. **Sin linter ni formateador.** El estilo dependía de cada persona y los
+   errores tontos (imports sin usar, `==` en vez de `===`) solo se detectaban
+   leyendo el diff a mano. Tampoco había nada que los frenara antes de un
+   commit.
+
+### Alternativas evaluadas
+
+- **Limitador y pruebas.** El limitador rompería la suite, que lanza cientos
+  de peticiones desde la misma IP. Se evaluó subir los topes en el entorno de
+  prueba, pero eso deja el comportamiento real sin cubrir. Se optó por
+  desactivarlo bajo `NODE_ENV=test` y cubrirlo aparte montando una app mínima
+  con un tope bajo, que es determinista y no depende de temporizadores.
+- **`trust proxy`.** Confiar en todos los saltos es lo más sencillo, pero
+  permite falsificar `X-Forwarded-For` y esquivar el límite. Se confía en
+  exactamente uno, que es el proxy de Vercel.
+- **Adopción de Prettier.** Se evaluó reformatear el repositorio completo de
+  una vez, lo que da una base limpia pero genera un diff enorme y conflictos
+  con las ramas que el equipo tenga abiertas. Se eligió la adopción gradual
+  por archivo al tocarlo, vía lint-staged.
+- **Hook de pre-commit.** Husky propone `npm test` por defecto. Se descartó:
+  sería lento y exigiría Postgres levantado para poder commitear. Se usa
+  lint-staged, y la suite completa queda en CI.
+
+### Resultado medido
+
+| Métrica              | Antes   | Después                                       |
+| -------------------- | ------- | --------------------------------------------- |
+| Endpoints con límite | 0       | API completa (300/15 min) y login (20/15 min) |
+| Linter / formateador | Ninguno | ESLint 9 + Prettier                           |
+| Errores de ESLint    | 12      | **0** (37 avisos por `any` heredados)         |
+| Hook de pre-commit   | Ninguno | lint-staged (verificado que bloquea)          |
+| Jobs de CI           | 2       | 3 (se añade lint)                             |
+| Pruebas              | 105     | **109**                                       |
+
+Verificado en ejecución real: 25 intentos de login seguidos dan 20 respuestas
+y luego 429, con `Retry-After` y cabeceras `RateLimit`. El hook se probó
+commiteando a propósito un archivo con `==` y una variable sin usar: lo
+rechazó.
+
+### Deuda que queda abierta
+
+- Los 37 `any` siguen ahí, como avisos. El job de lint usa
+  `--max-warnings 50`: conviene bajar ese número a medida que se limpien.
+- El límite se guarda en memoria del proceso. Con varias instancias en Vercel
+  cada una llevaría su propio contador; si eso importa, habría que moverlo a
+  un almacén compartido.
+- No hay `format:check` en CI, porque el repositorio aún no está formateado
+  por completo y fallaría en los archivos heredados.
+- Los commits que tocan un archivo por primera vez lo reformatean entero, así
+  que conviene revisarlos ignorando espacios en blanco.

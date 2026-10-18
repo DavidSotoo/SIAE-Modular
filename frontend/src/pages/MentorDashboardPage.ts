@@ -1,5 +1,15 @@
-import { listMentorAdvisorRequests, acceptAdvisorRequest, rejectAdvisorRequest } from '../services/mentor.service.js';
-import { getMentorProjects, getProjectHistory, downloadProtocol, validateProject, rejectProject } from '../services/project.service.js';
+import {
+  listMentorAdvisorRequests,
+  acceptAdvisorRequest,
+  rejectAdvisorRequest,
+} from '../services/mentor.service.js';
+import {
+  getMentorProjects,
+  getProjectHistory,
+  downloadProtocol,
+  validateProject,
+  rejectProject,
+} from '../services/project.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
@@ -15,11 +25,15 @@ export class MentorDashboardPage {
   }
 
   async render() {
-    this.container.innerHTML = '<div class="state-loading"><span class="spinner"></span> Cargando panel...</div>';
+    this.container.innerHTML =
+      '<div class="state-loading"><span class="spinner"></span> Cargando panel...</div>';
     try {
       this.buildLayout();
     } catch (err: any) {
-      this.container.innerHTML = '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' + getErrorMessage(err.code, err.status) + '</div></div>';
+      this.container.innerHTML =
+        '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
+        getErrorMessage(err.code, err.status) +
+        '</div></div>';
     }
   }
 
@@ -49,21 +63,29 @@ export class MentorDashboardPage {
 
     try {
       const requests = await listMentorAdvisorRequests();
-      const pendientes = requests.filter(r => r.estado === 'pendiente');
+      const pendientes = requests.filter((r) => r.estado === 'pendiente');
 
       if (pendientes.length === 0) {
-        container.innerHTML = '<p class="text-muted">No tienes solicitudes de asesoría pendientes.</p>';
+        container.innerHTML =
+          '<p class="text-muted">No tienes solicitudes de asesoría pendientes.</p>';
         return;
       }
 
-      container.innerHTML = pendientes.map(r => this.renderRequestCard(r)).join('');
+      container.innerHTML = pendientes.map((r) => this.renderRequestCard(r)).join('');
 
-      container.querySelectorAll('.btn-accept-req').forEach(btn =>
-        btn.addEventListener('click', (e) => this.handleRequestAction(e, 'accept')));
-      container.querySelectorAll('.btn-reject-req').forEach(btn =>
-        btn.addEventListener('click', (e) => this.handleRequestAction(e, 'reject')));
+      container
+        .querySelectorAll('.btn-accept-req')
+        .forEach((btn) =>
+          btn.addEventListener('click', (e) => this.handleRequestAction(e, 'accept')),
+        );
+      container
+        .querySelectorAll('.btn-reject-req')
+        .forEach((btn) =>
+          btn.addEventListener('click', (e) => this.handleRequestAction(e, 'reject')),
+        );
     } catch (err: any) {
-      container.innerHTML = '<div class="text-error">' + getErrorMessage(err.code, err.status) + '</div>';
+      container.innerHTML =
+        '<div class="text-error">' + getErrorMessage(err.code, err.status) + '</div>';
     }
   }
 
@@ -96,7 +118,9 @@ export class MentorDashboardPage {
       if (action === 'accept') await acceptAdvisorRequest(id);
       else await rejectAdvisorRequest(id);
 
-      showToast(action === 'accept' ? 'Solicitud aceptada' : 'Solicitud rechazada', { type: 'success' });
+      showToast(action === 'accept' ? 'Solicitud aceptada' : 'Solicitud rechazada', {
+        type: 'success',
+      });
       this.loadRequests();
       this.loadProjects();
     } catch (err: any) {
@@ -116,7 +140,8 @@ export class MentorDashboardPage {
       this.projects = await getMentorProjects();
 
       if (this.projects.length === 0) {
-        container.innerHTML = '<div class="state-empty"><span class="material-symbols-outlined">folder_off</span><div class="state-empty__title">Sin proyectos asignados</div><div class="state-empty__msg">Cuando aceptes una solicitud de asesoría, el proyecto aparecerá aquí.</div></div>';
+        container.innerHTML =
+          '<div class="state-empty"><span class="material-symbols-outlined">folder_off</span><div class="state-empty__title">Sin proyectos asignados</div><div class="state-empty__msg">Cuando aceptes una solicitud de asesoría, el proyecto aparecerá aquí.</div></div>';
         return;
       }
 
@@ -132,28 +157,35 @@ export class MentorDashboardPage {
               </tr>
             </thead>
             <tbody>
-              ${this.projects.map(p => `
+              ${this.projects
+                .map(
+                  (p) => `
                 <tr data-id="${p.id_proyecto}">
                   <td>${p.codigo_folio ?? '<span class="text-muted">—</span>'}</td>
                   <td>${escapeHtml(p.titulo)}</td>
                   <td><span class="badge badge--${p.estado_actual}">${p.estado_actual}</span></td>
-                  <td>${p.miembros.map(m => escapeHtml(m.nombre) + (m.es_lider ? ' (líder)' : '')).join(', ')}</td>
+                  <td>${p.miembros.map((m) => escapeHtml(m.nombre) + (m.es_lider ? ' (líder)' : '')).join(', ')}</td>
                 </tr>
-              `).join('')}
+              `,
+                )
+                .join('')}
             </tbody>
           </table>
         </div>
       `;
 
-      container.querySelectorAll('tr[data-id]').forEach(row => {
+      container.querySelectorAll('tr[data-id]').forEach((row) => {
         row.addEventListener('click', () => {
           const id = Number(row.getAttribute('data-id'));
-          const project = this.projects.find(p => p.id_proyecto === id)!;
+          const project = this.projects.find((p) => p.id_proyecto === id)!;
           this.openProjectModal(project);
         });
       });
     } catch (err: any) {
-      container.innerHTML = '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' + getErrorMessage(err.code, err.status) + '</div></div>';
+      container.innerHTML =
+        '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
+        getErrorMessage(err.code, err.status) +
+        '</div></div>';
     }
   }
 
@@ -175,17 +207,20 @@ export class MentorDashboardPage {
       ? '<button class="btn btn--ghost btn--sm" id="btn-view-protocol"><span class="material-symbols-outlined">description</span> Ver protocolo</button>'
       : '<div class="text-muted">Aún no se ha subido un protocolo.</div>';
 
-    const reviewActionsHtml = canReview ? `
+    const reviewActionsHtml = canReview
+      ? `
       <div class="mt-4" style="display:flex; gap: var(--sp-2); align-items:center;">
         <button class="btn btn--primary btn--sm" id="btn-approve" ${visualizado ? '' : 'disabled'} title="${visualizado ? '' : 'Debes abrir el protocolo antes de aprobarlo'}">Aprobar protocolo</button>
         <button class="btn btn--danger btn--sm" id="btn-reject">Rechazar con correcciones</button>
         ${visualizado ? '' : '<span class="text-label-sm text-muted" id="approve-hint">Abre el protocolo primero</span>'}
       </div>
-    ` : '';
-
-    const validatedNoticeHtml = project.estado_actual === 'validado'
-      ? '<div class="banner-alert banner-alert--neutral mt-4"><span class="material-symbols-outlined">info</span><div>Ya aprobaste este protocolo. Falta que administración emita el folio oficial para registrarlo.</div></div>'
+    `
       : '';
+
+    const validatedNoticeHtml =
+      project.estado_actual === 'validado'
+        ? '<div class="banner-alert banner-alert--neutral mt-4"><span class="material-symbols-outlined">info</span><div>Ya aprobaste este protocolo. Falta que administración emita el folio oficial para registrarlo.</div></div>'
+        : '';
 
     modal.bodyEl.innerHTML = `
       <div class="mb-4" style="display:flex; gap: var(--sp-6); align-items:center;">
@@ -198,7 +233,7 @@ export class MentorDashboardPage {
       </div>
       <div class="mb-4">
         <div class="text-label-sm text-muted mb-2">EQUIPO</div>
-        ${project.miembros.map(m => `<div class="text-label">${escapeHtml(m.nombre)} <span class="text-muted">(${m.codigo_cucei})</span>${m.es_lider ? ' <span class="badge badge--lider">Líder</span>' : ''}</div>`).join('')}
+        ${project.miembros.map((m) => `<div class="text-label">${escapeHtml(m.nombre)} <span class="text-muted">(${m.codigo_cucei})</span>${m.es_lider ? ' <span class="badge badge--lider">Líder</span>' : ''}</div>`).join('')}
       </div>
       <hr class="divider">
       <div class="mb-4">
@@ -237,7 +272,9 @@ export class MentorDashboardPage {
     document.getElementById('btn-approve')?.addEventListener('click', async () => {
       try {
         await validateProject(project.id_proyecto);
-        showToast('Protocolo aprobado. Queda pendiente que administración emita el folio.', { type: 'success' });
+        showToast('Protocolo aprobado. Queda pendiente que administración emita el folio.', {
+          type: 'success',
+        });
         modal.close();
         this.loadProjects();
       } catch (err: any) {
@@ -256,7 +293,11 @@ export class MentorDashboardPage {
       if (history.length === 0) {
         historyContainer.innerHTML = '<div class="text-muted">Sin historial registrado.</div>';
       } else {
-        historyContainer.innerHTML = '<div class="timeline">' + history.map(log => `
+        historyContainer.innerHTML =
+          '<div class="timeline">' +
+          history
+            .map(
+              (log) => `
           <div class="timeline-item">
             <div class="timeline-marker"></div>
             <div class="timeline-content">
@@ -265,16 +306,19 @@ export class MentorDashboardPage {
               ${log.comentario ? `<div class="text-label mt-1 text-muted">"${escapeHtml(log.comentario)}"</div>` : ''}
             </div>
           </div>
-        `).join('') + '</div>';
+        `,
+            )
+            .join('') +
+          '</div>';
       }
     } catch {
       const historyContainer = document.getElementById('mentor-history');
-      if (historyContainer) historyContainer.innerHTML = '<div class="text-muted">Historial no disponible.</div>';
+      if (historyContainer)
+        historyContainer.innerHTML = '<div class="text-muted">Historial no disponible.</div>';
     }
   }
 
   private openRejectModal(project: Project) {
-    let comentarioInput: HTMLTextAreaElement;
     const modal = new Modal({
       id: 'mentor-reject-modal',
       title: 'Rechazar protocolo — ' + escapeHtml(project.titulo),
@@ -306,7 +350,9 @@ export class MentorDashboardPage {
       },
     });
 
-    comentarioInput = modal.bodyEl.querySelector('#reject-comentario') as HTMLTextAreaElement;
+    // Se declara aqui, despues de construir el modal: onConfirm solo se
+    // ejecuta al pulsar, cuando esta constante ya esta inicializada.
+    const comentarioInput = modal.bodyEl.querySelector('#reject-comentario') as HTMLTextAreaElement;
     modal.open();
   }
 }

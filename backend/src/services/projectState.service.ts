@@ -15,7 +15,7 @@ async function assertProjectAccess(
   id_proyecto: number,
   id_usuario: number,
   codigo_cucei: string | null,
-  rol: string
+  rol: string,
 ): Promise<void> {
   if (rol === 'alumno') {
     // Un alumno recién registrado con Google aún no tiene código CUCEI
@@ -34,10 +34,10 @@ export function generateFolioCode(sequence: number): string {
   const now = new Date();
   const yearStr = now.getFullYear().toString().slice(-2);
   const month = now.getMonth() + 1; // 1-12
-  
+
   // Asunción confirmada: Enero(1)-Julio(7) = 'A', Agosto(8)-Diciembre(12) = 'B'
-  const cycle = (month >= 1 && month <= 7) ? 'A' : 'B';
-  
+  const cycle = month >= 1 && month <= 7 ? 'A' : 'B';
+
   return `A${seqStr}-${yearStr}${cycle}`;
 }
 
@@ -45,7 +45,7 @@ export async function submitProtocol(
   id_proyecto: number,
   id_usuario: number,
   codigo_cucei: string,
-  pdf_path: string
+  pdf_path: string,
 ): Promise<void> {
   const isMember = await isAlumnoInProject(id_proyecto, codigo_cucei);
   if (!isMember) {
@@ -74,7 +74,7 @@ export async function submitProtocol(
       ['borrador', 'correccion'],
       'pendiente',
       pdf_path,
-      client
+      client,
     );
 
     if (!updated) {
@@ -87,7 +87,7 @@ export async function submitProtocol(
       'pendiente',
       id_usuario,
       'Protocolo subido',
-      client
+      client,
     );
 
     await client.query('COMMIT');
@@ -107,7 +107,7 @@ export async function submitProtocol(
  */
 export async function validateProject(
   id_proyecto: number,
-  id_mentor_solicitante: number
+  id_mentor_solicitante: number,
 ): Promise<void> {
   const mentorId = await findProjectMentorId(id_proyecto);
   if (mentorId !== id_mentor_solicitante) {
@@ -129,7 +129,7 @@ export async function validateProject(
       ['pendiente'],
       'validado',
       undefined,
-      client
+      client,
     );
 
     if (!updated) {
@@ -142,7 +142,7 @@ export async function validateProject(
       'validado',
       id_mentor_solicitante,
       'Protocolo aprobado por el mentor',
-      client
+      client,
     );
 
     await client.query('COMMIT');
@@ -161,10 +161,10 @@ export async function validateProject(
  */
 export async function registerProject(
   id_proyecto: number,
-  id_admin: number
+  id_admin: number,
 ): Promise<{ codigo_folio: string }> {
   const client = await pool.connect();
-  let generatedFolio = '';
+  let generatedFolio: string;
 
   try {
     await client.query('BEGIN');
@@ -174,11 +174,14 @@ export async function registerProject(
       ['validado'],
       'registrado',
       undefined,
-      client
+      client,
     );
 
     if (!updated) {
-      throw conflict('El proyecto debe estar validado por el mentor antes de registrarse', 'NOT_VALIDATED');
+      throw conflict(
+        'El proyecto debe estar validado por el mentor antes de registrarse',
+        'NOT_VALIDATED',
+      );
     }
 
     const seq = await getNextFolioSequence(client);
@@ -192,7 +195,7 @@ export async function registerProject(
       'registrado',
       id_admin,
       `Proyecto registrado. Folio: ${generatedFolio}`,
-      client
+      client,
     );
 
     await client.query('COMMIT');
@@ -208,7 +211,7 @@ export async function registerProject(
 export async function rejectProject(
   id_proyecto: number,
   id_mentor_solicitante: number,
-  comentario: string
+  comentario: string,
 ): Promise<void> {
   const mentorId = await findProjectMentorId(id_proyecto);
   if (mentorId !== id_mentor_solicitante) {
@@ -222,28 +225,28 @@ export async function rejectProject(
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    
+
     const updated = await updateProjectStateAndPdf(
       id_proyecto,
       ['pendiente'],
       'correccion',
       undefined,
-      client
+      client,
     );
-    
+
     if (!updated) {
       throw conflict('El proyecto ya no está en el estado esperado, actualiza la página');
     }
-    
+
     await insertStateLog(
       id_proyecto,
       'pendiente',
       'correccion',
       id_mentor_solicitante,
       comentario.trim(),
-      client
+      client,
     );
-    
+
     await client.query('COMMIT');
   } catch (err) {
     await client.query('ROLLBACK');
@@ -257,7 +260,7 @@ export async function getProjectHistory(
   id_proyecto: number,
   id_usuario: number,
   codigo_cucei: string | null,
-  rol: string
+  rol: string,
 ) {
   await assertProjectAccess(id_proyecto, id_usuario, codigo_cucei, rol);
   return await getHistoryDb(id_proyecto);
@@ -272,7 +275,7 @@ export async function getProtocolFilePath(
   id_proyecto: number,
   id_usuario: number,
   codigo_cucei: string | null,
-  rol: string
+  rol: string,
 ): Promise<string> {
   await assertProjectAccess(id_proyecto, id_usuario, codigo_cucei, rol);
 

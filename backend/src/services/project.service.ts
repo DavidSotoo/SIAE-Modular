@@ -1,7 +1,11 @@
 ﻿import { withTransaction } from '../config/db.js';
-import { createProject, findActiveProjectByAlumno, ProjectWithMembers } from '../models/project.model.js';
+import {
+  createProject,
+  findActiveProjectByAlumno,
+  ProjectWithMembers,
+} from '../models/project.model.js';
 import { insertProjectMember, hasActiveProject } from '../models/teamRequest.model.js';
-import { updateEstadoBusqueda, findProfileByUserId } from '../models/student.model.js';
+import { updateEstadoBusqueda } from '../models/student.model.js';
 import { conflict, badRequest } from '../utils/errors.js';
 
 export async function createStudentProject(
@@ -34,10 +38,10 @@ export async function createStudentProject(
   await withTransaction(async (client) => {
     // 1. Create project
     const proj = await createProject(client, titulo.trim(), descripcion.trim());
-    
+
     // 2. Add creator to project_members as the team leader (SM-40)
     await insertProjectMember(client, proj.id_proyecto, codigo_alumno, true);
-    
+
     // 3. Update student state
     await updateEstadoBusqueda(client, id_usuario, 'en_equipo');
   });
