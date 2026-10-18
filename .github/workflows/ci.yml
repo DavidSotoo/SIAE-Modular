@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend (typecheck, pruebas)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: siae_admin
+          POSTGRES_PASSWORD: siae_dev_password
+          POSTGRES_DB: siae_modular
+        ports:
+          - 5432:5432
+        # Sin esto los pasos pueden arrancar antes de que Postgres acepte conexiones.
+        options: >-
+          --health-cmd "pg_isready -U siae_admin -d siae_modular"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://siae_admin:siae_dev_password@127.0.0.1:5432/siae_modular
+      JWT_SECRET: secreto_solo_para_ci
+      NODE_ENV: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Instalar dependencias
+        working-directory: backend
+        run: npm ci
+
+      - name: Aplicar migraciones en orden
+        run: |
+          for f in database/migrations/*.sql; do
+            echo "-- $f"
+            psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"
+          done
+
+      - name: Typecheck
+        working-directory: backend
+        run: npm run typecheck
+
+      - name: Pruebas de integracion
+        working-directory: backend
+        run: npm test
+
+      - name: Build
+        working-directory: backend
+        run: npm run build
+
+  frontend:
+    name: Frontend (typecheck, build)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Instalar dependencias
+        working-directory: frontend
+        run: npm ci
+
+      # `npm run build` ya corre `tsc && vite build`: typecheck y empaquetado.
+      - name: Typecheck y build
+        working-directory: frontend
+        run: npm run build

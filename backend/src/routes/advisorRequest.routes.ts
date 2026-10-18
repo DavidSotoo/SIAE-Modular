@@ -6,6 +6,8 @@ import {
   acceptAdvisorRequestHandler,
   rejectAdvisorRequestHandler,
 } from '../controllers/advisorRequest.controller.js';
+import { validateParams } from '../middleware/validate.js';
+import { paramsIdProyecto, paramsIdSolicitud } from '../schemas/common.schema.js';
 
 const router = Router();
 
@@ -15,6 +17,7 @@ router.post(
   authenticate,
   requireRole('alumno'),
   requireOnboarded,
+  validateParams(paramsIdProyecto),
   postAdvisorRequest,
 );
 
@@ -31,6 +34,7 @@ router.post(
   '/advisor-requests/:id_solicitud/accept',
   authenticate,
   requireRole('mentor'),
+  validateParams(paramsIdSolicitud),
   acceptAdvisorRequestHandler,
 );
 
@@ -39,6 +43,7 @@ router.post(
   '/advisor-requests/:id_solicitud/reject',
   authenticate,
   requireRole('mentor'),
+  validateParams(paramsIdSolicitud),
   rejectAdvisorRequestHandler,
 );
 

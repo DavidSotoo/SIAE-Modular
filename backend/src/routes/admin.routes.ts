@@ -7,6 +7,8 @@ import {
   exportCsvHandler,
   exportXlsxHandler,
 } from '../controllers/admin.controller.js';
+import { validateParams } from '../middleware/validate.js';
+import { paramsIdProyecto } from '../schemas/common.schema.js';
 
 const router = Router();
 
@@ -19,7 +21,7 @@ router.get('/admin/projects', listProjectsHandler);
 router.get('/admin/stats', getStatsHandler);
 
 // GET /api/admin/projects/:id_proyecto — detalle + historial
-router.get('/admin/projects/:id_proyecto', getProjectDetailHandler);
+router.get('/admin/projects/:id_proyecto', validateParams(paramsIdProyecto), getProjectDetailHandler);
 
 // GET /api/admin/export/csv — exportación CSV
 router.get('/admin/export/csv', exportCsvHandler);

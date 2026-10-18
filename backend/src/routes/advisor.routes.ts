@@ -1,5 +1,7 @@
 ﻿import { Router } from 'express';
 import { authenticate, requireRole } from '../middleware/auth.js';
+import { validateParams } from '../middleware/validate.js';
+import { paramsIdMentor } from '../schemas/common.schema.js';
 import {
   getMyAdvisorAvailability,
   putMyAdvisorAvailability,
@@ -37,6 +39,7 @@ router.get(
 router.get(
   '/advisors/:id_mentor',
   authenticate,
+  validateParams(paramsIdMentor),
   getAdvisorByIdHandler,
 );
 
