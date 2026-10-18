@@ -1,4 +1,5 @@
 import { getAreas } from '../services/student.service.js';
+import { skeletonTarjetas } from '../components/Skeleton.js';
 import { searchAdvisors, createAdvisorRequest } from '../services/advisor.service.js';
 import { getMyProject } from '../services/project.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
@@ -17,8 +18,7 @@ export class BuscarAsesorPage {
   }
 
   async render() {
-    this.container.innerHTML =
-      '<div class="state-loading"><span class="spinner"></span> Cargando página...</div>';
+    this.container.innerHTML = skeletonTarjetas(3);
     try {
       const [project, areas] = await Promise.all([getMyProject(), getAreas()]);
       this.myProject = project;
@@ -65,8 +65,7 @@ export class BuscarAsesorPage {
 
   private async performSearch(fd: FormData) {
     const resultsContainer = document.getElementById('search-results-container')!;
-    resultsContainer.innerHTML =
-      '<div class="state-loading"><span class="spinner"></span> Buscando...</div>';
+    resultsContainer.innerHTML = skeletonTarjetas(3);
 
     const params: any = {};
     if (fd.get('area')) params.area = Number(fd.get('area'));

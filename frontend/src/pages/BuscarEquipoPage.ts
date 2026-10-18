@@ -11,6 +11,7 @@
   cancelTeamRequest,
 } from '../services/student.service.js';
 import { MAX_INTEGRANTES } from '../constants.js';
+import { skeletonTarjetas, skeletonLineas } from '../components/Skeleton.js';
 import { getMyProject } from '../services/project.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
@@ -31,8 +32,7 @@ export class BuscarEquipoPage {
   }
 
   async render() {
-    this.container.innerHTML =
-      '<div class="state-loading"><span class="spinner"></span> Cargando página...</div>';
+    this.container.innerHTML = skeletonTarjetas(3);
     try {
       const [profile, project, skills, areas] = await Promise.all([
         getMyProfile(),
@@ -136,8 +136,7 @@ export class BuscarEquipoPage {
 
   private async performSearch(fd: FormData) {
     const resultsContainer = document.getElementById('search-results-container')!;
-    resultsContainer.innerHTML =
-      '<div class="state-loading"><span class="spinner"></span> Buscando...</div>';
+    resultsContainer.innerHTML = skeletonTarjetas(3);
 
     const params: any = {};
     if (fd.get('skill')) params.skill = Number(fd.get('skill'));
@@ -147,11 +146,21 @@ export class BuscarEquipoPage {
     if (fd.get('semestre_max')) params.semestre_max = Number(fd.get('semestre_max'));
 
     try {
-      const students = await searchStudents(params);
+      const encontrados = await searchStudents(params);
+      // Uno mismo se descarta ANTES de decidir si hay resultados. Antes se
+      // comparaba el total sin filtrar, asi que cuando el unico resultado
+      // era uno mismo se pintaba una rejilla vacia, sin explicacion.
+      const students = encontrados.filter((s) => s.codigo_cucei !== this.myProfile?.codigo_cucei);
 
       if (students.length === 0) {
+        const soloYo = encontrados.length > 0;
+        const mensaje = soloYo
+          ? 'Con esos filtros solo apareces tú. Prueba con otros criterios de búsqueda.'
+          : 'No se encontraron alumnos con esos filtros.';
         resultsContainer.innerHTML =
-          '<div class="state-empty"><span class="material-symbols-outlined">person_search</span><div class="state-empty__title">Sin resultados</div><div class="state-empty__msg">No se encontraron alumnos con esos filtros.</div></div>';
+          '<div class="state-empty"><span class="material-symbols-outlined">person_search</span><div class="state-empty__title">Sin resultados</div><div class="state-empty__msg">' +
+          mensaje +
+          '</div></div>';
         return;
       }
 
@@ -159,8 +168,6 @@ export class BuscarEquipoPage {
 
       let html = '<div class="cards-grid">';
       students.forEach((student) => {
-        if (student.codigo_cucei === this.myProfile?.codigo_cucei) return;
-
         const hardChips = student.skills
           .filter((s) => s.tipo === 'hard')
           .map((s) => '<span class="chip chip--hard">' + escapeHtml(s.nombre) + '</span>')
@@ -273,8 +280,8 @@ export class BuscarEquipoPage {
     const recibidasContainer = document.getElementById('req-recibidas')!;
     const enviadasContainer = document.getElementById('req-enviadas')!;
 
-    recibidasContainer.innerHTML = '<div class="state-loading"><span class="spinner"></span></div>';
-    enviadasContainer.innerHTML = '<div class="state-loading"><span class="spinner"></span></div>';
+    recibidasContainer.innerHTML = skeletonLineas(2);
+    enviadasContainer.innerHTML = skeletonLineas(2);
 
     try {
       const p1 = getMyTeamRequests();

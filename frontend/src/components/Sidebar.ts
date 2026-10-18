@@ -1,23 +1,27 @@
 // Sidebar component — renderiza el menu lateral y el toggle de tema.
 // Acepta la ruta activa para marcarla y el rol para filtrar los links.
-export interface SidebarLink { href: string; icon: string; label: string; }
+export interface SidebarLink {
+  href: string;
+  icon: string;
+  label: string;
+}
 export type Rol = 'alumno' | 'mentor' | 'admin';
 
 const ALUMNO_LINKS: SidebarLink[] = [
-  { href: '#/perfil',      icon: 'person',         label: 'Mi Perfil'     },
-  { href: '#/equipo',      icon: 'group_search',   label: 'Buscar Equipo' },
-  { href: '#/asesores',    icon: 'school',         label: 'Buscar Asesor' },
-  { href: '#/proyecto',    icon: 'folder_managed', label: 'Mi Proyecto'   },
+  { href: '#/perfil', icon: 'person', label: 'Mi Perfil' },
+  { href: '#/equipo', icon: 'group_search', label: 'Buscar Equipo' },
+  { href: '#/asesores', icon: 'school', label: 'Buscar Asesor' },
+  { href: '#/proyecto', icon: 'folder_managed', label: 'Mi Proyecto' },
 ];
 
 const MENTOR_LINKS: SidebarLink[] = [
   { href: '#/mentor', icon: 'supervisor_account', label: 'Panel de Asesor' },
-  { href: '#/perfil', icon: 'person',             label: 'Mi Perfil'       },
+  { href: '#/perfil', icon: 'person', label: 'Mi Perfil' },
 ];
 
 const ADMIN_LINKS: SidebarLink[] = [
-  { href: '#/admin',  icon: 'admin_panel_settings', label: 'Panel Admin' },
-  { href: '#/perfil', icon: 'person',               label: 'Mi Perfil'   },
+  { href: '#/admin', icon: 'admin_panel_settings', label: 'Panel Admin' },
+  { href: '#/perfil', icon: 'person', label: 'Mi Perfil' },
 ];
 
 function linksForRol(rol?: Rol): SidebarLink[] {
@@ -44,7 +48,9 @@ function toggleTheme(): void {
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem(STORAGE_KEY, next);
   // Update every toggle button in case there are multiple sidebars
-  document.querySelectorAll('.theme-toggle').forEach(btn => updateToggleBtn(btn as HTMLButtonElement));
+  document
+    .querySelectorAll('.theme-toggle')
+    .forEach((btn) => updateToggleBtn(btn as HTMLButtonElement));
 }
 
 function updateToggleBtn(btn: HTMLButtonElement): void {
@@ -55,6 +61,51 @@ function updateToggleBtn(btn: HTMLButtonElement): void {
   label.textContent = isDark ? 'Modo oscuro' : 'Modo claro';
 }
 
+// ─── Navegacion movil ──────────────────────────────────────────────────────
+// En pantallas estrechas el menu es un cajon lateral. Se abre con el boton
+// de la barra superior y se cierra al navegar, al tocar fuera o con Escape.
+
+const ID_BACKDROP = 'sidebar-backdrop';
+
+function cerrarCajon(): void {
+  document.querySelector('.sidebar')?.classList.remove('is-open');
+  document.getElementById(ID_BACKDROP)?.classList.add('hidden');
+  document.getElementById('btn-menu')?.setAttribute('aria-expanded', 'false');
+}
+
+function abrirCajon(): void {
+  document.querySelector('.sidebar')?.classList.add('is-open');
+  document.getElementById(ID_BACKDROP)?.classList.remove('hidden');
+  const btn = document.getElementById('btn-menu');
+  btn?.setAttribute('aria-expanded', 'true');
+  // El foco pasa al menu para que no se quede detras del cajon.
+  (document.querySelector('.sidebar__nav a') as HTMLElement | null)?.focus();
+}
+
+function montarBackdrop(): HTMLElement {
+  let el = document.getElementById(ID_BACKDROP);
+  if (!el) {
+    el = document.createElement('div');
+    el.id = ID_BACKDROP;
+    el.className = 'sidebar-backdrop hidden';
+    el.addEventListener('click', cerrarCajon);
+    document.body.appendChild(el);
+  }
+  return el;
+}
+
+/** Barra superior con el boton de menu. Solo se ve en movil (lo decide el CSS). */
+export function renderTopbar(container: HTMLElement): void {
+  container.className = 'topbar';
+  container.innerHTML =
+    '<button class="btn btn--icon" id="btn-menu" aria-label="Abrir menú" aria-expanded="false" aria-controls="sidebar-container">' +
+    '<span class="material-symbols-outlined">menu</span></button>' +
+    '<span class="topbar__title">SIAE</span>';
+
+  montarBackdrop();
+  container.querySelector('#btn-menu')!.addEventListener('click', abrirCajon);
+}
+
 // ─── Render ────────────────────────────────────────────────────────────────
 
 export function renderSidebar(container: HTMLElement, activePath: string, rol?: Rol): void {
@@ -62,11 +113,22 @@ export function renderSidebar(container: HTMLElement, activePath: string, rol?: 
   container.innerHTML =
     '<div class="sidebar__brand"><h1>SIAE</h1><p>CUCEI · Informática</p></div>' +
     '<nav class="sidebar__nav" aria-label="Navegación principal">' +
-    linksForRol(rol).map(l =>
-      '<a href="' + l.href + '" class="' + ('#' + activePath === l.href ? 'active' : '') + '">' +
-      '<span class="material-symbols-outlined">' + l.icon + '</span>' +
-      '<span>' + l.label + '</span></a>'
-    ).join('') +
+    linksForRol(rol)
+      .map(
+        (l) =>
+          '<a href="' +
+          l.href +
+          '" class="' +
+          ('#' + activePath === l.href ? 'active' : '') +
+          '">' +
+          '<span class="material-symbols-outlined">' +
+          l.icon +
+          '</span>' +
+          '<span>' +
+          l.label +
+          '</span></a>',
+      )
+      .join('') +
     '</nav>' +
     '<div class="sidebar__footer">' +
     // Theme toggle pill
@@ -94,4 +156,14 @@ export function renderSidebar(container: HTMLElement, activePath: string, rol?: 
       window.location.hash = '#/login';
     });
   }
+
+  // Al elegir una seccion el cajon estorba, asi que se cierra solo.
+  container.querySelectorAll('.sidebar__nav a').forEach((a) => {
+    a.addEventListener('click', cerrarCajon);
+  });
 }
+
+// Escape cierra el cajon. Se registra una sola vez, no en cada render.
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') cerrarCajon();
+});

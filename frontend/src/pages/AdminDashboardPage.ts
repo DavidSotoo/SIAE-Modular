@@ -12,8 +12,17 @@ import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
 import type { AdminProjectRow, AdminProjectFilters, ProjectState } from '../types/index.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
+import { estadoBadge, etiquetaDeEstado } from '../components/EstadoBadge.js';
+import { skeletonTabla, skeletonLineas } from '../components/Skeleton.js';
 
-const ESTADOS: ProjectState[] = ['borrador', 'pendiente', 'validado', 'registrado', 'correccion', 'cancelado'];
+const ESTADOS: ProjectState[] = [
+  'borrador',
+  'pendiente',
+  'validado',
+  'registrado',
+  'correccion',
+  'cancelado',
+];
 
 export class AdminDashboardPage {
   private container: HTMLElement;
@@ -24,11 +33,14 @@ export class AdminDashboardPage {
   }
 
   async render() {
-    this.container.innerHTML = '<div class="state-loading"><span class="spinner"></span> Cargando panel...</div>';
+    this.container.innerHTML = skeletonTabla(4, 5);
     try {
       await this.buildLayout();
     } catch (err: any) {
-      this.container.innerHTML = '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' + getErrorMessage(err.code, err.status) + '</div></div>';
+      this.container.innerHTML =
+        '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
+        getErrorMessage(err.code, err.status) +
+        '</div></div>';
     }
   }
 
@@ -50,12 +62,16 @@ export class AdminDashboardPage {
       </div>
 
       <div class="cards-grid" style="grid-template-columns: repeat(5, 1fr); margin-bottom: var(--sp-6);">
-        ${statTiles.map(t => `
+        ${statTiles
+          .map(
+            (t) => `
           <div class="stat-tile">
             <div class="stat-tile__value">${t.value}</div>
             <div class="stat-tile__label">${t.label}</div>
           </div>
-        `).join('')}
+        `,
+          )
+          .join('')}
       </div>
 
       <form id="admin-filters" class="filters-bar">
@@ -63,7 +79,7 @@ export class AdminDashboardPage {
           <label class="form-label text-label-sm" for="filter-estado">Estado</label>
           <select id="filter-estado" class="form-control">
             <option value="">Cualquiera</option>
-            ${ESTADOS.map(e => `<option value="${e}">${e.charAt(0).toUpperCase() + e.slice(1)}</option>`).join('')}
+            ${ESTADOS.map((e) => `<option value="${e}">${e.charAt(0).toUpperCase() + e.slice(1)}</option>`).join('')}
           </select>
         </div>
         <div class="form-group" style="flex: 2;">
@@ -94,21 +110,26 @@ export class AdminDashboardPage {
       this.loadTable();
     });
 
-    document.getElementById('btn-export-csv')!.addEventListener('click', () => this.handleExport('csv'));
-    document.getElementById('btn-export-xlsx')!.addEventListener('click', () => this.handleExport('xlsx'));
+    document
+      .getElementById('btn-export-csv')!
+      .addEventListener('click', () => this.handleExport('csv'));
+    document
+      .getElementById('btn-export-xlsx')!
+      .addEventListener('click', () => this.handleExport('xlsx'));
 
     await this.loadTable();
   }
 
   private async loadTable() {
     const tableContainer = document.getElementById('admin-table-container')!;
-    tableContainer.innerHTML = '<div class="state-loading"><span class="spinner"></span> Cargando proyectos...</div>';
+    tableContainer.innerHTML = skeletonTabla(4, 5);
 
     try {
       const projects = await listAdminProjects(this.filters);
 
       if (projects.length === 0) {
-        tableContainer.innerHTML = '<div class="state-empty"><span class="material-symbols-outlined">folder_off</span><div class="state-empty__title">Sin resultados</div><div class="state-empty__msg">No hay proyectos que coincidan con los filtros.</div></div>';
+        tableContainer.innerHTML =
+          '<div class="state-empty"><span class="material-symbols-outlined">folder_off</span><div class="state-empty__title">Sin resultados</div><div class="state-empty__msg">No hay proyectos que coincidan con los filtros.</div></div>';
         return;
       }
 
@@ -126,20 +147,23 @@ export class AdminDashboardPage {
               </tr>
             </thead>
             <tbody>
-              ${projects.map(p => this.renderRow(p)).join('')}
+              ${projects.map((p) => this.renderRow(p)).join('')}
             </tbody>
           </table>
         </div>
       `;
 
-      tableContainer.querySelectorAll('tr[data-id]').forEach(row => {
+      tableContainer.querySelectorAll('tr[data-id]').forEach((row) => {
         row.addEventListener('click', () => {
           const id = Number(row.getAttribute('data-id'));
           this.openDetailModal(id);
         });
       });
     } catch (err: any) {
-      tableContainer.innerHTML = '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' + getErrorMessage(err.code, err.status) + '</div></div>';
+      tableContainer.innerHTML =
+        '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
+        getErrorMessage(err.code, err.status) +
+        '</div></div>';
     }
   }
 
@@ -147,12 +171,12 @@ export class AdminDashboardPage {
     const fecha = new Date(p.created_at).toLocaleDateString();
     return `
       <tr data-id="${p.id_proyecto}">
-        <td>${p.codigo_folio ?? '<span class="text-muted">—</span>'}</td>
-        <td>${escapeHtml(p.titulo)}</td>
-        <td><span class="badge badge--${p.estado_actual}">${p.estado_actual}</span></td>
-        <td>${p.mentor_nombre ?? '<span class="text-muted">Sin asignar</span>'}</td>
-        <td>${p.num_integrantes}</td>
-        <td>${fecha}</td>
+        <td data-label="Folio">${p.codigo_folio ?? '<span class="text-muted">—</span>'}</td>
+        <td data-label="Título">${escapeHtml(p.titulo)}</td>
+        <td data-label="Estado">${estadoBadge(p.estado_actual)}</td>
+        <td data-label="Mentor">${p.mentor_nombre ?? '<span class="text-muted">Sin asignar</span>'}</td>
+        <td data-label="Integrantes">${p.num_integrantes}</td>
+        <td data-label="Creado">${fecha}</td>
       </tr>
     `;
   }
@@ -161,7 +185,7 @@ export class AdminDashboardPage {
     const modal = new Modal({
       id: 'admin-detail-modal',
       title: 'Detalle del Proyecto',
-      contentHtml: '<div class="state-loading"><span class="spinner"></span></div>',
+      contentHtml: skeletonLineas(4),
       confirmLabel: 'Cerrar',
       confirmClass: 'btn--ghost',
       onConfirm: (m) => m.close(),
@@ -171,22 +195,32 @@ export class AdminDashboardPage {
     try {
       const detail = await getAdminProjectDetail(id_proyecto);
 
-      const membersHtml = detail.miembros.map(m =>
-        `<div class="text-label">${escapeHtml(m.nombre)} <span class="text-muted">(${m.codigo_cucei})</span>${m.es_lider ? ' <span class="badge badge--lider">Líder</span>' : ''}</div>`
-      ).join('');
+      const membersHtml = detail.miembros
+        .map(
+          (m) =>
+            `<div class="text-label">${escapeHtml(m.nombre)} <span class="text-muted">(${m.codigo_cucei})</span>${m.es_lider ? ' <span class="badge badge--lider">Líder</span>' : ''}</div>`,
+        )
+        .join('');
 
-      const historyHtml = detail.historial.length === 0
-        ? '<div class="text-muted">Sin historial registrado.</div>'
-        : '<div class="timeline">' + detail.historial.map(log => `
+      const historyHtml =
+        detail.historial.length === 0
+          ? '<div class="text-muted">Sin historial registrado.</div>'
+          : '<div class="timeline">' +
+            detail.historial
+              .map(
+                (log) => `
             <div class="timeline-item">
               <div class="timeline-marker"></div>
               <div class="timeline-content">
                 <div class="text-label-sm text-muted">${new Date(log.timestamp).toLocaleString()}</div>
-                <div>Cambio de <strong>${log.estado_anterior ?? 'N/A'}</strong> a <strong>${log.estado_nuevo}</strong></div>
+                <div>Cambio de <strong>${etiquetaDeEstado(log.estado_anterior)}</strong> a <strong>${etiquetaDeEstado(log.estado_nuevo)}</strong></div>
                 ${log.comentario ? `<div class="text-label mt-1 text-muted">"${escapeHtml(log.comentario)}"</div>` : ''}
               </div>
             </div>
-          `).join('') + '</div>';
+          `,
+              )
+              .join('') +
+            '</div>';
 
       modal.bodyEl.innerHTML = `
         <div class="mb-4">
@@ -200,7 +234,7 @@ export class AdminDashboardPage {
         <div class="mb-4" style="display:flex; gap: var(--sp-6);">
           <div>
             <div class="text-label-sm text-muted">ESTADO</div>
-            <span class="badge badge--${detail.estado_actual}">${detail.estado_actual}</span>
+            ${estadoBadge(detail.estado_actual)}
           </div>
           <div>
             <div class="text-label-sm text-muted">FOLIO</div>
@@ -216,12 +250,16 @@ export class AdminDashboardPage {
           <div class="text-label-sm text-muted mb-2">EQUIPO</div>
           ${membersHtml}
         </div>
-        ${detail.estado_actual === 'validado' ? `
+        ${
+          detail.estado_actual === 'validado'
+            ? `
           <hr class="divider">
           <div class="mb-4">
             <button class="btn btn--primary btn--sm" id="btn-register"><span class="material-symbols-outlined">verified</span> Emitir folio y registrar</button>
           </div>
-        ` : ''}
+        `
+            : ''
+        }
         <hr class="divider">
         <div>
           <div class="text-label-sm text-muted mb-2">HISTORIAL</div>
@@ -247,9 +285,10 @@ export class AdminDashboardPage {
   private async handleExport(format: 'csv' | 'xlsx') {
     try {
       showToast('Generando exportación...', { type: 'info' });
-      const blob = format === 'csv'
-        ? await exportProjectsCsv(this.filters)
-        : await exportProjectsXlsx(this.filters);
+      const blob =
+        format === 'csv'
+          ? await exportProjectsCsv(this.filters)
+          : await exportProjectsXlsx(this.filters);
       const filename = format === 'csv' ? 'proyectos_siae.csv' : 'proyectos_siae.xlsx';
       triggerBlobDownload(blob, filename);
       showToast('Exportación descargada.', { type: 'success' });

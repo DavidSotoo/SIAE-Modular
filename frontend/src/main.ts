@@ -1,4 +1,4 @@
-import { renderSidebar, applyStoredTheme, type Rol } from './components/Sidebar.js';
+import { renderSidebar, renderTopbar, applyStoredTheme, type Rol } from './components/Sidebar.js';
 import { PerfilPage } from './pages/PerfilPage.js';
 import { BuscarEquipoPage } from './pages/BuscarEquipoPage.js';
 import { MiProyectoPage } from './pages/MiProyectoPage.js';
@@ -70,11 +70,14 @@ function handleRoute() {
   }
 
   const sidebarContainer = document.getElementById('sidebar-container')!;
+  const topbarContainer = document.getElementById('topbar-container')!;
   const mainContent = document.getElementById('main-content')!;
 
   if (path === '/login') {
-    sidebarContainer.style.display = 'none';
+    sidebarContainer.classList.add('hidden');
     sidebarContainer.innerHTML = '';
+    topbarContainer.classList.add('hidden');
+    topbarContainer.innerHTML = '';
     mainContent.innerHTML = '';
     const page = new LoginPage(mainContent);
     page.render();
@@ -82,16 +85,22 @@ function handleRoute() {
   }
 
   if (path === '/completar-perfil') {
-    sidebarContainer.style.display = 'none';
+    sidebarContainer.classList.add('hidden');
     sidebarContainer.innerHTML = '';
+    topbarContainer.classList.add('hidden');
+    topbarContainer.innerHTML = '';
     mainContent.innerHTML = '';
     const page = new CompleteProfilePage(mainContent);
     page.render();
     return;
   }
 
-  sidebarContainer.style.display = 'block';
-  // Render Sidebar
+  // Ojo: nada de `style.display` aqui. Un estilo en linea gana sobre la
+  // hoja de estilos y rompia la media query que convierte el menu en
+  // cajon lateral, dejandolo fijo encima del contenido en movil.
+  sidebarContainer.classList.remove('hidden');
+  topbarContainer.classList.remove('hidden');
+  renderTopbar(topbarContainer);
   renderSidebar(sidebarContainer, path, storedUser?.rol);
 
   // Clear main content

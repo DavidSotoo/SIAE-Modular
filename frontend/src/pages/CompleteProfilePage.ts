@@ -1,6 +1,7 @@
 import { completeProfile } from '../services/auth.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
+import { validarCampo, bloquearHastaValido, codigoCuceiValido } from '../utils/validacion.js';
 
 export class CompleteProfilePage {
   private container: HTMLElement;
@@ -31,6 +32,16 @@ export class CompleteProfilePage {
 
     const form = document.getElementById('complete-profile-form') as HTMLFormElement;
     form.addEventListener('submit', (e) => this.handleSubmit(e));
+
+    const btnContinuar = document.getElementById('btn-complete') as HTMLButtonElement;
+    let revisar = () => {};
+    const campo = validarCampo({
+      input: document.getElementById('codigo_cucei') as HTMLInputElement,
+      errorEl: document.getElementById('codigo-error')!,
+      validar: codigoCuceiValido,
+      alCambiar: () => revisar(),
+    });
+    revisar = bloquearHastaValido(btnContinuar, [campo]);
   }
 
   private async handleSubmit(e: Event) {

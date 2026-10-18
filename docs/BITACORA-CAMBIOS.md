@@ -222,3 +222,68 @@ rechazó.
   por completo y fallaría en los archivos heredados.
 - Los commits que tocan un archivo por primera vez lo reformatean entero, así
   que conviene revisarlos ignorando espacios en blanco.
+
+---
+
+## 2026-10-17 — Diseño y experiencia (Fase 1)
+
+**Rama:** `angel/diseno-y-experiencia` (apilada sobre `angel/rate-limiting-y-calidad`)
+
+### Qué se identificó
+
+1. **La aplicación era inusable en móvil.** La media query ocultaba el menú
+   con `display: none`, pero `main.ts` le ponía `display: block` en línea, que
+   gana sobre la hoja de estilos. A 375px quedaba un menú fijo de 256px
+   tapando el contenido, sin forma de cerrarlo ni de navegar.
+2. **Las vistas mostraban códigos crudos del motor de estados** ("pendiente",
+   "correccion") y el historial decía "Cambio de N/A a pendiente".
+3. **Solo Perfil tenía siluetas de carga**; el resto usaba un spinner con
+   texto, que no reserva espacio y hace saltar el layout.
+4. **Las tablas no cabían en móvil**: 4 y 6 columnas con `nowrap` dejaban un
+   scroll horizontal con casi todo fuera de vista.
+5. **Los formularios solo avisaban al enviar.**
+6. Faltaban por completo `prefers-reduced-motion`, `:focus-visible` y
+   skip-link, y los z-index eran números sueltos repartidos por el archivo.
+
+### Alternativas evaluadas
+
+- **Menú en móvil.** Se evaluó dejarlo oculto y mover la navegación a una
+  barra inferior. Se eligió el cajón lateral porque conserva la misma
+  estructura y el mismo código en ambos tamaños, sin duplicar la navegación.
+- **Tablas en móvil.** Dejar el scroll horizontal es lo más barato, pero
+  esconde columnas. Se eligió apilar cada fila como tarjeta con `data-label`,
+  ocultando el `thead` solo visualmente para no perder la semántica de tabla.
+- **Validación inline.** Validar en cada pulsación regaña por un campo que
+  apenas se empezó a llenar. Se muestra el error al salir del campo y, a
+  partir de ahí, se actualiza en vivo.
+- **Bloqueo del botón.** La primera versión dejaba que cada campo tocara el
+  botón por su cuenta; se detectó al probar que el último en evaluarse lo
+  habilitaba aunque otro siguiera mal. Se añadió un coordinador.
+
+### Resultado medido
+
+| Métrica                       | Antes                        | Después                           |
+| ----------------------------- | ---------------------------- | --------------------------------- |
+| Navegación en móvil           | **Imposible** (menú tapando) | Cajón con 3 formas de cierre      |
+| Scroll horizontal a 375px     | Sí, en las tablas            | **No** (medido con `scrollWidth`) |
+| Vistas con skeleton           | 1 de 6                       | **6 de 6**                        |
+| Etiquetas de estado           | Código crudo                 | Legibles, con icono y explicación |
+| `prefers-reduced-motion`      | 0                            | 1                                 |
+| Reglas `:focus-visible`       | 0                            | Global                            |
+| Formularios con aviso en vivo | 0                            | 3 (onboarding, perfil, proyecto)  |
+
+### Bugs encontrados al probar
+
+- **Buscar Equipo dejaba una rejilla vacía sin explicación.** La comprobación
+  de "sin resultados" miraba el total devuelto por la API, pero el renderizado
+  descarta después al propio usuario; si el único resultado eras tú, no
+  entraba al estado vacío. Ahora se filtra primero y el mensaje distingue los
+  dos casos.
+
+### Deuda que queda abierta
+
+- **i18n sin resolver**: los textos siguen incrustados en las vistas. Falta
+  decidir si se centraliza solo es-MX o si en-US entra en el alcance.
+- Los `onerror` en línea del avatar siguen impidiendo una CSP estricta.
+- Sin pruebas de interfaz: todo lo anterior se verificó a mano en el
+  navegador. Playwright sigue pendiente.

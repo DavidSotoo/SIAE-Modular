@@ -23,3 +23,22 @@ El JWT propio de la aplicación se sigue emitiendo igual que antes tras la verif
 **Quién lo decidió:** Angel Soto Delgado, con orientación de Claude Code. Implementado en la rama `angel/etapa1-login-google`, pendiente de revisión por Ricardo (validación por etapa) e Ivie (toca directamente Etapa 2, motor de estados / autenticación).
 
 **Pendiente:** configurar el OAuth Client ID en Google Cloud Console (solo lo puede hacer quien tenga acceso al proyecto de Google de la organización) y probar el flujo con una cuenta institucional real antes de dar por cerrada la etapa.
+
+---
+
+## 2026-10-17 — El máximo de integrantes por equipo queda en 5
+
+**Qué cambió:** el Sprint 2 de Diseño y el esquema inicial hablaban de un máximo de **3 integrantes** por proyecto. Con SM-40 el límite subió a **5**, y así estaba ya implementado, pero la cifra vieja seguía apareciendo en documentos y comentarios. Queda confirmado que **5 es el valor oficial**.
+
+**Por qué:** la auditoría técnica del 12 de octubre detectó la contradicción: el código validaba 5 (`MAX_MEMBERS`), mientras que el plan de construcción y el comentario de `001_init.sql` seguían diciendo 3. Un límite ambiguo es justo el tipo de regla que se implementa distinto en dos lugares.
+
+**Dónde vive la regla:** el límite **no** es una restricción de base de datos; se valida en el servicio, al crear la solicitud y otra vez al aceptarla, esta segunda vez dentro de una transacción con bloqueo de fila para que dos aceptaciones simultáneas no dejen un equipo de 6.
+
+- Fuente única: `MAX_MEMBERS` en `backend/src/services/teamRequest.service.ts`.
+- El frontend la espeja en `frontend/src/constants.ts` (`MAX_INTEGRANTES`), que alimenta el mensaje de error y el botón "Equipo completo".
+
+**Efecto de esta decisión:** ninguno en el código, que ya cumplía. Se corrigió el comentario desactualizado de la migración inicial para que el esquema no contradiga al código, y se deja constancia aquí.
+
+**Verificación:** cubierto por las pruebas de integración, que arman un equipo hasta 5 y comprueban que el sexto recibe `409 PROJECT_FULL`.
+
+**Quién lo decidió:** Angel Soto Delgado.

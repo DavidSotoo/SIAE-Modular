@@ -15,6 +15,8 @@ import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
 import type { AdvisorRequest, Project } from '../types/index.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
+import { estadoBadge, etiquetaDeEstado } from '../components/EstadoBadge.js';
+import { skeletonTabla, skeletonLineas } from '../components/Skeleton.js';
 
 export class MentorDashboardPage {
   private container: HTMLElement;
@@ -25,8 +27,7 @@ export class MentorDashboardPage {
   }
 
   async render() {
-    this.container.innerHTML =
-      '<div class="state-loading"><span class="spinner"></span> Cargando panel...</div>';
+    this.container.innerHTML = skeletonTabla(4, 4);
     try {
       this.buildLayout();
     } catch (err: any) {
@@ -59,7 +60,7 @@ export class MentorDashboardPage {
 
   private async loadRequests() {
     const container = document.getElementById('requests-container')!;
-    container.innerHTML = '<div class="state-loading"><span class="spinner"></span></div>';
+    container.innerHTML = skeletonLineas(3);
 
     try {
       const requests = await listMentorAdvisorRequests();
@@ -134,7 +135,7 @@ export class MentorDashboardPage {
 
   private async loadProjects() {
     const container = document.getElementById('projects-container')!;
-    container.innerHTML = '<div class="state-loading"><span class="spinner"></span></div>';
+    container.innerHTML = skeletonLineas(3);
 
     try {
       this.projects = await getMentorProjects();
@@ -161,10 +162,10 @@ export class MentorDashboardPage {
                 .map(
                   (p) => `
                 <tr data-id="${p.id_proyecto}">
-                  <td>${p.codigo_folio ?? '<span class="text-muted">—</span>'}</td>
-                  <td>${escapeHtml(p.titulo)}</td>
-                  <td><span class="badge badge--${p.estado_actual}">${p.estado_actual}</span></td>
-                  <td>${p.miembros.map((m) => escapeHtml(m.nombre) + (m.es_lider ? ' (líder)' : '')).join(', ')}</td>
+                  <td data-label="Folio">${p.codigo_folio ?? '<span class="text-muted">—</span>'}</td>
+                  <td data-label="Título">${escapeHtml(p.titulo)}</td>
+                  <td data-label="Estado">${estadoBadge(p.estado_actual)}</td>
+                  <td data-label="Equipo">${p.miembros.map((m) => escapeHtml(m.nombre) + (m.es_lider ? ' (líder)' : '')).join(', ')}</td>
                 </tr>
               `,
                 )
@@ -196,7 +197,7 @@ export class MentorDashboardPage {
     const modal = new Modal({
       id: 'mentor-project-modal',
       title: escapeHtml(project.titulo),
-      contentHtml: '<div class="state-loading"><span class="spinner"></span></div>',
+      contentHtml: skeletonLineas(4),
       confirmLabel: 'Cerrar',
       confirmClass: 'btn--ghost',
       onConfirm: (m) => m.close(),
@@ -224,7 +225,7 @@ export class MentorDashboardPage {
 
     modal.bodyEl.innerHTML = `
       <div class="mb-4" style="display:flex; gap: var(--sp-6); align-items:center;">
-        <span class="badge badge--${project.estado_actual}">${project.estado_actual}</span>
+        ${estadoBadge(project.estado_actual)}
         ${project.codigo_folio ? `<span class="badge badge--folio">Folio: ${project.codigo_folio}</span>` : ''}
       </div>
       <div class="mb-4">
@@ -302,7 +303,7 @@ export class MentorDashboardPage {
             <div class="timeline-marker"></div>
             <div class="timeline-content">
               <div class="text-label-sm text-muted">${new Date(log.timestamp).toLocaleString()}</div>
-              <div>Cambio de <strong>${log.estado_anterior ?? 'N/A'}</strong> a <strong>${log.estado_nuevo}</strong></div>
+              <div>Cambio de <strong>${etiquetaDeEstado(log.estado_anterior)}</strong> a <strong>${etiquetaDeEstado(log.estado_nuevo)}</strong></div>
               ${log.comentario ? `<div class="text-label mt-1 text-muted">"${escapeHtml(log.comentario)}"</div>` : ''}
             </div>
           </div>

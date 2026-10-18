@@ -23,8 +23,11 @@ CREATE TABLE projects (
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Máximo 3 integrantes por proyecto, un alumno solo en un proyecto activo a la vez
--- (regla de "un proyecto activo" se aplica a nivel de servicio, no solo constraint)
+-- Un alumno solo puede estar en un proyecto activo a la vez.
+-- Tanto esa regla como el máximo de integrantes se aplican a nivel de
+-- servicio, no por constraint: el límite vive en MAX_MEMBERS
+-- (backend/src/services/teamRequest.service.ts). Nació en 3 y desde SM-40
+-- son 5; se documenta aquí para que el esquema no contradiga al código.
 CREATE TABLE project_members (
     id_proyecto     INTEGER NOT NULL REFERENCES projects(id_proyecto) ON DELETE CASCADE,
     codigo_alumno   VARCHAR(9) NOT NULL REFERENCES users(codigo_cucei),
