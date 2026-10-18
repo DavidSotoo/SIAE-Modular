@@ -14,7 +14,20 @@ export const uploadProtocolHandler = async (req: Request, res: Response, next: N
     }
 
     const pdf_path = req.file.path; // Destino local de multer
-    
+
+    // El mimetype del multipart lo declara el cliente y se puede falsificar;
+    // se confirma leyendo la cabecera real del archivo ya escrito. Si falla,
+    // el catch de abajo lo borra.
+    const handle = await fs.open(pdf_path, 'r');
+    try {
+      const { buffer, bytesRead } = await handle.read(Buffer.alloc(5), 0, 5, 0);
+      if (bytesRead < 5 || buffer.toString('latin1') !== '%PDF-') {
+        throw badRequest('El archivo no es un PDF válido');
+      }
+    } finally {
+      await handle.close();
+    }
+
     await submitProtocol(id_proyecto, id, codigo_cucei!, pdf_path);
     res.json({ message: 'Protocolo subido exitosamente' });
   } catch (err) {

@@ -8,3 +8,20 @@ export function escapeHtml(value: string | null | undefined): string {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
+
+/**
+ * Devuelve la URL solo si usa un esquema seguro para navegar o cargar
+ * recursos. Escapar no basta en `href`/`src`: `javascript:alert(1)` no lleva
+ * ningun caracter especial y se ejecutaria igual al hacer clic.
+ */
+export function safeUrl(value: string | null | undefined): string | null {
+  const raw = (value ?? '').trim();
+  if (!raw) return null;
+  try {
+    const parsed = new URL(raw, window.location.origin);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
+    return parsed.href;
+  } catch {
+    return null;
+  }
+}

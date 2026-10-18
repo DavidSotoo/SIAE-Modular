@@ -183,7 +183,7 @@ export class AdminDashboardPage {
               <div class="timeline-content">
                 <div class="text-label-sm text-muted">${new Date(log.timestamp).toLocaleString()}</div>
                 <div>Cambio de <strong>${log.estado_anterior ?? 'N/A'}</strong> a <strong>${log.estado_nuevo}</strong></div>
-                ${log.comentario ? `<div class="text-label mt-1 text-muted">"${log.comentario}"</div>` : ''}
+                ${log.comentario ? `<div class="text-label mt-1 text-muted">"${escapeHtml(log.comentario)}"</div>` : ''}
               </div>
             </div>
           `).join('') + '</div>';

@@ -2,6 +2,7 @@ import { getAreas } from '../services/student.service.js';
 import { searchAdvisors, createAdvisorRequest } from '../services/advisor.service.js';
 import { getMyProject } from '../services/project.service.js';
 import { getErrorMessage } from '../services/errorMessages.js';
+import { escapeHtml } from '../utils/escapeHtml.js';
 import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
 import type { Area, Project, AdvisorSearchResult } from '../types/index.js';
@@ -41,7 +42,7 @@ export class BuscarAsesorPage {
           <label class="form-label text-label-sm" for="filter-area">Área</label>
           <select id="filter-area" name="area" class="form-control">
             <option value="">Cualquiera</option>
-            ${this.areas.map(a => `<option value="${a.id_area}">${a.nombre}</option>`).join('')}
+            ${this.areas.map(a => `<option value="${a.id_area}">${escapeHtml(a.nombre)}</option>`).join('')}
           </select>
         </div>
         <div class="form-group" style="flex: 0 0 auto;">
@@ -78,24 +79,24 @@ export class BuscarAsesorPage {
 
       let html = '<div class="cards-grid">';
       advisors.forEach(advisor => {
-        const areaChips = advisor.areas.map(a => `<span class="chip chip--area">${a.nombre}</span>`).join(' ');
+        const areaChips = advisor.areas.map(a => `<span class="chip chip--area">${escapeHtml(a.nombre)}</span>`).join(' ');
         
         let buttonHtml = '';
         if (this.myProject) {
           if (this.myProject.id_mentor !== null) {
             buttonHtml = '<button class="btn btn--secondary btn--full" disabled title="Ya tienes un asesor asignado">Ya tienes asesor</button>';
           } else {
-            buttonHtml = `<button class="btn btn--primary btn--full btn-solicitar" data-id="${advisor.id_usuario}" data-nombre="${advisor.nombre}">Solicitar Asesoría</button>`;
+            buttonHtml = `<button class="btn btn--primary btn--full btn-solicitar" data-id="${advisor.id_usuario}" data-nombre="${escapeHtml(advisor.nombre)}">Solicitar Asesoría</button>`;
           }
         }
 
         html += `
           <div class="profile-card">
             <div class="profile-card__header">
-              <div class="profile-card__avatar">${advisor.nombre.charAt(0)}</div>
+              <div class="profile-card__avatar">${escapeHtml(advisor.nombre.charAt(0))}</div>
               <div>
-                <div class="profile-card__name">${advisor.nombre}</div>
-                <div class="profile-card__sub">${advisor.especialidad || 'Sin especialidad registrada'}</div>
+                <div class="profile-card__name">${escapeHtml(advisor.nombre)}</div>
+                <div class="profile-card__sub">${advisor.especialidad ? escapeHtml(advisor.especialidad) : 'Sin especialidad registrada'}</div>
               </div>
             </div>
             <div class="profile-card__bio">Cupo: ${advisor.proyectos_activos}/${advisor.cupo_maximo} proyectos activos</div>

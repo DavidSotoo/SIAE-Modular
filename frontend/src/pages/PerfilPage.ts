@@ -1,5 +1,6 @@
 import { getMyProfile, getSkills, getAreas, updateMyProfile, createSkill } from '../services/student.service.js';
 import { getMe } from '../services/auth.service.js';
+import { escapeHtml, safeUrl } from '../utils/escapeHtml.js';
 import { getErrorMessage } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
 import { ChipSelector } from '../components/ChipSelector.js';
@@ -41,9 +42,14 @@ function initials(nombre: string): string {
 }
 
 function avatarContent(nombre: string, foto_url: string | null): string {
-  return foto_url
-    ? `<img src="${foto_url}" alt="" referrerpolicy="no-referrer" onerror="this.remove(); this.parentElement.textContent='${initials(nombre)}';">`
-    : initials(nombre);
+  const letters = escapeHtml(initials(nombre));
+  const url = safeUrl(foto_url);
+  // Las iniciales viajan en un data-attribute en vez de interpolarse dentro
+  // del JS del onerror: un nombre con comilla rompia el literal y permitia
+  // inyectar codigo.
+  return url
+    ? `<img src="${escapeHtml(url)}" alt="" referrerpolicy="no-referrer" data-initials="${letters}" onerror="this.parentElement.textContent = this.dataset.initials;">`
+    : letters;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -131,10 +137,10 @@ export class PerfilPage {
           <div class="pv-hero-body">
             <div class="pv-avatar">${avatarInner}</div>
             <div class="pv-hero-info">
-              <div class="pv-name">${me.nombre}</div>
+              <div class="pv-name">${escapeHtml(me.nombre)}</div>
               ${me.email ? `<div class="pv-code">
                 <span class="material-symbols-outlined" style="font-size:14px">mail</span>
-                ${me.email}
+                ${escapeHtml(me.email)}
               </div>` : ''}
               <div class="pv-badges">
                 <span class="pv-badge pv-badge--semestre">
@@ -166,28 +172,29 @@ export class PerfilPage {
         ? '<span class="pv-empty-hint">Sin habilidades registradas aún.</span>'
         : list.map(s =>
             `<span class="pv-skill-chip pv-skill-chip--${cls}">
-              ${s.nombre}
-              ${cls === 'hard' ? `<span class="pv-skill-chip-level">· ${NIVEL_LABEL[s.nivel] ?? s.nivel}</span>` : ''}
+              ${escapeHtml(s.nombre)}
+              ${cls === 'hard' ? `<span class="pv-skill-chip-level">· ${escapeHtml(NIVEL_LABEL[s.nivel] ?? s.nivel)}</span>` : ''}
             </span>`
           ).join('');
 
     const areaChips = p.areas.length === 0
       ? '<span class="pv-empty-hint">Sin áreas de interés registradas aún.</span>'
-      : p.areas.map(a => `<span class="pv-area-chip"><span class="material-symbols-outlined" style="font-size:14px">label</span>${a.nombre}</span>`).join('');
+      : p.areas.map(a => `<span class="pv-area-chip"><span class="material-symbols-outlined" style="font-size:14px">label</span>${escapeHtml(a.nombre)}</span>`).join('');
 
     const bioSection = p.bio
       ? `<div class="pv-card">
            <div class="pv-card-title"><span class="material-symbols-outlined">person</span>Sobre mí</div>
-           <p class="pv-bio-text">${p.bio}</p>
+           <p class="pv-bio-text">${escapeHtml(p.bio)}</p>
          </div>`
       : '';
 
-    const portafolioSection = p.portafolio_url
+    const portafolioHref = safeUrl(p.portafolio_url);
+    const portafolioSection = portafolioHref
       ? `<div class="pv-card">
            <div class="pv-card-title"><span class="material-symbols-outlined">link</span>Portafolio / LinkedIn</div>
-           <a class="pv-link" href="${p.portafolio_url}" target="_blank" rel="noopener">
+           <a class="pv-link" href="${escapeHtml(portafolioHref)}" target="_blank" rel="noopener noreferrer">
              <span class="material-symbols-outlined" style="font-size:16px">open_in_new</span>
-             ${p.portafolio_url}
+             ${escapeHtml(portafolioHref)}
            </a>
          </div>`
       : '';
@@ -201,10 +208,10 @@ export class PerfilPage {
           <div class="pv-hero-body">
             <div class="pv-avatar">${avatarInner}</div>
             <div class="pv-hero-info">
-              <div class="pv-name">${p.nombre}</div>
+              <div class="pv-name">${escapeHtml(p.nombre)}</div>
               <div class="pv-code">
                 <span class="material-symbols-outlined" style="font-size:14px">badge</span>
-                ${p.codigo_cucei}
+                ${escapeHtml(p.codigo_cucei)}
               </div>
               <div class="pv-badges">
                 <span class="pv-badge ${estado.cls}">

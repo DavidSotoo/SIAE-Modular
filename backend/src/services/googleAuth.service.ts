@@ -54,8 +54,13 @@ export function resolveRoleFromGoogleProfile(
 }
 
 function signSessionToken(user: { id: number; codigo_cucei: string | null; rol: Rol }) {
+  // Sin fallback: firmar con un secreto por defecto haria que cualquiera
+  // pudiera forjar tokens de admin si la variable falta en produccion.
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error('JWT_SECRET no configurado');
+
   const payload = { id: user.id, codigo_cucei: user.codigo_cucei, rol: user.rol };
-  const token = jwt.sign(payload, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });
+  const token = jwt.sign(payload, secret, { expiresIn: '1d' });
   return { token, user: payload };
 }
 
