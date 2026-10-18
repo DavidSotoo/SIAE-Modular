@@ -287,3 +287,69 @@ rechazó.
 - Los `onerror` en línea del avatar siguen impidiendo una CSP estricta.
 - Sin pruebas de interfaz: todo lo anterior se verificó a mano en el
   navegador. Playwright sigue pendiente.
+
+---
+
+## 2026-10-18 — Accesibilidad (Fase 2), primera parte
+
+**Rama:** `angel/accesibilidad` (desde `main`)
+
+### Qué se identificó
+
+Se midió el estado con **axe-core 4.10.2** (el verificador estándar de WCAG)
+en todas las vistas, más pruebas manuales de teclado que axe no cubre.
+Resultado de la línea base:
+
+| Vista                                       | Violaciones axe                             | Gravedad               |
+| ------------------------------------------- | ------------------------------------------- | ---------------------- |
+| Login                                       | 3 (landmarks)                               | moderate               |
+| Alumno (perfil, equipo, asesores, proyecto) | 1 `region` c/u                              | moderate               |
+| Admin / Mentor                              | `region` + `scrollable-region-focusable`    | moderate + **serious** |
+| Modal (prueba manual de teclado)            | foco no entra, sin trampa, Escape no cierra | —                      |
+
+### Por qué importaba
+
+- **El modal era una trampa para quien usa teclado o lector de pantalla:** al
+  abrirlo el foco se quedaba detrás, se podía tabular hacia el contenido de
+  fondo (que debería estar inerte) y no había forma de cerrarlo con Escape.
+- La **tabla con scroll** (serious) no se podía alcanzar con teclado: quien no
+  usa mouse no podía desplazarla.
+- Los **landmarks** mal puestos desorientan a un lector de pantalla, que los
+  usa como índice para saltar entre secciones de la página.
+
+### Qué se hizo
+
+- **Modal (`Modal.ts`):** al abrir, el foco entra al diálogo y se recuerda
+  quién lo tenía; Tab y Shift+Tab circulan dentro (trampa de foco); Escape lo
+  cierra; al cerrar, el foco vuelve al elemento que lo abrió.
+- **`scrollable-region-focusable`:** las tablas de admin y mentor reciben
+  `tabindex="0"`, `role="region"` y `aria-label`, para ser alcanzables por
+  teclado y anunciadas.
+- **`region`:** el contenedor del sidebar pasa a ser el landmark de navegación
+  (`role="navigation"` + `aria-label`), para que el logo y el pie (tema,
+  cerrar sesión) dejen de quedar sueltos fuera de todo landmark. El menú
+  interno deja de ser `<nav>` para no anidar dos landmarks de navegación.
+- **Landmarks del login:** el login metía un `<main>` dentro del `<main>` del
+  layout. El interno pasa a `<div>`; queda un solo main.
+
+### Resultado medido
+
+|                   | Antes                  | Después                                   |
+| ----------------- | ---------------------- | ----------------------------------------- |
+| Login             | 3 violaciones          | **0**                                     |
+| Alumno (×4)       | 1 c/u                  | **0**                                     |
+| Admin / Mentor    | 2 c/u (1 serious)      | **0**                                     |
+| Modal con teclado | foco fuera, sin Escape | foco entra, trampa, Escape, foco devuelto |
+
+Verificado con axe-core en las 7 vistas (todas en 0) y con pruebas manuales
+de teclado sobre el modal. Las 109 pruebas de backend siguen pasando (no se
+tocó backend).
+
+### Deuda que queda abierta
+
+- Falta correr **Lighthouse** para un puntaje global de accesibilidad (axe
+  cubre las reglas, pero Lighthouse da la nota redonda para el informe).
+- `aria-live` para anunciar los toasts (aparecen con `role="alert"`, que
+  ayuda, pero conviene revisar que se anuncien de forma consistente).
+- Revisar el contraste en modo oscuro (axe no reportó fallos, pero conviene
+  una pasada manual).

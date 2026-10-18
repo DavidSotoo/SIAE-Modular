@@ -147,7 +147,7 @@ export class MentorDashboardPage {
       }
 
       container.innerHTML = `
-        <div class="table-wrap">
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Tabla de proyectos asesorados">
           <table class="table">
             <thead>
               <tr>

@@ -239,7 +239,7 @@ export class LoginPage {
         </header>
 
         <!-- BEGIN: MainContent -->
-        <main class="login-main">
+        <div class="login-main">
           <div class="login-card">
             <div class="login-card-header">
               <div class="login-card-emblem">
@@ -261,7 +261,7 @@ export class LoginPage {
               </p>
             </div>
           </div>
-        </main>
+        </div>
 
         <!-- BEGIN: Footer -->
         <footer class="login-footer">
@@ -283,7 +283,8 @@ export class LoginPage {
   }
 
   private initGoogleButton() {
-    const clientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) || DEFAULT_GOOGLE_CLIENT_ID;
+    const clientId =
+      (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) || DEFAULT_GOOGLE_CLIENT_ID;
     const buttonContainer = document.getElementById('google-signin-button')!;
     const fallback = document.getElementById('google-fallback')!;
 
