@@ -345,10 +345,32 @@ Verificado con axe-core en las 7 vistas (todas en 0) y con pruebas manuales
 de teclado sobre el modal. Las 109 pruebas de backend siguen pasando (no se
 tocó backend).
 
+### Verificación con Lighthouse
+
+Se corrió **Lighthouse** (categoría accesibilidad) sobre las 5 vistas
+principales, con Chrome real; las autenticadas se midieron sembrando la
+sesión con Puppeteer antes de auditar.
+
+| Vista                | Lighthouse a11y |
+| -------------------- | --------------- |
+| Login                | 100/100         |
+| Perfil (alumno)      | 100/100         |
+| Mi Proyecto (alumno) | 100/100         |
+| Panel admin          | 100/100         |
+| Panel asesor         | 100/100         |
+
+**Matiz importante y honesto:** Lighthouse daba **100/100 también antes** de
+estos cambios. Su puntaje usa un subconjunto curado de reglas de axe, más
+laxo que el verificador completo; las violaciones que sí detectó axe
+(landmarks, tabla no alcanzable por teclado) no entran en el número de
+Lighthouse. Es decir: **el 100 de Lighthouse confirma que se cumple ese
+umbral, pero la mejora real de esta fase se ve en axe (de hasta 3
+violaciones por vista a 0) y en la navegación por teclado del modal, que
+ninguna de las dos herramientas detecta de forma automática.** Para el
+informe conviene citar las tres evidencias, no solo el 100.
+
 ### Deuda que queda abierta
 
-- Falta correr **Lighthouse** para un puntaje global de accesibilidad (axe
-  cubre las reglas, pero Lighthouse da la nota redonda para el informe).
 - `aria-live` para anunciar los toasts (aparecen con `role="alert"`, que
   ayuda, pero conviene revisar que se anuncien de forma consistente).
 - Revisar el contraste en modo oscuro (axe no reportó fallos, pero conviene
