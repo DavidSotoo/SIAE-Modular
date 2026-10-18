@@ -22,7 +22,9 @@
     <div id="topbar-container"></div>
     <main class="main-content" id="main-content" tabindex="-1"></main>
   </div>
-  <div id="toast-container"></div>
+  <!-- Region live persistente: existe desde el arranque para que el lector de
+       pantalla anuncie de forma fiable los avisos que se insertan aqui. -->
+  <div id="toast-container" aria-live="polite" aria-atomic="false"></div>
   <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

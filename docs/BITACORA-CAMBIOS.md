@@ -369,9 +369,16 @@ violaciones por vista a 0) y en la navegación por teclado del modal, que
 ninguna de las dos herramientas detecta de forma automática.** Para el
 informe conviene citar las tres evidencias, no solo el 100.
 
-### Deuda que queda abierta
+### Cierre: toasts anunciados y contraste en modo oscuro
 
-- `aria-live` para anunciar los toasts (aparecen con `role="alert"`, que
-  ayuda, pero conviene revisar que se anuncien de forma consistente).
-- Revisar el contraste en modo oscuro (axe no reportó fallos, pero conviene
-  una pasada manual).
+- **Toasts:** el contenedor `#toast-container` pasa a ser una región live
+  persistente (`aria-live="polite"`), que existe desde el arranque — así el
+  lector de pantalla anuncia de forma fiable los avisos insertados, cosa que
+  un `role` en un nodo recién creado no siempre logra. Los errores conservan
+  `role="alert"` (interrumpen); los avisos normales los anuncia el contenedor
+  sin duplicar la lectura. Verificado en el DOM.
+- **Contraste en modo oscuro:** se corrió axe con la regla `color-contrast`
+  forzando el tema oscuro, en las vistas de alumno y en el panel admin
+  (incluidas las insignias de estado de colores). **0 fallos.**
+
+Con esto la Fase 2 queda cerrada.
