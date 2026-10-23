@@ -1,5 +1,9 @@
 import { Router } from 'express';
-import { googleLoginHandler, completeProfileHandler, meHandler } from '../controllers/auth.controller.js';
+import {
+  googleLoginHandler,
+  completeProfileHandler,
+  meHandler,
+} from '../controllers/auth.controller.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
 
 const router = Router();
@@ -11,11 +15,6 @@ router.post('/auth/google', googleLoginHandler);
 router.get('/auth/me', authenticate, meHandler);
 
 // POST /api/auth/complete-profile — alumno captura su código CUCEI la primera vez que entra
-router.post(
-  '/auth/complete-profile',
-  authenticate,
-  requireRole('alumno'),
-  completeProfileHandler,
-);
+router.post('/auth/complete-profile', authenticate, requireRole('alumno'), completeProfileHandler);
 
 export default router;

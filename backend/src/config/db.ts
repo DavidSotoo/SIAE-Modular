@@ -16,9 +16,7 @@ pool.on('error', (err) => {
  * Ejecuta una función dentro de una transacción.
  * Hace ROLLBACK automático en caso de error y libera el cliente.
  */
-export async function withTransaction<T>(
-  fn: (client: pg.PoolClient) => Promise<T>
-): Promise<T> {
+export async function withTransaction<T>(fn: (client: pg.PoolClient) => Promise<T>): Promise<T> {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');

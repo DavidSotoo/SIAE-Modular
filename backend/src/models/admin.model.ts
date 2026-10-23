@@ -122,7 +122,9 @@ export async function getAdminStats(): Promise<AdminStats> {
   const folioRes = await pool.query<{ count: string }>(`SELECT COUNT(*) FROM folios`);
 
   const por_estado: Record<string, number> = {};
-  estadoRes.rows.forEach((r) => { por_estado[r.estado_actual] = parseInt(r.count, 10); });
+  estadoRes.rows.forEach((r) => {
+    por_estado[r.estado_actual] = parseInt(r.count, 10);
+  });
 
   return {
     total_proyectos: parseInt(totalRes.rows[0].count, 10),

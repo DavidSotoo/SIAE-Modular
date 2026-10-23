@@ -50,7 +50,10 @@ export async function linkGoogleSub(id_usuario: number, google_sub: string): Pro
 }
 
 /** Actualiza la foto de perfil desde el token de Google (puede cambiar entre logins). */
-export async function updateUserFotoUrl(id_usuario: number, foto_url: string | null): Promise<void> {
+export async function updateUserFotoUrl(
+  id_usuario: number,
+  foto_url: string | null,
+): Promise<void> {
   await pool.query(`UPDATE users SET foto_url = $1 WHERE id = $2`, [foto_url, id_usuario]);
 }
 

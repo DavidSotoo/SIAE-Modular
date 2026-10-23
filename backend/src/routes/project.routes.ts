@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import { authenticate, requireRole, requireOnboarded } from '../middleware/auth.js';
-import { createProjectHandler, getMentorProjectsHandler } from '../controllers/project.controller.js';
+import {
+  createProjectHandler,
+  getMentorProjectsHandler,
+} from '../controllers/project.controller.js';
 
 import {
   uploadProtocolHandler,
@@ -8,7 +11,7 @@ import {
   getHistoryHandler,
   validateProjectHandler,
   registerProjectHandler,
-  rejectProjectHandler
+  rejectProjectHandler,
 } from '../controllers/projectState.controller.js';
 import { validateParams, validateBody } from '../middleware/validate.js';
 import { paramsIdProyecto } from '../schemas/common.schema.js';
@@ -31,7 +34,7 @@ const storage = multer.diskStorage({
     const id_proyecto = req.params.id_proyecto || 'unknown';
     const timestamp = Date.now();
     cb(null, `protocolo_${id_proyecto}_${timestamp}.pdf`);
-  }
+  },
 });
 
 const upload = multer({
@@ -43,7 +46,7 @@ const upload = multer({
     } else {
       cb(new Error('Solo se permiten archivos PDF')); // Multer capturará esto como error 500, o podemos usar un custom error
     }
-  }
+  },
 });
 
 const router = Router();
@@ -73,16 +76,11 @@ router.post(
       next();
     });
   },
-  uploadProtocolHandler
+  uploadProtocolHandler,
 );
 
 // GET /api/mentors/me/projects — proyectos asignados al mentor autenticado
-router.get(
-  '/mentors/me/projects',
-  authenticate,
-  requireRole('mentor'),
-  getMentorProjectsHandler
-);
+router.get('/mentors/me/projects', authenticate, requireRole('mentor'), getMentorProjectsHandler);
 
 // GET /api/projects/:id_proyecto/protocol — descargar/visualizar el protocolo vigente
 // (si lo abre el mentor asignado, marca pdf_visualizado=true — ver IMF-03)
@@ -90,7 +88,7 @@ router.get(
   '/projects/:id_proyecto/protocol',
   authenticate,
   validateParams(paramsIdProyecto),
-  downloadProtocolHandler
+  downloadProtocolHandler,
 );
 
 // GET /api/projects/:id_proyecto/history — ver historial
@@ -99,7 +97,7 @@ router.get(
   authenticate,
   validateParams(paramsIdProyecto),
   // requireRole no se usa estricto aquí porque puede ser alumno o mentor, el servicio valida
-  getHistoryHandler
+  getHistoryHandler,
 );
 
 // POST /api/projects/:id_proyecto/validate — mentor aprueba protocolo (pendiente -> validado)
@@ -108,7 +106,7 @@ router.post(
   authenticate,
   requireRole('mentor'),
   validateParams(paramsIdProyecto),
-  validateProjectHandler
+  validateProjectHandler,
 );
 
 // POST /api/projects/:id_proyecto/register — admin emite folio (validado -> registrado)
@@ -117,7 +115,7 @@ router.post(
   authenticate,
   requireRole('admin'),
   validateParams(paramsIdProyecto),
-  registerProjectHandler
+  registerProjectHandler,
 );
 
 // POST /api/projects/:id_proyecto/reject — mentor rechaza proyecto
@@ -127,7 +125,7 @@ router.post(
   requireRole('mentor'),
   validateParams(paramsIdProyecto),
   validateBody(rechazarProyectoBody),
-  rejectProjectHandler
+  rejectProjectHandler,
 );
 
 export default router;

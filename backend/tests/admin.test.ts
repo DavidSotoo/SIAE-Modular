@@ -61,7 +61,9 @@ describe('Panel administrativo', () => {
   });
 
   it('lista los proyectos e incluye el recien registrado', async () => {
-    const res = await request(app).get('/api/admin/projects').set('Authorization', `Bearer ${admin}`);
+    const res = await request(app)
+      .get('/api/admin/projects')
+      .set('Authorization', `Bearer ${admin}`);
     expect(res.status).toBe(200);
     expect(res.body.some((p: { id_proyecto: number }) => p.id_proyecto === proyecto)).toBe(true);
   });

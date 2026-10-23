@@ -23,9 +23,7 @@ export interface CreateAdvisorRequestData {
 
 // ─── Queries ───────────────────────────────────────────────────────────────
 
-export async function findAdvisorRequestById(
-  id_solicitud: number,
-): Promise<AdvisorRequest | null> {
+export async function findAdvisorRequestById(id_solicitud: number): Promise<AdvisorRequest | null> {
   const res = await pool.query<AdvisorRequest>(
     `SELECT * FROM advisor_requests WHERE id_solicitud = $1`,
     [id_solicitud],
@@ -33,9 +31,7 @@ export async function findAdvisorRequestById(
   return res.rows[0] ?? null;
 }
 
-export async function findAdvisorRequestsByMentor(
-  id_mentor: number,
-): Promise<AdvisorRequest[]> {
+export async function findAdvisorRequestsByMentor(id_mentor: number): Promise<AdvisorRequest[]> {
   const res = await pool.query<AdvisorRequest>(
     `SELECT ar.*, p.titulo AS titulo_proyecto
      FROM advisor_requests ar

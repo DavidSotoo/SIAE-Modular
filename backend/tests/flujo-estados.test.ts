@@ -51,7 +51,12 @@ describe('Motor de estados: asesoria, protocolo, validacion y folio', () => {
     await cerrarPool();
   });
 
-  const subirPdf = (id: number, token: string, bytes: Buffer = PDF_BYTES, nombre = 'protocolo.pdf') =>
+  const subirPdf = (
+    id: number,
+    token: string,
+    bytes: Buffer = PDF_BYTES,
+    nombre = 'protocolo.pdf',
+  ) =>
     request(app)
       .post(`/api/projects/${id}/protocol`)
       .set('Authorization', `Bearer ${token}`)
@@ -139,7 +144,12 @@ describe('Motor de estados: asesoria, protocolo, validacion y folio', () => {
     });
 
     it('rechaza un binario disfrazado de PDF por su mimetype', async () => {
-      const res = await subirPdf(proyecto, alumno, Buffer.from('MZ\x90\x00ejecutable'), 'falso.pdf');
+      const res = await subirPdf(
+        proyecto,
+        alumno,
+        Buffer.from('MZ\x90\x00ejecutable'),
+        'falso.pdf',
+      );
       expect(res.status).toBe(400);
       expect(res.body.error).toMatch(/no es un PDF/i);
     });

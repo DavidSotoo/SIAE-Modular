@@ -70,7 +70,9 @@ export function requireRole(...roles: Array<'alumno' | 'mentor' | 'admin'>) {
 export function requireOnboarded(req: Request, _res: Response, next: NextFunction): void {
   if (!req.user) return next(unauthorized());
   if (req.user.codigo_cucei === null) {
-    return next(forbidden('Completa tu perfil (código CUCEI) antes de continuar', 'ONBOARDING_REQUIRED'));
+    return next(
+      forbidden('Completa tu perfil (código CUCEI) antes de continuar', 'ONBOARDING_REQUIRED'),
+    );
   }
   next();
 }

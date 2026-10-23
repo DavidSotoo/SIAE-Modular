@@ -28,12 +28,7 @@ router.put(
 );
 
 // GET /api/advisors/search — busca asesores con cupo disponible
-router.get(
-  '/advisors/search',
-  authenticate,
-  requireRole('alumno'),
-  searchAdvisorsHandler,
-);
+router.get('/advisors/search', authenticate, requireRole('alumno'), searchAdvisorsHandler);
 
 // GET /api/advisors/:id_mentor — perfil público de un asesor (para mostrar en Mi Proyecto)
 router.get(

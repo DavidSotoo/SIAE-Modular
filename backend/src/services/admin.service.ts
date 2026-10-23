@@ -59,14 +59,23 @@ export async function buildProjectsXlsx(rows: AdminProjectRow[]): Promise<Buffer
   workbook.created = new Date();
 
   const sheet = workbook.addWorksheet('Proyectos');
-  sheet.columns = EXPORT_COLUMNS.map((c) => ({ header: c.header, key: c.key as string, width: c.width }));
+  sheet.columns = EXPORT_COLUMNS.map((c) => ({
+    header: c.header,
+    key: c.key as string,
+    width: c.width,
+  }));
   sheet.getRow(1).font = { bold: true };
 
   rows.forEach((row) => {
-    sheet.addRow(EXPORT_COLUMNS.reduce((acc, c) => {
-      acc[c.key as string] = formatCell(row[c.key]);
-      return acc;
-    }, {} as Record<string, string>));
+    sheet.addRow(
+      EXPORT_COLUMNS.reduce(
+        (acc, c) => {
+          acc[c.key as string] = formatCell(row[c.key]);
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
+    );
   });
 
   const buffer = await workbook.xlsx.writeBuffer();

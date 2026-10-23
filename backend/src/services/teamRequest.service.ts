@@ -99,7 +99,10 @@ export async function createTeamRequestService(
   // Proyecto no debe estar lleno
   const memberCount = await countProjectMembers(id_proyecto);
   if (memberCount >= MAX_MEMBERS) {
-    throw conflict(`El proyecto ya tiene el máximo de integrantes (${MAX_MEMBERS})`, 'PROJECT_FULL');
+    throw conflict(
+      `El proyecto ya tiene el máximo de integrantes (${MAX_MEMBERS})`,
+      'PROJECT_FULL',
+    );
   }
 
   // El candidato no debe tener otro proyecto activo
@@ -164,10 +167,7 @@ export async function getMyTeamRequests(codigo_alumno: string): Promise<TeamRequ
  *   'invitacion' → codigo_alumno_receptor
  *   'solicitud'  → codigo_alumno_emisor
  */
-export async function acceptTeamRequest(
-  id_solicitud: number,
-  callerCodigo: string,
-): Promise<void> {
+export async function acceptTeamRequest(id_solicitud: number, callerCodigo: string): Promise<void> {
   const solicitud = await findTeamRequestById(id_solicitud);
   if (!solicitud) throw notFound('Solicitud no encontrada');
   if (solicitud.estado !== 'pendiente') {
@@ -203,11 +203,16 @@ export async function acceptTeamRequest(
     // alumno ocupó el último lugar, o este alumno ya se unió a otro proyecto).
     // Se bloquean el proyecto y el alumno para serializar aceptaciones
     // simultáneas y se vuelve a validar con los datos actuales.
-    await client.query('SELECT 1 FROM projects WHERE id_proyecto = $1 FOR UPDATE', [solicitud.id_proyecto]);
+    await client.query('SELECT 1 FROM projects WHERE id_proyecto = $1 FOR UPDATE', [
+      solicitud.id_proyecto,
+    ]);
     await client.query('SELECT 1 FROM users WHERE codigo_cucei = $1 FOR UPDATE', [nuevoCodigo]);
 
-    if (await countProjectMembers(solicitud.id_proyecto, client) >= MAX_MEMBERS) {
-      throw conflict(`El proyecto ya tiene el máximo de integrantes (${MAX_MEMBERS})`, 'PROJECT_FULL');
+    if ((await countProjectMembers(solicitud.id_proyecto, client)) >= MAX_MEMBERS) {
+      throw conflict(
+        `El proyecto ya tiene el máximo de integrantes (${MAX_MEMBERS})`,
+        'PROJECT_FULL',
+      );
     }
     if (await hasActiveProject(nuevoCodigo, client)) {
       throw conflict('El alumno ya tiene un proyecto activo', 'ALUMNO_HAS_PROJECT');
@@ -241,10 +246,7 @@ export async function acceptTeamRequest(
  *   'invitacion' → solo el receptor (el invitado) puede rechazar.
  *   'solicitud'  → cualquier integrante del proyecto puede rechazar.
  */
-export async function rejectTeamRequest(
-  id_solicitud: number,
-  callerCodigo: string,
-): Promise<void> {
+export async function rejectTeamRequest(id_solicitud: number, callerCodigo: string): Promise<void> {
   const solicitud = await findTeamRequestById(id_solicitud);
   if (!solicitud) throw notFound('Solicitud no encontrada');
   if (solicitud.estado !== 'pendiente') {
@@ -269,10 +271,7 @@ export async function rejectTeamRequest(
 }
 
 /** Cancela una solicitud (solo el emisor puede cancelarla — invariante para ambos tipos). */
-export async function cancelTeamRequest(
-  id_solicitud: number,
-  callerCodigo: string,
-): Promise<void> {
+export async function cancelTeamRequest(id_solicitud: number, callerCodigo: string): Promise<void> {
   const solicitud = await findTeamRequestById(id_solicitud);
   if (!solicitud) throw notFound('Solicitud no encontrada');
   if (solicitud.estado !== 'pendiente') {

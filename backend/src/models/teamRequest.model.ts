@@ -36,9 +36,7 @@ export interface CreateTeamRequestData {
 
 // ─── Queries ───────────────────────────────────────────────────────────────
 
-export async function findTeamRequestById(
-  id_solicitud: number,
-): Promise<TeamRequest | null> {
+export async function findTeamRequestById(id_solicitud: number): Promise<TeamRequest | null> {
   const res = await pool.query<TeamRequest>(
     `SELECT *,
             CASE WHEN tipo = 'invitacion' THEN codigo_alumno_receptor
@@ -51,9 +49,7 @@ export async function findTeamRequestById(
   return res.rows[0] ?? null;
 }
 
-export async function findTeamRequestsByProject(
-  id_proyecto: number,
-): Promise<TeamRequest[]> {
+export async function findTeamRequestsByProject(id_proyecto: number): Promise<TeamRequest[]> {
   const res = await pool.query<TeamRequest>(
     `SELECT *,
             CASE WHEN tipo = 'invitacion' THEN codigo_alumno_receptor
@@ -67,9 +63,7 @@ export async function findTeamRequestsByProject(
   return res.rows;
 }
 
-export async function findTeamRequestsByStudent(
-  codigo_alumno: string,
-): Promise<TeamRequest[]> {
+export async function findTeamRequestsByStudent(codigo_alumno: string): Promise<TeamRequest[]> {
   const res = await pool.query<TeamRequest>(
     `SELECT *,
             CASE WHEN tipo = 'invitacion' THEN codigo_alumno_receptor
@@ -170,11 +164,7 @@ export async function createTeamRequest(
     );
     return res.rows[0];
   } catch (err: unknown) {
-    if (
-      err instanceof Error &&
-      'code' in err &&
-      (err as NodeJS.ErrnoException).code === '23505'
-    ) {
+    if (err instanceof Error && 'code' in err && (err as NodeJS.ErrnoException).code === '23505') {
       throw conflict(
         'Ya existe una solicitud pendiente para este alumno en este proyecto',
         'DUPLICATE_REQUEST',
@@ -245,12 +235,9 @@ export async function cancelPendingTeamRequests(
 }
 
 /** Recupera el id de usuario a partir de codigo_cucei. */
-export async function findUserIdByCodigo(
-  codigo_cucei: string,
-): Promise<number | null> {
-  const res = await pool.query<{ id: number }>(
-    `SELECT id FROM users WHERE codigo_cucei = $1`,
-    [codigo_cucei],
-  );
+export async function findUserIdByCodigo(codigo_cucei: string): Promise<number | null> {
+  const res = await pool.query<{ id: number }>(`SELECT id FROM users WHERE codigo_cucei = $1`, [
+    codigo_cucei,
+  ]);
   return res.rows[0]?.id ?? null;
 }
