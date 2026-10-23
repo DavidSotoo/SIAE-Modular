@@ -58,7 +58,7 @@ export class AdminDashboardPage {
 
     this.container.innerHTML = `
       <div class="section-header">
-        <h2>Panel Administrativo</h2>
+        <h2>Administración</h2>
         <p>Consulta todos los proyectos y folios del sistema, y expórtalos para reportes.</p>
       </div>
 
@@ -173,7 +173,7 @@ export class AdminDashboardPage {
     return `
       <tr data-id="${p.id_proyecto}">
         <td data-label="Folio">${p.codigo_folio ?? '<span class="text-muted">—</span>'}</td>
-        <td data-label="Título">${escapeHtml(p.titulo)}</td>
+        <td data-label="Título" class="table__titulo">${escapeHtml(p.titulo)}</td>
         <td data-label="Estado">${estadoBadge(p.estado_actual)}</td>
         <td data-label="Mentor">${p.mentor_nombre ?? '<span class="text-muted">Sin asignar</span>'}</td>
         <td data-label="Integrantes">${p.num_integrantes}</td>
@@ -185,7 +185,7 @@ export class AdminDashboardPage {
   private async openDetailModal(id_proyecto: number) {
     const modal = new Modal({
       id: 'admin-detail-modal',
-      title: 'Detalle del Proyecto',
+      title: 'Detalle del proyecto',
       contentHtml: skeletonLineas(4),
       confirmLabel: 'Cerrar',
       confirmClass: 'btn--ghost',

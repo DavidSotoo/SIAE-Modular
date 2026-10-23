@@ -41,7 +41,7 @@ export class MiProyectoPage {
     if (this.project === null) {
       this.container.innerHTML = `
         <div class="section-header">
-          <h2>Mi Proyecto</h2>
+          <h2>Mi proyecto</h2>
           <p>No tienes un proyecto activo. Crea uno para poder buscar equipo y asesor.</p>
         </div>
         <div class="card card--md">
@@ -59,7 +59,7 @@ export class MiProyectoPage {
               <div id="descripcion-error" class="form-error hidden"></div>
             </div>
             <div class="mt-4 flex justify-end">
-              <button type="submit" class="btn btn--primary" id="btn-create">Crear Proyecto</button>
+              <button type="submit" class="btn btn--primary" id="btn-create">Crear proyecto</button>
             </div>
           </form>
         </div>
@@ -201,7 +201,7 @@ export class MiProyectoPage {
     this.container.innerHTML = `
       <div class="section-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
         <div>
-          <h2>Mi Proyecto</h2>
+          <h2>Mi proyecto</h2>
           <p>Detalles de tu proyecto actual, asesor y estado del protocolo.</p>
         </div>
         ${folioBadge}
@@ -212,7 +212,6 @@ export class MiProyectoPage {
         <div class="card card--lg">
           <div style="display:flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
             <div>
-              <div class="text-label-sm">TÍTULO</div>
               <h3 class="text-title">${escapeHtml(this.project.titulo)}</h3>
               ${this.project.descripcion ? `<p class="text-muted mt-2" style="white-space: pre-line; max-width: 70ch;">${escapeHtml(this.project.descripcion)}</p>` : ''}
             </div>
@@ -227,12 +226,12 @@ export class MiProyectoPage {
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--sp-6);">
           
           <div class="card card--md">
-            <h3 class="text-title mb-4">Equipo de Trabajo</h3>
+            <h3 class="text-title mb-4">Equipo</h3>
             <div>${membersHtml}</div>
           </div>
 
           <div class="card card--md">
-            <h3 class="text-title mb-4">Asesor / Mentor</h3>
+            <h3 class="text-title mb-4">Asesor</h3>
             <div id="advisor-container">
               ${skeletonLineas(2)}
             </div>
@@ -240,7 +239,7 @@ export class MiProyectoPage {
         </div>
 
         <div class="card card--md">
-          <h3 class="text-title mb-4">Historial de Cambios</h3>
+          <h3 class="text-title mb-4">Historial de cambios</h3>
           <div id="history-container">
             ${skeletonLineas(2)}
           </div>
@@ -277,7 +276,7 @@ export class MiProyectoPage {
       <div class="dropzone" id="protocol-dropzone">
         <span class="material-symbols-outlined">upload_file</span>
         <p class="text-label mt-2">Arrastra tu protocolo PDF aquí o</p>
-        <button class="btn btn--secondary btn--sm mt-2" id="btn-select-file">${hasDoc ? 'Reemplazar Archivo' : 'Seleccionar Archivo'}</button>
+        <button class="btn btn--secondary btn--sm mt-2" id="btn-select-file">${hasDoc ? 'Reemplazar archivo' : 'Seleccionar archivo'}</button>
         <input type="file" id="file-input" accept="application/pdf" class="hidden">
         <div id="file-error" class="form-error hidden mt-2"></div>
       </div>
@@ -291,7 +290,7 @@ export class MiProyectoPage {
     return `
       <hr class="divider">
       <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h3 class="text-title" style="margin: 0;">Documentación Principal</h3>
+        <h3 class="text-title" style="margin: 0;">Protocolo</h3>
         ${viewLink}
       </div>
       ${dropzone}
@@ -377,8 +376,8 @@ export class MiProyectoPage {
     if (!this.project!.id_mentor) {
       container.innerHTML = `
         <div class="state-empty" style="padding: 24px 0;">
-          <div class="state-empty__msg">Sin asesor asignado aún.</div>
-          <button class="btn btn--ghost btn--sm mt-4" disabled>Buscar Asesor</button>
+          <div class="state-empty__msg">Aún no tienes asesor.</div>
+          <a class="btn btn--ghost btn--sm mt-4" href="#/asesores">Buscar asesor</a>
         </div>
       `;
       return;
@@ -497,7 +496,7 @@ export class MiProyectoPage {
     } catch (err) {
       showToast(mensajeDeError(err), { type: 'error' });
       btn.disabled = false;
-      btn.textContent = 'Crear Proyecto';
+      btn.textContent = 'Crear proyecto';
     }
   }
 }

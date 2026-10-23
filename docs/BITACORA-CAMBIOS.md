@@ -580,3 +580,65 @@ reformateaba entero y mezclaba ruido con el cambio real (deuda anotada el
 Este PR debe mergearse con **merge commit** (como los anteriores), no con
 squash ni rebase: esos cambian el hash del commit de formato y
 `.git-blame-ignore-revs` dejaría de encontrarlo.
+
+---
+
+## 2026-10-23 — Pulido de interfaz, fase A: textos, enlaces muertos y detalles
+
+**Rama:** `angel/pulido-ui-fase-a` (desde `main`)
+
+### Qué se identificó
+
+Una revisión visual de las 9 vistas (claro, oscuro y móvil) encontró que la
+interfaz se lee como una plantilla generada: el diseño de origen salió de los
+mockups de Google Stitch y conserva sus tokens de Material You, su tipografía
+y sus convenciones de texto. Esta fase corrige lo que no depende de un
+rediseño; la paleta, la tipografía y el layout van en las fases B y C.
+
+- **Mayúsculas al estilo inglés** en ~40 textos ("Áreas de Interés",
+  "Seleccionar Archivo", "Solicitar Asesoría"). En español solo va mayúscula
+  inicial. Etiquetas en inglés: "Hard Skills" / "Soft Skills".
+- **Etiquetas en MAYÚSCULAS** con espaciado en encabezados de tabla, tarjetas
+  de indicadores y grupos de habilidades.
+- **Login:** selector de idioma con "English (United States)", contrario a la
+  decisión del 22-oct de interfaz solo en español, y enlaces a Ayuda,
+  Privacidad y Términos que apuntaban a rutas inexistentes.
+- **Tabla de administración:** la columna "Creado" se cortaba a 1440 px porque
+  ninguna celda podía partirse en líneas.
+- **Sidebar:** "Cerrar sesión" tenía otro tamaño, color y alineación que el
+  menú, y era un enlace aunque es una acción. El botón de tema mostraba el
+  tema actual ("Modo claro") en vez de lo que hace al pulsarlo.
+- **Estados vacíos sin salida:** el perfil decía "Aún no se han registrado
+  habilidades" sin forma de agregarlas; Mi proyecto mostraba un botón
+  "Buscar asesor" deshabilitado.
+- **Movimiento decorativo:** el ícono de tema rebotaba y giraba, y las tarjetas
+  y botones se elevaban al pasar el mouse.
+
+### Qué se decidió
+
+- Mayúscula solo inicial en títulos, botones, pestañas y opciones. "Hard/Soft
+  Skills" pasan a "Habilidades técnicas/blandas"; "Panel Administrativo" a
+  "Administración"; "Asesor / Mentor" a "Asesor".
+- Sin `text-transform: uppercase` en etiquetas (solo queda en las iniciales del
+  avatar).
+- Login sin selector de idioma ni enlaces sin destino. Si en el futuro hay
+  páginas reales de ayuda o privacidad, se agregan entonces.
+- La columna de título de las tablas se parte en líneas (`.table__titulo`).
+- Tema y cerrar sesión comparten estilo con el menú (`.sidebar__action`).
+  Cerrar sesión es un `<button>`. El tema dice "Usar tema oscuro/claro".
+- Los estados vacíos del perfil explican para qué sirve llenar la sección y
+  abren el formulario; "Buscar asesor" lleva a `#/asesores`.
+- Se quitan las animaciones de hover y del ícono de tema.
+
+### Resultado
+
+34/34 pruebas e2e en verde, incluidas las auditorías de axe. Se actualizaron
+las pruebas que buscaban los textos anteriores y la de cerrar sesión (ahora
+busca un botón, no un enlace).
+
+### Pendiente detectado para la fase B
+
+El escudo del login y la barra superior se carga desde
+`lh3.googleusercontent.com/aida-public/...`, una imagen generada por Stitch y
+no el archivo oficial de la UdeG. Debe reemplazarse por el escudo oficial
+servido desde `frontend/public/`.

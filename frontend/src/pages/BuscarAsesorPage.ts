@@ -35,7 +35,7 @@ export class BuscarAsesorPage {
   private buildLayout() {
     this.container.innerHTML = `
       <div class="section-header">
-        <h2>Buscar Asesor</h2>
+        <h2>Buscar asesor</h2>
         <p>Explora asesores disponibles y solicita su tutoría para tu proyecto.</p>
       </div>
       <form id="search-form" class="filters-bar">
@@ -91,7 +91,7 @@ export class BuscarAsesorPage {
             buttonHtml =
               '<button class="btn btn--secondary btn--full" disabled title="Ya tienes un asesor asignado">Ya tienes asesor</button>';
           } else {
-            buttonHtml = `<button class="btn btn--primary btn--full btn-solicitar" data-id="${advisor.id_usuario}" data-nombre="${escapeHtml(advisor.nombre)}">Solicitar Asesoría</button>`;
+            buttonHtml = `<button class="btn btn--primary btn--full btn-solicitar" data-id="${advisor.id_usuario}" data-nombre="${escapeHtml(advisor.nombre)}">Solicitar asesoría</button>`;
           }
         }
 
@@ -151,14 +151,14 @@ export class BuscarAsesorPage {
 
     const modal = new Modal({
       id: 'request-modal',
-      title: 'Solicitar Asesoría a ' + nombre,
+      title: 'Solicitar asesoría a ' + nombre,
       contentHtml: `
         <div class="form-group">
           <label class="form-label" for="request-mensaje">Mensaje (opcional)</label>
           <textarea id="request-mensaje" class="form-control" placeholder="¡Hola! Nos gustaría que nos asesores en nuestro proyecto porque..."></textarea>
         </div>
       `,
-      confirmLabel: 'Enviar Solicitud',
+      confirmLabel: 'Enviar solicitud',
       onConfirm: async (m) => {
         try {
           m.setLoading(true);

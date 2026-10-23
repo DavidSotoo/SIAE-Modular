@@ -58,12 +58,12 @@ export class BuscarEquipoPage {
   private buildLayout() {
     this.container.innerHTML = `
       <div class="section-header">
-        <h2>Buscar Equipo</h2>
+        <h2>Buscar equipo</h2>
         <p>Explora alumnos para invitar o revisa tus solicitudes de equipo.</p>
       </div>
       <div class="tabs">
-        <button class="tab-btn active" data-target="tab-explorar">Explorar Alumnos</button>
-        <button class="tab-btn" data-target="tab-solicitudes">Solicitudes de Equipo</button>
+        <button class="tab-btn active" data-target="tab-explorar">Explorar alumnos</button>
+        <button class="tab-btn" data-target="tab-solicitudes">Solicitudes de equipo</button>
       </div>
       <div id="tab-explorar" class="tab-panel active">
         <form id="search-form" class="filters-bar">
@@ -84,9 +84,9 @@ export class BuscarEquipoPage {
           <div class="form-group">
             <label class="form-label text-label-sm" for="filter-estado">Estado</label>
             <select id="filter-estado" name="estado_busqueda" class="form-control">
-              <option value="buscando_equipo">Buscando Equipo</option>
-              <option value="en_equipo">En Equipo</option>
-              <option value="no_disponible">No Disponible</option>
+              <option value="buscando_equipo">Buscando equipo</option>
+              <option value="en_equipo">En equipo</option>
+              <option value="no_disponible">No disponible</option>
               <option value="">Cualquiera</option>
             </select>
           </div>
@@ -253,7 +253,7 @@ export class BuscarEquipoPage {
           <textarea id="invite-mensaje" class="form-control" placeholder="¡Hola! Me gustaría que te unas a nuestro proyecto..."></textarea>
         </div>
       `,
-      confirmLabel: 'Enviar Invitación',
+      confirmLabel: 'Enviar invitación',
       onConfirm: async (m) => {
         try {
           m.setLoading(true);

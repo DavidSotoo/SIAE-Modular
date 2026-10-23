@@ -42,14 +42,14 @@ export class MentorDashboardPage {
   private buildLayout() {
     this.container.innerHTML = `
       <div class="section-header">
-        <h2>Panel de Asesor</h2>
+        <h2>Panel de asesor</h2>
         <p>Revisa solicitudes de asesoría y da seguimiento a los protocolos de tus proyectos.</p>
       </div>
 
-      <h3 class="text-title mb-4">Solicitudes de Asesoría</h3>
+      <h3 class="text-title mb-4">Solicitudes de asesoría</h3>
       <div id="requests-container" class="cards-grid mb-8"></div>
 
-      <h3 class="text-title mb-4">Mis Proyectos Asesorados</h3>
+      <h3 class="text-title mb-4">Proyectos que asesoras</h3>
       <div id="projects-container"></div>
     `;
 
@@ -163,7 +163,7 @@ export class MentorDashboardPage {
                   (p) => `
                 <tr data-id="${p.id_proyecto}">
                   <td data-label="Folio">${p.codigo_folio ?? '<span class="text-muted">—</span>'}</td>
-                  <td data-label="Título">${escapeHtml(p.titulo)}</td>
+                  <td data-label="Título" class="table__titulo">${escapeHtml(p.titulo)}</td>
                   <td data-label="Estado">${estadoBadge(p.estado_actual)}</td>
                   <td data-label="Equipo">${p.miembros.map((m) => escapeHtml(m.nombre) + (m.es_lider ? ' (líder)' : '')).join(', ')}</td>
                 </tr>
