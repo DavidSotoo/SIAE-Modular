@@ -25,6 +25,7 @@ import type {
   DisponibilidadTipo,
   EstadoBusqueda,
 } from '../types/index.js';
+import { icono, type NombreIcono } from '../utils/iconos.js';
 
 const ROL_LABEL: Record<string, string> = {
   alumno: 'Alumno',
@@ -47,7 +48,7 @@ const NIVEL_LABEL: Record<string, string> = {
   avanzado: 'Avanzado',
 };
 
-const ESTADO_LABEL: Record<string, { label: string; cls: string; icon: string }> = {
+const ESTADO_LABEL: Record<string, { label: string; cls: string; icon: NombreIcono }> = {
   buscando_equipo: { label: 'Buscando equipo', cls: 'pv-badge--status-searching', icon: 'search' },
   en_equipo: { label: 'En equipo', cls: 'pv-badge--status-team', icon: 'group' },
   no_disponible: { label: 'No disponible', cls: 'pv-badge--status-unavailable', icon: 'block' },
@@ -108,7 +109,7 @@ export class PerfilPage {
     } catch (err) {
       this.container.innerHTML =
         '<div class="state-empty">' +
-        '<span class="material-symbols-outlined">error</span>' +
+        icono('error') +
         '<div class="state-empty__title">Error</div>' +
         '<div class="state-empty__msg">' +
         mensajeDeError(err) +
@@ -138,14 +139,14 @@ export class PerfilPage {
               ${
                 me.email
                   ? `<div class="pv-code">
-                <span class="material-symbols-outlined" style="font-size:14px">mail</span>
+                ${icono('mail')}
                 ${escapeHtml(me.email)}
               </div>`
                   : ''
               }
               <div class="pv-badges">
                 <span class="pv-badge pv-badge--semestre">
-                  <span class="material-symbols-outlined" style="font-size:13px">badge</span>
+                  ${icono('badge')}
                   ${ROL_LABEL[me.rol] ?? me.rol}
                 </span>
               </div>
@@ -186,14 +187,13 @@ export class PerfilPage {
         ? `<p class="pv-empty-hint">Indica qué temas te interesan para encontrar proyectos afines.</p><button type="button" class="btn btn--ghost btn--sm pv-empty-action">Agregar áreas</button>`
         : p.areas
             .map(
-              (a) =>
-                `<span class="pv-area-chip"><span class="material-symbols-outlined" style="font-size:14px">label</span>${escapeHtml(a.nombre)}</span>`,
+              (a) => `<span class="pv-area-chip">${icono('label')}${escapeHtml(a.nombre)}</span>`,
             )
             .join('');
 
     const bioSection = p.bio
       ? `<div class="pv-card">
-           <div class="pv-card-title"><span class="material-symbols-outlined">person</span>Sobre mí</div>
+           <div class="pv-card-title">${icono('person')}Sobre mí</div>
            <p class="pv-bio-text">${escapeHtml(p.bio)}</p>
          </div>`
       : '';
@@ -201,9 +201,9 @@ export class PerfilPage {
     const portafolioHref = safeUrl(p.portafolio_url);
     const portafolioSection = portafolioHref
       ? `<div class="pv-card">
-           <div class="pv-card-title"><span class="material-symbols-outlined">link</span>Portafolio / LinkedIn</div>
+           <div class="pv-card-title">${icono('link')}Portafolio / LinkedIn</div>
            <a class="pv-link" href="${escapeHtml(portafolioHref)}" target="_blank" rel="noopener noreferrer">
-             <span class="material-symbols-outlined" style="font-size:16px">open_in_new</span>
+             ${icono('open_in_new')}
              ${escapeHtml(portafolioHref)}
            </a>
          </div>`
@@ -220,18 +220,18 @@ export class PerfilPage {
             <div class="pv-hero-info">
               <div class="pv-name">${escapeHtml(p.nombre)}</div>
               <div class="pv-code">
-                <span class="material-symbols-outlined" style="font-size:14px">badge</span>
+                ${icono('badge')}
                 ${escapeHtml(p.codigo_cucei)}
               </div>
               <div class="pv-badges">
                 <span class="pv-badge ${estado.cls}">
-                  <span class="material-symbols-outlined" style="font-size:13px">${estado.icon}</span>
+                  ${icono(estado.icon)}
                   ${estado.label}
                 </span>
                 ${
                   p.semestre
                     ? `<span class="pv-badge pv-badge--semestre">
-                  <span class="material-symbols-outlined" style="font-size:13px">school</span>
+                  ${icono('school')}
                   Semestre ${p.semestre}
                 </span>`
                     : ''
@@ -239,7 +239,7 @@ export class PerfilPage {
                 ${
                   p.disponibilidad
                     ? `<span class="pv-badge pv-badge--disponibilidad">
-                  <span class="material-symbols-outlined" style="font-size:13px">schedule</span>
+                  ${icono('schedule')}
                   ${DISPONIBILIDAD_LABEL[p.disponibilidad]}
                 </span>`
                     : ''
@@ -248,7 +248,7 @@ export class PerfilPage {
             </div>
             <div class="pv-hero-actions">
               <button id="edit-profile-btn" class="btn btn--primary">
-                <span class="material-symbols-outlined">edit</span>
+                ${icono('edit')}
                 Editar perfil
               </button>
             </div>
@@ -260,7 +260,7 @@ export class PerfilPage {
 
         <!-- Skills card -->
         <div class="pv-card">
-          <div class="pv-card-title"><span class="material-symbols-outlined">code</span>Habilidades</div>
+          <div class="pv-card-title">${icono('code')}Habilidades</div>
           ${
             hardSkills.length > 0 || softSkills.length > 0
               ? `
@@ -279,7 +279,7 @@ export class PerfilPage {
 
         <!-- Areas card -->
         <div class="pv-card">
-          <div class="pv-card-title"><span class="material-symbols-outlined">category</span>Áreas de interés</div>
+          <div class="pv-card-title">${icono('category')}Áreas de interés</div>
           <div class="pv-areas-list">${areaChips}</div>
         </div>
 
@@ -302,12 +302,12 @@ export class PerfilPage {
 
     this.container.innerHTML = `
       <div class="section-header">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
-          <button id="back-to-view-btn" class="btn btn--outlined" style="display:inline-flex;align-items:center;gap:6px;font-size:14px;padding:6px 14px;">
-            <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span>
+        <div class="seccion-cabecera seccion-cabecera--inicio">
+          <button id="back-to-view-btn" class="btn btn--ghost btn--sm">
+            ${icono('arrow_back')}
             Ver perfil
           </button>
-          <h2 style="margin:0;">Editar perfil</h2>
+          <h2>Editar perfil</h2>
         </div>
         <p>Actualiza tu información, habilidades y áreas de interés.</p>
       </div>
@@ -325,7 +325,7 @@ export class PerfilPage {
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="portafolio_url">URL de Portafolio o LinkedIn</label>
+          <label class="form-label" for="portafolio_url">Portafolio o LinkedIn (URL)</label>
           <input type="url" id="portafolio_url" name="portafolio_url" class="form-control" value="${this.profile.portafolio_url || ''}">
           <div id="portafolio-error" class="form-error hidden"></div>
         </div>
@@ -361,10 +361,10 @@ export class PerfilPage {
         <div id="areas-header" class="mb-4 mt-6"></div>
         <div id="areas-container"></div>
 
-        <div class="mt-8 flex justify-end" style="gap:12px;">
+        <div class="mt-8 acciones-fila acciones-fila--fin">
           <button type="button" id="cancel-edit-btn" class="btn btn--outlined">Cancelar</button>
           <button type="submit" class="btn btn--primary" id="save-btn">
-            <span class="material-symbols-outlined">save</span>
+            ${icono('save')}
             Guardar perfil
           </button>
         </div>
@@ -545,7 +545,7 @@ export class PerfilPage {
         title: 'Error al guardar',
       });
       btn.disabled = false;
-      btn.innerHTML = '<span class="material-symbols-outlined">save</span> Guardar perfil';
+      btn.innerHTML = icono('save') + ' Guardar perfil';
     }
   }
 }

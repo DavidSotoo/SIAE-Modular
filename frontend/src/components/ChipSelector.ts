@@ -12,6 +12,7 @@
 
 import type { NivelSkill } from '../types/index.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
+import { icono } from '../utils/iconos.js';
 
 export interface ChipItem {
   id: number;
@@ -128,7 +129,7 @@ export class ChipSelector {
       const empty = document.createElement('div');
       empty.className = 'cs-empty-state';
       empty.innerHTML =
-        '<span class="material-symbols-outlined">search_off</span>' +
+        icono('search_off') +
         '<div class="cs-empty-state__title">Sin resultados</div>' +
         '<div class="cs-empty-state__msg">' +
         (emptyLabel ?? 'No se encontraron opciones. Prueba con otro término.') +
@@ -147,11 +148,10 @@ export class ChipSelector {
         const createBtn = document.createElement('button');
         createBtn.type = 'button';
         createBtn.className = `cs-chip-available cs-chip-available--${cat}`;
-        createBtn.innerHTML = `<span class="material-symbols-outlined">add</span>Agregar "${escapeHtml(this.searchQuery)}"`;
+        createBtn.innerHTML = `${icono('add')}Agregar "${escapeHtml(this.searchQuery)}"`;
         createBtn.addEventListener('click', async () => {
           createBtn.disabled = true;
-          createBtn.innerHTML =
-            '<span class="spinner" style="width:14px;height:14px;border-width:2px;margin-right:4px;"></span>Creando...';
+          createBtn.innerHTML = '<span class="spinner spinner--sm"></span>Creando...';
           try {
             const newItem = await this.opts.onCreateItem!(this.searchQuery);
             this.opts.items.push(newItem);
@@ -179,7 +179,7 @@ export class ChipSelector {
             this.render();
           } catch (err) {
             createBtn.disabled = false;
-            createBtn.innerHTML = '<span class="material-symbols-outlined">error</span>Error';
+            createBtn.innerHTML = icono('error') + 'Error';
           }
         });
         availableZone.appendChild(createBtn);
@@ -237,7 +237,7 @@ export class ChipSelector {
     removeBtn.type = 'button';
     removeBtn.className = 'cs-chip-remove';
     removeBtn.setAttribute('aria-label', `Quitar ${item.label}`);
-    removeBtn.innerHTML = '<span class="material-symbols-outlined">close</span>';
+    removeBtn.innerHTML = icono('close');
     removeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       this.selected.delete(item.id);
@@ -257,7 +257,7 @@ export class ChipSelector {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = `cs-chip-available cs-chip-available--${cat}`;
-    btn.innerHTML = '<span class="material-symbols-outlined">add</span>' + escapeHtml(item.label);
+    btn.innerHTML = icono('add') + escapeHtml(item.label);
     btn.addEventListener('click', () => {
       this.selected.set(item.id, {
         id: item.id,
@@ -279,8 +279,7 @@ export class ChipSelector {
 
     if (isSelected) {
       btn.className = 'cs-chip-area-selected';
-      btn.innerHTML =
-        '<span class="material-symbols-outlined">check</span>' + escapeHtml(item.label);
+      btn.innerHTML = icono('check') + escapeHtml(item.label);
       btn.setAttribute('aria-pressed', 'true');
       btn.addEventListener('click', () => {
         this.selected.delete(item.id);
@@ -324,8 +323,8 @@ export class ChipSelector {
     headerEl.innerHTML =
       `<h3 class="text-title">${title}</h3>` +
       `<div class="cs-search-wrap">` +
-      `<label class="hidden" style="position:absolute;width:1px;height:1px;overflow:hidden" for="cs-search-${title}">Buscar ${title}</label>` +
-      `<span class="material-symbols-outlined" aria-hidden="true">search</span>` +
+      `<label class="sr-only" for="cs-search-${title}">Buscar ${title}</label>` +
+      `${icono('search')}` +
       `<input id="cs-search-${title}" type="text" class="cs-search-input" placeholder="Buscar...">` +
       `</div>`;
 

@@ -58,6 +58,28 @@ test.describe('ataques bloqueados', () => {
     });
     expect(ejecutados).toEqual([undefined, undefined]);
   });
+
+  test('un atributo style= inyectado no se aplica', async ({ page }) => {
+    await page.goto('/#/login');
+
+    const violacion = page.evaluate(
+      () =>
+        new Promise<string>((resolve) => {
+          document.addEventListener('securitypolicyviolation', (e) => resolve(e.violatedDirective));
+        }),
+    );
+    // Un HTML inyectado podria tapar la pagina con un style= (por ejemplo, un
+    // formulario falso encima del real).
+    await page.evaluate(() => {
+      document.body.insertAdjacentHTML(
+        'beforeend',
+        '<div id="inyectado" style="position: fixed; inset: 0">x</div>',
+      );
+    });
+
+    expect(await violacion).toMatch(/^style-src-attr/);
+    await expect(page.locator('#inyectado')).toHaveCSS('position', 'static');
+  });
 });
 
 test('si la foto de perfil no carga, se muestran las iniciales', async ({

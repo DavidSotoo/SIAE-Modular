@@ -1,8 +1,10 @@
 // Sidebar component — renderiza el menu lateral y el toggle de tema.
 // Acepta la ruta activa para marcarla y el rol para filtrar los links.
+import { icono, type NombreIcono } from '../utils/iconos.js';
+
 export interface SidebarLink {
   href: string;
-  icon: string;
+  icon: NombreIcono;
   label: string;
 }
 export type Rol = 'alumno' | 'mentor' | 'admin';
@@ -55,10 +57,9 @@ function toggleTheme(): void {
 
 function updateToggleBtn(btn: HTMLButtonElement): void {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const icon = btn.querySelector('.material-symbols-outlined')!;
   const label = btn.querySelector('.theme-toggle__label')!;
   // El boton dice lo que hace al pulsarlo, no el tema en que ya estas.
-  icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+  btn.querySelector('.icono')!.outerHTML = icono(isDark ? 'light_mode' : 'dark_mode');
   label.textContent = isDark ? 'Usar tema claro' : 'Usar tema oscuro';
 }
 
@@ -100,7 +101,8 @@ export function renderTopbar(container: HTMLElement): void {
   container.className = 'topbar';
   container.innerHTML =
     '<button class="btn btn--icon" id="btn-menu" aria-label="Abrir menú" aria-expanded="false" aria-controls="sidebar-container">' +
-    '<span class="material-symbols-outlined">menu</span></button>' +
+    icono('menu') +
+    '</button>' +
     '<span class="topbar__title">SIAE</span>';
 
   montarBackdrop();
@@ -118,19 +120,20 @@ export function renderSidebar(container: HTMLElement, activePath: string, rol?: 
   container.setAttribute('role', 'navigation');
   container.setAttribute('aria-label', 'Menú lateral');
   container.innerHTML =
-    '<div class="sidebar__brand"><h1>SIAE</h1><p>CUCEI · Informática</p></div>' +
+    '<div class="sidebar__brand">' +
+    '<img src="/escudo-udeg.svg" alt="" class="sidebar__escudo">' +
+    '<div><h1>SIAE</h1><p>CUCEI, UdeG</p></div>' +
+    '</div>' +
     '<div class="sidebar__nav">' +
     linksForRol(rol)
       .map(
         (l) =>
           '<a href="' +
           l.href +
-          '" class="' +
-          ('#' + activePath === l.href ? 'active' : '') +
-          '">' +
-          '<span class="material-symbols-outlined">' +
-          l.icon +
-          '</span>' +
+          '"' +
+          ('#' + activePath === l.href ? ' class="active" aria-current="page"' : '') +
+          '>' +
+          icono(l.icon) +
           '<span>' +
           l.label +
           '</span></a>',
@@ -139,11 +142,12 @@ export function renderSidebar(container: HTMLElement, activePath: string, rol?: 
     '</div>' +
     '<div class="sidebar__footer">' +
     '<button class="sidebar__action theme-toggle" id="btn-theme">' +
-    '<span class="material-symbols-outlined">dark_mode</span>' +
+    icono('dark_mode') +
     '<span class="theme-toggle__label">Usar tema oscuro</span>' +
     '</button>' +
     '<button class="sidebar__action" id="btn-logout">' +
-    '<span class="material-symbols-outlined">logout</span><span>Cerrar sesión</span>' +
+    icono('logout') +
+    '<span>Cerrar sesión</span>' +
     '</button></div>';
 
   // Init toggle state

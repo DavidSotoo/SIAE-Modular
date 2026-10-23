@@ -3,10 +3,11 @@
 // mano e imprimia el codigo crudo ("pendiente", "validado").
 import type { ProjectState } from '../types/index.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
+import { icono, type NombreIcono } from '../utils/iconos.js';
 
 interface Estado {
   etiqueta: string;
-  icono: string;
+  icono: NombreIcono;
   /** Que significa para quien lo lee: se usa como title y para lectores de pantalla. */
   descripcion: string;
 }
@@ -60,7 +61,7 @@ export function estadoBadge(estado: ProjectState): string {
   }
   return (
     `<span class="badge badge--${estado}" title="${escapeHtml(info.descripcion)}">` +
-    `<span class="material-symbols-outlined" aria-hidden="true">${info.icono}</span>` +
+    icono(info.icono) +
     `${escapeHtml(info.etiqueta)}</span>`
   );
 }

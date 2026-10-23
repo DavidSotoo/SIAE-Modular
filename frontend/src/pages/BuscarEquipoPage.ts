@@ -20,6 +20,7 @@ import { escapeHtml } from '../utils/escapeHtml.js';
 import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
 import type { Skill, Area, StudentProfile, TeamRequest, Project } from '../types/index.js';
+import { icono } from '../utils/iconos.js';
 
 export class BuscarEquipoPage {
   private container: HTMLElement;
@@ -49,7 +50,9 @@ export class BuscarEquipoPage {
       this.buildLayout();
     } catch (err) {
       this.container.innerHTML =
-        '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
+        '<div class="state-empty">' +
+        icono('error') +
+        '<div class="state-empty__title">Error</div><div class="state-empty__msg">' +
         mensajeDeError(err) +
         '</div></div>';
     }
@@ -92,13 +95,13 @@ export class BuscarEquipoPage {
           </div>
           <div class="form-group">
             <label class="form-label text-label-sm" for="filter-semestre">Semestre</label>
-            <div style="display:flex; gap: 8px;">
-              <input type="number" name="semestre_min" class="form-control" placeholder="Min" min="1" max="12">
-              <input type="number" name="semestre_max" class="form-control" placeholder="Max" min="1" max="12">
+            <div class="form-rango">
+              <input type="number" id="filter-semestre" name="semestre_min" class="form-control" placeholder="Mín." min="1" max="12" aria-label="Semestre mínimo">
+              <input type="number" name="semestre_max" class="form-control" placeholder="Máx." min="1" max="12" aria-label="Semestre máximo">
             </div>
           </div>
-          <div class="form-group" style="flex: 0 0 auto;">
-            <button type="submit" class="btn btn--primary"><span class="material-symbols-outlined">search</span> Buscar</button>
+          <div class="form-group form-group--ajustado">
+            <button type="submit" class="btn btn--primary">${icono('search')} Buscar</button>
           </div>
         </form>
         
@@ -160,7 +163,9 @@ export class BuscarEquipoPage {
           ? 'Con esos filtros solo apareces tú. Prueba con otros criterios de búsqueda.'
           : 'No se encontraron alumnos con esos filtros.';
         resultsContainer.innerHTML =
-          '<div class="state-empty"><span class="material-symbols-outlined">person_search</span><div class="state-empty__title">Sin resultados</div><div class="state-empty__msg">' +
+          '<div class="state-empty">' +
+          icono('person_search') +
+          '<div class="state-empty__title">Sin resultados</div><div class="state-empty__msg">' +
           mensaje +
           '</div></div>';
         return;
@@ -217,8 +222,8 @@ export class BuscarEquipoPage {
         html =
           `
           <div class="info-box mb-6">
-            <span class="material-symbols-outlined">info</span>
-            <div>No tienes un proyecto activo. <a href="#/proyecto" style="text-decoration: underline; font-weight: 500;">Crea uno aquí</a> para poder invitar compañeros.</div>
+            ${icono('info')}
+            <div>No tienes un proyecto activo. <a href="#/proyecto" class="enlace-en-texto">Crea uno aquí</a> para poder invitar compañeros.</div>
           </div>
         ` + html;
       }
@@ -235,7 +240,9 @@ export class BuscarEquipoPage {
       });
     } catch (err) {
       resultsContainer.innerHTML =
-        '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
+        '<div class="state-empty">' +
+        icono('error') +
+        '<div class="state-empty__title">Error</div><div class="state-empty__msg">' +
         mensajeDeError(err) +
         '</div></div>';
     }
