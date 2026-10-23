@@ -16,7 +16,7 @@ export default tseslint.config(
 
   // ─── Backend (Node) ───────────────────────────────────────────────────
   {
-    files: ['backend/**/*.ts'],
+    files: ['backend/**/*.ts', 'e2e/**/*.ts', 'playwright.config.ts'],
     languageOptions: {
       globals: { ...globals.node },
     },

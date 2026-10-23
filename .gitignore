@@ -32,3 +32,8 @@ Thumbs.db
 
 # Uploads
 backend/uploads/
+
+# Pruebas e2e (Playwright)
+e2e/.sesiones.json
+test-results/
+playwright-report/

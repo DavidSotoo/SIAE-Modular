@@ -74,8 +74,10 @@ export class Modal {
     this.backdrop.classList.remove('hidden');
     document.addEventListener('keydown', this.onKeydown, true);
     // El foco entra al modal: al primer campo util, o al boton de cerrar.
+    // Ojo: FOCUSABLE es una lista separada por comas, asi que no se le puede
+    // anteponer '.modal__body ' (solo afectaria al primer selector).
     const primero =
-      this.backdrop.querySelector<HTMLElement>('.modal__body ' + FOCUSABLE) ??
+      this.bodyEl.querySelector<HTMLElement>(FOCUSABLE) ??
       this.backdrop.querySelector<HTMLElement>('.modal__close');
     primero?.focus();
   }

@@ -59,6 +59,9 @@ function updateToggleBtn(btn: HTMLButtonElement): void {
   const label = btn.querySelector('.theme-toggle__label')!;
   icon.textContent = isDark ? 'dark_mode' : 'light_mode';
   label.textContent = isDark ? 'Modo oscuro' : 'Modo claro';
+  // El nombre accesible debe empezar con el texto visible (WCAG 2.5.3), para
+  // que quien usa control por voz pueda activarlo diciendo lo que ve.
+  btn.setAttribute('aria-label', label.textContent + ', cambiar tema');
 }
 
 // ─── Navegacion movil ──────────────────────────────────────────────────────
@@ -138,7 +141,7 @@ export function renderSidebar(container: HTMLElement, activePath: string, rol?: 
     '</div>' +
     '<div class="sidebar__footer">' +
     // Theme toggle pill
-    '<button class="theme-toggle" id="btn-theme" aria-label="Cambiar tema">' +
+    '<button class="theme-toggle" id="btn-theme">' +
     '<span class="material-symbols-outlined">light_mode</span>' +
     '<span class="theme-toggle__label">Modo claro</span>' +
     '</button>' +

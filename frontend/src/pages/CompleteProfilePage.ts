@@ -13,7 +13,7 @@ export class CompleteProfilePage {
   render() {
     this.container.innerHTML = `
       <div class="section-header">
-        <h2>Completa tu perfil</h2>
+        <h1>Completa tu perfil</h1>
         <p>Es la primera vez que inicias sesión. Ingresa tu código CUCEI (el mismo que usas en SIIAU) para continuar.</p>
       </div>
       <div class="card card--md" style="max-width: 420px;">
