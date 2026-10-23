@@ -10,7 +10,7 @@ import {
   validateProject,
   rejectProject,
 } from '../services/project.service.js';
-import { getErrorMessage } from '../services/errorMessages.js';
+import { mensajeDeError } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
 import type { AdvisorRequest, Project } from '../types/index.js';
@@ -30,10 +30,10 @@ export class MentorDashboardPage {
     this.container.innerHTML = skeletonTabla(4, 4);
     try {
       this.buildLayout();
-    } catch (err: any) {
+    } catch (err) {
       this.container.innerHTML =
         '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
-        getErrorMessage(err.code, err.status) +
+        mensajeDeError(err) +
         '</div></div>';
     }
   }
@@ -84,9 +84,8 @@ export class MentorDashboardPage {
         .forEach((btn) =>
           btn.addEventListener('click', (e) => this.handleRequestAction(e, 'reject')),
         );
-    } catch (err: any) {
-      container.innerHTML =
-        '<div class="text-error">' + getErrorMessage(err.code, err.status) + '</div>';
+    } catch (err) {
+      container.innerHTML = '<div class="text-error">' + mensajeDeError(err) + '</div>';
     }
   }
 
@@ -124,8 +123,8 @@ export class MentorDashboardPage {
       });
       this.loadRequests();
       this.loadProjects();
-    } catch (err: any) {
-      showToast(getErrorMessage(err.code, err.status), { type: 'error' });
+    } catch (err) {
+      showToast(mensajeDeError(err), { type: 'error' });
       btn.disabled = false;
       btn.textContent = originalText;
     }
@@ -182,10 +181,10 @@ export class MentorDashboardPage {
           this.openProjectModal(project);
         });
       });
-    } catch (err: any) {
+    } catch (err) {
       container.innerHTML =
         '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
-        getErrorMessage(err.code, err.status) +
+        mensajeDeError(err) +
         '</div></div>';
     }
   }
@@ -265,8 +264,8 @@ export class MentorDashboardPage {
           }
           document.getElementById('approve-hint')?.remove();
         }
-      } catch (err: any) {
-        showToast(getErrorMessage(err.code, err.status), { type: 'error' });
+      } catch (err) {
+        showToast(mensajeDeError(err), { type: 'error' });
       }
     });
 
@@ -278,8 +277,8 @@ export class MentorDashboardPage {
         });
         modal.close();
         this.loadProjects();
-      } catch (err: any) {
-        showToast(getErrorMessage(err.code, err.status), { type: 'error' });
+      } catch (err) {
+        showToast(mensajeDeError(err), { type: 'error' });
       }
     });
 
@@ -343,8 +342,8 @@ export class MentorDashboardPage {
           showToast('Proyecto rechazado con comentarios', { type: 'success' });
           m.close();
           this.loadProjects();
-        } catch (err: any) {
-          showToast(getErrorMessage(err.code, err.status), { type: 'error' });
+        } catch (err) {
+          showToast(mensajeDeError(err), { type: 'error' });
         } finally {
           m.setLoading(false);
         }

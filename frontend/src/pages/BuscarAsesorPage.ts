@@ -2,7 +2,7 @@ import { getAreas } from '../services/student.service.js';
 import { skeletonTarjetas } from '../components/Skeleton.js';
 import { searchAdvisors, createAdvisorRequest } from '../services/advisor.service.js';
 import { getMyProject } from '../services/project.service.js';
-import { getErrorMessage } from '../services/errorMessages.js';
+import { mensajeDeError } from '../services/errorMessages.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
 import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
@@ -24,10 +24,10 @@ export class BuscarAsesorPage {
       this.myProject = project;
       this.areas = areas;
       this.buildLayout();
-    } catch (err: any) {
+    } catch (err) {
       this.container.innerHTML =
         '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
-        getErrorMessage(err.code, err.status) +
+        mensajeDeError(err) +
         '</div></div>';
     }
   }
@@ -67,7 +67,7 @@ export class BuscarAsesorPage {
     const resultsContainer = document.getElementById('search-results-container')!;
     resultsContainer.innerHTML = skeletonTarjetas(3);
 
-    const params: any = {};
+    const params: { area?: number } = {};
     if (fd.get('area')) params.area = Number(fd.get('area'));
 
     try {
@@ -138,10 +138,10 @@ export class BuscarAsesorPage {
           this.openRequestModal(id, nombre);
         });
       });
-    } catch (err: any) {
+    } catch (err) {
       resultsContainer.innerHTML =
         '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
-        getErrorMessage(err.code, err.status) +
+        mensajeDeError(err) +
         '</div></div>';
     }
   }
@@ -168,8 +168,8 @@ export class BuscarAsesorPage {
           });
           showToast('Solicitud enviada exitosamente', { type: 'success' });
           m.close();
-        } catch (err: any) {
-          showToast(getErrorMessage(err.code, err.status), { type: 'error' });
+        } catch (err) {
+          showToast(mensajeDeError(err), { type: 'error' });
         } finally {
           m.setLoading(false);
         }

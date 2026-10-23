@@ -22,10 +22,9 @@ jobs:
       - name: Instalar herramientas de calidad
         run: npm ci
 
-      # Falla solo con errores. Los avisos (los `any` heredados) se reportan
-      # pero no bloquean, para poder limpiarlos de forma gradual.
+      # Cero tolerancia: cualquier aviso nuevo rompe el build.
       - name: ESLint
-        run: npx eslint backend/src backend/tests frontend/src e2e playwright.config.ts --max-warnings 50
+        run: npx eslint backend/src backend/tests frontend/src e2e playwright.config.ts --max-warnings 0
 
   backend:
     name: Backend (typecheck, pruebas)

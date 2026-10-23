@@ -10,7 +10,7 @@ import { estadoBadge, etiquetaDeEstado } from '../components/EstadoBadge.js';
 import { skeletonPerfil, skeletonLineas } from '../components/Skeleton.js';
 import { validarCampo, maximoPalabras, contarPalabras } from '../utils/validacion.js';
 import { getAdvisorById } from '../services/advisor.service.js';
-import { getErrorMessage } from '../services/errorMessages.js';
+import { mensajeDeError } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
 import type { Project, ProjectState } from '../types/index.js';
 
@@ -28,10 +28,10 @@ export class MiProyectoPage {
     try {
       this.project = await getMyProject();
       this.buildView();
-    } catch (err: any) {
+    } catch (err) {
       this.container.innerHTML =
         '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
-        getErrorMessage(err.code, err.status) +
+        mensajeDeError(err) +
         '</div></div>';
     }
   }
@@ -306,8 +306,8 @@ export class MiProyectoPage {
         const blob = await downloadProtocol(this.project!.id_proyecto);
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank');
-      } catch (err: any) {
-        showToast(getErrorMessage(err.code, err.status), { type: 'error' });
+      } catch (err) {
+        showToast(mensajeDeError(err), { type: 'error' });
       }
     });
   }
@@ -338,8 +338,8 @@ export class MiProyectoPage {
           this.project = await getMyProject();
           this.buildView();
         })
-        .catch((err: any) => {
-          showToast(getErrorMessage(err.code, err.status), { type: 'error' });
+        .catch((err: unknown) => {
+          showToast(mensajeDeError(err), { type: 'error' });
         });
     };
 
@@ -493,8 +493,8 @@ export class MiProyectoPage {
       this.project = await createProject(titulo, descripcion);
       showToast('Proyecto creado exitosamente', { type: 'success' });
       this.buildView();
-    } catch (err: any) {
-      showToast(getErrorMessage(err.code, err.status), { type: 'error' });
+    } catch (err) {
+      showToast(mensajeDeError(err), { type: 'error' });
       btn.disabled = false;
       btn.textContent = 'Crear Proyecto';
     }
