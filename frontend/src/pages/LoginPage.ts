@@ -65,26 +65,10 @@ export class LoginPage {
         }
 
         .login-topbar-subtitle {
-          font-size: 10px;
-          color: #5f6368;
-          text-transform: uppercase;
-          font-weight: 500;
-          letter-spacing: 0.05em;
-          margin-top: 2px;
-        }
-
-        .login-help-badge {
           font-size: 12px;
-          font-weight: 500;
           color: #5f6368;
-          text-decoration: none;
-          padding: 6px 12px;
-          border-radius: 9999px;
-          transition: background 0.2s, color 0.2s;
-        }
-        .login-help-badge:hover {
-          background: rgba(255,255,255,0.6);
-          color: #1a73e8;
+          font-weight: 500;
+          margin-top: 2px;
         }
 
         .login-main {
@@ -183,16 +167,7 @@ export class LoginPage {
           padding: 16px 24px;
           display: flex;
           align-items: center;
-          justify-content: space-between;
-        }
-
-        .login-footer-select {
-          background: transparent;
-          border: none;
-          font-size: 12px;
-          color: #5f6368;
-          cursor: pointer;
-          outline: none;
+          justify-content: center;
         }
 
         .login-footer-links {
@@ -202,14 +177,6 @@ export class LoginPage {
           font-size: 12px;
           color: #5f6368;
         }
-        .login-footer-links a {
-          color: #5f6368;
-          text-decoration: none;
-          transition: color 0.2s;
-        }
-        .login-footer-links a:hover {
-          color: #202124;
-        }
         .login-footer-copy {
           color: #9ca3af;
           font-size: 11px;
@@ -218,10 +185,6 @@ export class LoginPage {
         @media (max-width: 640px) {
           .login-card {
             padding: 36px 28px;
-          }
-          .login-footer {
-            flex-direction: column;
-            gap: 16px;
           }
         }
       </style>
@@ -236,7 +199,6 @@ export class LoginPage {
               <span class="login-topbar-subtitle">Universidad de Guadalajara</span>
             </div>
           </div>
-          <a class="login-help-badge" href="#ayuda">Ayuda y soporte</a>
         </header>
 
         <!-- BEGIN: MainContent -->
@@ -247,7 +209,7 @@ export class LoginPage {
                 <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAr3jCUlsUzPBOGY1J8x9c6xyq81SFu7Rb4tOzGz1H_ybkPh1Oqaqq1Cv_pLcYW1kpFXaZ98dVTtZ-7ZC3tMCtvPkHQBympN3fwZssmI4I6qx4Clua0HqOrBlO7ZjKAldMxyjsIOlOfLlD5Vkrd6uj96MAXENOvUS6_bdhlAPkNECUZgVNoP0RmRBuX8CXSlPKR6IYQfD68SMefDsRenbeo68VEAAl39s8GaWST89jFkJg5YfiSSLltgFwgfXoQmt-Ouw" alt="Escudo Universidad de Guadalajara" style="height: 64px; width: auto; object-fit: contain;">
               </div>
               <h1 class="login-card-title">Iniciar sesión</h1>
-              <p class="login-card-subtitle">Entra con tu cuenta institucional de Google para acceder a tu cuenta</p>
+              <p class="login-card-subtitle">Entra con tu cuenta institucional de Google.</p>
             </div>
 
             <div class="login-google-area">
@@ -266,14 +228,7 @@ export class LoginPage {
 
         <!-- BEGIN: Footer -->
         <footer class="login-footer">
-          <select aria-label="Seleccionar idioma" class="login-footer-select">
-            <option selected value="es">Español (México)</option>
-            <option value="en">English (United States)</option>
-          </select>
           <div class="login-footer-links">
-            <a href="#ayuda">Ayuda</a>
-            <a href="#privacidad">Privacidad</a>
-            <a href="#condiciones">Términos</a>
             <span class="login-footer-copy">© CUCEI Universidad de Guadalajara</span>
           </div>
         </footer>

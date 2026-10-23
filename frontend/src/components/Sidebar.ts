@@ -8,20 +8,20 @@ export interface SidebarLink {
 export type Rol = 'alumno' | 'mentor' | 'admin';
 
 const ALUMNO_LINKS: SidebarLink[] = [
-  { href: '#/perfil', icon: 'person', label: 'Mi Perfil' },
-  { href: '#/equipo', icon: 'group_search', label: 'Buscar Equipo' },
-  { href: '#/asesores', icon: 'school', label: 'Buscar Asesor' },
-  { href: '#/proyecto', icon: 'folder_managed', label: 'Mi Proyecto' },
+  { href: '#/perfil', icon: 'person', label: 'Mi perfil' },
+  { href: '#/equipo', icon: 'group_search', label: 'Buscar equipo' },
+  { href: '#/asesores', icon: 'school', label: 'Buscar asesor' },
+  { href: '#/proyecto', icon: 'folder_managed', label: 'Mi proyecto' },
 ];
 
 const MENTOR_LINKS: SidebarLink[] = [
-  { href: '#/mentor', icon: 'supervisor_account', label: 'Panel de Asesor' },
-  { href: '#/perfil', icon: 'person', label: 'Mi Perfil' },
+  { href: '#/mentor', icon: 'supervisor_account', label: 'Panel de asesor' },
+  { href: '#/perfil', icon: 'person', label: 'Mi perfil' },
 ];
 
 const ADMIN_LINKS: SidebarLink[] = [
-  { href: '#/admin', icon: 'admin_panel_settings', label: 'Panel Admin' },
-  { href: '#/perfil', icon: 'person', label: 'Mi Perfil' },
+  { href: '#/admin', icon: 'admin_panel_settings', label: 'Administración' },
+  { href: '#/perfil', icon: 'person', label: 'Mi perfil' },
 ];
 
 function linksForRol(rol?: Rol): SidebarLink[] {
@@ -57,11 +57,9 @@ function updateToggleBtn(btn: HTMLButtonElement): void {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   const icon = btn.querySelector('.material-symbols-outlined')!;
   const label = btn.querySelector('.theme-toggle__label')!;
-  icon.textContent = isDark ? 'dark_mode' : 'light_mode';
-  label.textContent = isDark ? 'Modo oscuro' : 'Modo claro';
-  // El nombre accesible debe empezar con el texto visible (WCAG 2.5.3), para
-  // que quien usa control por voz pueda activarlo diciendo lo que ve.
-  btn.setAttribute('aria-label', label.textContent + ', cambiar tema');
+  // El boton dice lo que hace al pulsarlo, no el tema en que ya estas.
+  icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+  label.textContent = isDark ? 'Usar tema claro' : 'Usar tema oscuro';
 }
 
 // ─── Navegacion movil ──────────────────────────────────────────────────────
@@ -140,15 +138,13 @@ export function renderSidebar(container: HTMLElement, activePath: string, rol?: 
       .join('') +
     '</div>' +
     '<div class="sidebar__footer">' +
-    // Theme toggle pill
-    '<button class="theme-toggle" id="btn-theme">' +
-    '<span class="material-symbols-outlined">light_mode</span>' +
-    '<span class="theme-toggle__label">Modo claro</span>' +
+    '<button class="sidebar__action theme-toggle" id="btn-theme">' +
+    '<span class="material-symbols-outlined">dark_mode</span>' +
+    '<span class="theme-toggle__label">Usar tema oscuro</span>' +
     '</button>' +
-    // Logout
-    '<a href="#" id="btn-logout">' +
+    '<button class="sidebar__action" id="btn-logout">' +
     '<span class="material-symbols-outlined">logout</span><span>Cerrar sesión</span>' +
-    '</a></div>';
+    '</button></div>';
 
   // Init toggle state
   const btnTheme = container.querySelector('#btn-theme') as HTMLButtonElement;

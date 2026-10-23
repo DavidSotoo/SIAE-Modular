@@ -28,7 +28,7 @@ import type {
 
 const ROL_LABEL: Record<string, string> = {
   alumno: 'Alumno',
-  mentor: 'Mentor / Asesor',
+  mentor: 'Asesor',
   admin: 'Administrador',
 };
 
@@ -170,7 +170,7 @@ export class PerfilPage {
 
     const skillChips = (list: typeof hardSkills, cls: string) =>
       list.length === 0
-        ? '<span class="pv-empty-hint">Sin habilidades registradas aún.</span>'
+        ? '<span class="pv-empty-hint">Ninguna todavía.</span>'
         : list
             .map(
               (s) =>
@@ -183,7 +183,7 @@ export class PerfilPage {
 
     const areaChips =
       p.areas.length === 0
-        ? '<span class="pv-empty-hint">Sin áreas de interés registradas aún.</span>'
+        ? `<p class="pv-empty-hint">Indica qué temas te interesan para encontrar proyectos afines.</p><button type="button" class="btn btn--ghost btn--sm pv-empty-action">Agregar áreas</button>`
         : p.areas
             .map(
               (a) =>
@@ -265,31 +265,34 @@ export class PerfilPage {
             hardSkills.length > 0 || softSkills.length > 0
               ? `
             <div class="pv-skills-group">
-              <div class="pv-skills-group-label">Hard Skills</div>
+              <div class="pv-skills-group-label">Habilidades técnicas</div>
               <div class="pv-skills-list">${skillChips(hardSkills, 'hard')}</div>
             </div>
             <div class="pv-skills-group">
-              <div class="pv-skills-group-label">Soft Skills</div>
+              <div class="pv-skills-group-label">Habilidades blandas</div>
               <div class="pv-skills-list">${skillChips(softSkills, 'soft')}</div>
             </div>
           `
-              : '<span class="pv-empty-hint">Aún no se han registrado habilidades.</span>'
+              : `<p class="pv-empty-hint">Agrega tus habilidades para que otros equipos te encuentren.</p><button type="button" class="btn btn--ghost btn--sm pv-empty-action">Agregar habilidades</button>`
           }
         </div>
 
         <!-- Areas card -->
         <div class="pv-card">
-          <div class="pv-card-title"><span class="material-symbols-outlined">category</span>Áreas de Interés</div>
+          <div class="pv-card-title"><span class="material-symbols-outlined">category</span>Áreas de interés</div>
           <div class="pv-areas-list">${areaChips}</div>
         </div>
 
       </div>
     `;
 
-    document.getElementById('edit-profile-btn')!.addEventListener('click', () => {
-      this.mode = 'edit';
-      this.buildForm();
-    });
+    // Los estados vacios llevan al mismo formulario que "Editar perfil".
+    this.container.querySelectorAll('#edit-profile-btn, .pv-empty-action').forEach((btn) =>
+      btn.addEventListener('click', () => {
+        this.mode = 'edit';
+        this.buildForm();
+      }),
+    );
   }
 
   // ─── EDIT MODE (form) ────────────────────────────────────────────────────
@@ -331,19 +334,19 @@ export class PerfilPage {
           <label class="form-label" for="disponibilidad">Disponibilidad</label>
           <select id="disponibilidad" name="disponibilidad" class="form-control">
             <option value="">Selecciona...</option>
-            <option value="tiempo_completo" ${this.profile.disponibilidad === 'tiempo_completo' ? 'selected' : ''}>Tiempo Completo</option>
-            <option value="medio_tiempo" ${this.profile.disponibilidad === 'medio_tiempo' ? 'selected' : ''}>Medio Tiempo</option>
-            <option value="fines_de_semana" ${this.profile.disponibilidad === 'fines_de_semana' ? 'selected' : ''}>Fines de Semana</option>
+            <option value="tiempo_completo" ${this.profile.disponibilidad === 'tiempo_completo' ? 'selected' : ''}>Tiempo completo</option>
+            <option value="medio_tiempo" ${this.profile.disponibilidad === 'medio_tiempo' ? 'selected' : ''}>Medio tiempo</option>
+            <option value="fines_de_semana" ${this.profile.disponibilidad === 'fines_de_semana' ? 'selected' : ''}>Fines de semana</option>
             <option value="flexible" ${this.profile.disponibilidad === 'flexible' ? 'selected' : ''}>Flexible</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="estado_busqueda">Estado de Búsqueda</label>
+          <label class="form-label" for="estado_busqueda">Estado de búsqueda</label>
           <select id="estado_busqueda" name="estado_busqueda" class="form-control" required>
-            <option value="buscando_equipo" ${this.profile.estado_busqueda === 'buscando_equipo' ? 'selected' : ''}>Buscando Equipo</option>
-            <option value="en_equipo" ${this.profile.estado_busqueda === 'en_equipo' ? 'selected' : ''}>En Equipo</option>
-            <option value="no_disponible" ${this.profile.estado_busqueda === 'no_disponible' ? 'selected' : ''}>No Disponible</option>
+            <option value="buscando_equipo" ${this.profile.estado_busqueda === 'buscando_equipo' ? 'selected' : ''}>Buscando equipo</option>
+            <option value="en_equipo" ${this.profile.estado_busqueda === 'en_equipo' ? 'selected' : ''}>En equipo</option>
+            <option value="no_disponible" ${this.profile.estado_busqueda === 'no_disponible' ? 'selected' : ''}>No disponible</option>
           </select>
         </div>
 
@@ -362,7 +365,7 @@ export class PerfilPage {
           <button type="button" id="cancel-edit-btn" class="btn btn--outlined">Cancelar</button>
           <button type="submit" class="btn btn--primary" id="save-btn">
             <span class="material-symbols-outlined">save</span>
-            Guardar Perfil
+            Guardar perfil
           </button>
         </div>
       </form>
@@ -399,7 +402,7 @@ export class PerfilPage {
     });
     this.hardSkillsSelector.mountHeader(
       document.getElementById('hard-skills-header')!,
-      'Hard Skills',
+      'Habilidades técnicas',
     );
 
     this.softSkillsSelector = new ChipSelector({
@@ -417,7 +420,7 @@ export class PerfilPage {
     });
     this.softSkillsSelector.mountHeader(
       document.getElementById('soft-skills-header')!,
-      'Soft Skills',
+      'Habilidades blandas',
     );
 
     this.areasSelector = new ChipSelector({
@@ -428,7 +431,7 @@ export class PerfilPage {
       category: 'area',
       emptyLabel: 'No se encontraron áreas. Prueba con otro término.',
     });
-    this.areasSelector.mountHeader(document.getElementById('areas-header')!, 'Áreas de Interés');
+    this.areasSelector.mountHeader(document.getElementById('areas-header')!, 'Áreas de interés');
 
     document.getElementById('perfil-form')!.addEventListener('submit', (e) => this.handleSubmit(e));
 
@@ -542,7 +545,7 @@ export class PerfilPage {
         title: 'Error al guardar',
       });
       btn.disabled = false;
-      btn.innerHTML = '<span class="material-symbols-outlined">save</span> Guardar Perfil';
+      btn.innerHTML = '<span class="material-symbols-outlined">save</span> Guardar perfil';
     }
   }
 }

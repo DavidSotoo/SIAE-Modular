@@ -45,7 +45,7 @@ export function skeletonTarjeta(lineas = 2): string {
   </div>`;
 }
 
-/** Rejilla de tarjetas, como la de Buscar Equipo y Buscar Asesor. */
+/** Rejilla de tarjetas, como la de Buscar equipo y Buscar asesor. */
 export function skeletonTarjetas(cantidad = 3): string {
   return envolver(
     `<div class="cards-grid">${Array.from({ length: cantidad }, () => skeletonTarjeta(2)).join('')}</div>`,

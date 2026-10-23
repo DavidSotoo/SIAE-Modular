@@ -12,13 +12,13 @@ test('sin sesion, cualquier ruta lleva al login', async ({ page }) => {
 test('el mentor aterriza en su panel', async ({ page, iniciarSesion }) => {
   await iniciarSesion('mentor');
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Panel de Asesor' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Panel de asesor' })).toBeVisible();
 });
 
 test('el admin aterriza en su panel', async ({ page, iniciarSesion }) => {
   await iniciarSesion('admin');
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Panel Administrativo' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Administración' })).toBeVisible();
 });
 
 test('un alumno no puede abrir el panel de admin', async ({ page, iniciarSesion }) => {
@@ -81,7 +81,7 @@ test('cerrar sesion borra la sesion y vuelve al login', async ({ page, iniciarSe
   await iniciarSesion('alumnoSinProyecto');
   await page.goto('/#/perfil');
   await esperarCarga(page);
-  await page.getByRole('link', { name: /cerrar sesión/i }).click();
+  await page.getByRole('button', { name: /cerrar sesión/i }).click();
   await expect(page).toHaveURL(/#\/login$/);
   expect(await page.evaluate(() => localStorage.getItem('siae_token'))).toBeNull();
 });

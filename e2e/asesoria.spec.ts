@@ -20,12 +20,12 @@ test('el modal de solicitud se maneja por completo con teclado', async ({
   await page.goto('/#/asesores');
   await esperarCarga(page);
 
-  const solicitar = tarjetaDelMentor(page).getByRole('button', { name: 'Solicitar Asesoría' });
+  const solicitar = tarjetaDelMentor(page).getByRole('button', { name: 'Solicitar asesoría' });
   await solicitar.focus();
   await page.keyboard.press('Enter');
 
   const modal = page.getByRole('dialog', {
-    name: `Solicitar Asesoría a ${USUARIOS.mentor.nombre}`,
+    name: `Solicitar asesoría a ${USUARIOS.mentor.nombre}`,
   });
   await expect(modal).toBeVisible();
 
@@ -53,10 +53,10 @@ test('la alumna envia la solicitud de asesoria', async ({ page, iniciarSesion })
   await page.goto('/#/asesores');
   await esperarCarga(page);
 
-  await tarjetaDelMentor(page).getByRole('button', { name: 'Solicitar Asesoría' }).click();
+  await tarjetaDelMentor(page).getByRole('button', { name: 'Solicitar asesoría' }).click();
   const modal = page.getByRole('dialog');
   await modal.getByLabel('Mensaje (opcional)').fill(MENSAJE);
-  await modal.getByRole('button', { name: 'Enviar Solicitud' }).click();
+  await modal.getByRole('button', { name: 'Enviar solicitud' }).click();
 
   await expect(page.locator('#toast-container')).toContainText('Solicitud enviada exitosamente');
   await expect(modal).toBeHidden();
