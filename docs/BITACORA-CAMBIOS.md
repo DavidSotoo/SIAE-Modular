@@ -642,3 +642,89 @@ El escudo del login y la barra superior se carga desde
 `lh3.googleusercontent.com/aida-public/...`, una imagen generada por Stitch y
 no el archivo oficial de la UdeG. Debe reemplazarse por el escudo oficial
 servido desde `frontend/public/`.
+
+---
+
+## 2026-10-23 — Rediseño, fase B: identidad UdeG, tipografía propia, íconos SVG y CSP de estilos
+
+**Rama:** `angel/rediseno-fase-b` (desde `angel/pulido-ui-fase-a`)
+
+### Qué se identificó
+
+- La paleta era la de Material You que generó Stitch (tokens como
+  `--color-on-primary-fixed-variant`), con un verde menta sin relación con la
+  universidad en el menú activo y los botones secundarios.
+- Inter y Material Symbols llegaban desde Google Fonts. Mientras cargaba la
+  fuente de íconos, la página mostraba sus nombres como texto ("search",
+  "close").
+- El escudo del login era una imagen generada por Stitch y se cargaba desde
+  `lh3.googleusercontent.com/aida-public/…`, no el escudo oficial.
+- El login copiaba la pantalla de acceso de Google (sus colores, Roboto) y no
+  tenía tema oscuro.
+- La CSP mantenía `'unsafe-inline'` en `style-src` por 48 atributos `style=`
+  y el `<style>` del login.
+- Los modales de detalle mostraban "Cancelar" y "Cerrar" a la vez, y otras
+  cuatro etiquetas estaban escritas en MAYÚSCULAS en el código.
+
+### Qué se decidió
+
+**Identidad.** Los colores salen del escudo oficial (Wikimedia Commons,
+`Escudo UdeG.svg`, dominio público, fuente udg.mx): índigo `#260f55` como
+marca y oro `#ffd700` como único acento, usado en pocos lugares (barra de la
+sección activa del menú, borde superior del login, paso actual del proyecto
+y sellos de folio). El escudo se sirve desde `frontend/public/`. En el
+tema oscuro va sobre una placa clara para que su índigo no se pierda.
+
+**Tipografía.** Source Sans 3 para la interfaz. Source Serif 4 solo para lo
+que en papel sería un documento: títulos de proyecto y folios. Ambas se
+sirven desde el propio sitio con `@fontsource` (versión 5.3.0 fijada; la
+5.3.1 tenía menos de dos semanas).
+
+**Tokens.** Nombres semánticos en español (`--c-marca`, `--c-texto-2`,
+`--c-borde`…). Todos los pares de texto cumplen WCAG AA en ambos temas
+(mínimo 5.6:1) y los bordes de controles superan 3:1. Los paneles se separan
+del fondo con una línea de 1px en lugar de sombra. Los radios dependen de la
+jerarquía: 4px en insignias, 6px en controles y 8px en paneles.
+
+**Íconos.** SVG en línea de Lucide (`lucide-static`, ISC) mediante
+`utils/iconos.ts`. Solo entran al bundle los 42 que se usan.
+
+**CSP.** En producción, `style-src 'self'` más la hoja de Google Identity,
+sin `'unsafe-inline'`. En desarrollo, Vite necesita inyectar `<style>`, así
+que se separa: `style-src-elem` permite elementos en línea y
+`style-src-attr 'none'` sigue bloqueando atributos. Por eso las pruebas e2e
+fallan si una vista vuelve a usar `style=`. Se descartó usar un nonce: exige
+un valor distinto en cada petición y el despliegue en Vercel es estático.
+
+### Resultado
+
+- 0 atributos `style=` y 0 `<style>` en las vistas; `font-src 'self'`.
+- 35/35 e2e en verde. Hay una prueba nueva: un `style=` inyectado provoca
+  una violación de `style-src-attr` y no se aplica.
+- Se probó el build de producción con `vite preview`: fuentes, escudo y
+  estilos cargan sin violaciones de CSP.
+- Se corrigieron de paso: los filtros en móvil quedaban alineados a la
+  derecha; los modales de detalle tenían dos botones de cierre; el filtro de
+  semestre tenía una etiqueta sin campo asociado; "Mentor" pasa a "Asesor"
+  en la tabla de administración, para usar la misma palabra en toda la app.
+
+### Ajustes tras la revisión
+
+- **Login:** tras revisarlo en local se decidió conservar el diseño original (tarjeta
+  centrada). Solo cambian tres cosas: sus estilos pasan a `main.css`, usa el
+  escudo oficial y toma la fuente de la app, porque Inter ya no se descarga.
+- **Botón de Google que a veces no aparecía:** la vista revisaba
+  `window.google` una sola vez al pintarse. En una primera visita sin caché
+  el script `async` de Google aún no terminaba y se mostraba "No se pudo
+  cargar Google" aunque llegara un momento después. Ahora espera el `load`
+  del script, con un límite de 10 s. El error ya existía en `main`.
+- **Estilo del botón de Google:** el botón inserta un `style=` fijo con su
+  ancho, que `style-src-attr 'none'` bloqueaba. Se permite solo ese valor
+  exacto con `'unsafe-hashes'` y su hash SHA-256. Si Google lo cambia, el
+  botón funciona igual y solo pierde ese ancho.
+
+### Pendiente para la fase C
+
+Layout por vista: la cabecera del perfil (franja y avatar al estilo red
+social), la ficha del proyecto, los indicadores del admin como filtros y el
+panel de asesor.

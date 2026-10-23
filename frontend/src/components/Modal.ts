@@ -1,4 +1,4 @@
-﻿// Modal component — reutilizable, generico.
+// Modal component — reutilizable, generico.
 // Uso: new Modal({ id, title, content, onConfirm })
 //
 // Gestion de foco para teclado y lectores de pantalla:
@@ -6,12 +6,16 @@
 // - Tab y Shift+Tab circulan dentro del modal (no se escapan al fondo);
 // - Escape lo cierra;
 // - al cerrar, el foco vuelve al elemento que lo abrio.
+import { icono } from '../utils/iconos.js';
+
 export interface ModalOptions {
   id: string;
   title: string;
   contentHtml: string;
   confirmLabel?: string;
   confirmClass?: string;
+  /** Solo muestra informacion: sin "Cancelar", el boton de confirmar cierra. */
+  informativo?: boolean;
   onConfirm: (modal: Modal) => void | Promise<void>;
 }
 
@@ -45,13 +49,17 @@ export class Modal {
       '-title">' +
       this.opts.title +
       '</h2>' +
-      '<button class="btn btn--icon modal__close" aria-label="Cerrar"><span class="material-symbols-outlined">close</span></button>' +
+      '<button class="btn btn--icon modal__close" aria-label="Cerrar">' +
+      icono('close') +
+      '</button>' +
       '</div>' +
       '<div class="modal__body">' +
       this.opts.contentHtml +
       '</div>' +
       '<div class="modal__footer">' +
-      '<button class="btn btn--ghost" data-dismiss>Cancelar</button>' +
+      (this.opts.informativo
+        ? ''
+        : '<button class="btn btn--ghost" data-dismiss>Cancelar</button>') +
       '<button class="btn ' +
       (this.opts.confirmClass ?? 'btn--primary') +
       '" data-confirm>' +
@@ -60,7 +68,7 @@ export class Modal {
       '</div>' +
       '</div>';
     el.querySelector('.modal__close')!.addEventListener('click', () => this.close());
-    el.querySelector('[data-dismiss]')!.addEventListener('click', () => this.close());
+    el.querySelector('[data-dismiss]')?.addEventListener('click', () => this.close());
     el.querySelector('[data-confirm]')!.addEventListener('click', () => this.handleConfirm());
     el.addEventListener('click', (e) => {
       if (e.target === el) this.close();

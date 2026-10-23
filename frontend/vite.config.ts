@@ -8,9 +8,12 @@ import { defineConfig, loadEnv, type Plugin } from 'vite';
  * Identity. Sin 'unsafe-inline' en script-src, un HTML inyectado (XSS) no puede
  * ejecutar ni <script> ni manejadores como onerror="...".
  *
- * style-src conserva 'unsafe-inline': las vistas usan atributos style= y Vite
- * inyecta el CSS como <style> en desarrollo. El riesgo de estilos en linea es
- * mucho menor que el de scripts.
+ * Estilos: en produccion solo hojas del propio origen (el build saca el CSS a
+ * un archivo) y la de Google Identity; ni <style> ni atributos style=. En
+ * desarrollo Vite inyecta el CSS como <style>, asi que ahi se permiten esos
+ * elementos (style-src-elem) pero los atributos siguen prohibidos
+ * (style-src-attr 'none'): las pruebas e2e, que corren contra el servidor de
+ * desarrollo, fallan si una vista vuelve a usar style=.
  */
 function construirCsp(apiUrl: string | undefined, desarrollo: boolean): string {
   // Si la API vive en otro origen (en desarrollo, localhost:4000), hay que
@@ -21,9 +24,18 @@ function construirCsp(apiUrl: string | undefined, desarrollo: boolean): string {
   const directivas: Record<string, string[]> = {
     'default-src': ["'self'"],
     'script-src': ["'self'", `${google}client`],
-    'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', `${google}style`],
-    'font-src': ["'self'", 'https://fonts.gstatic.com'],
-    // Fotos de perfil de Google y logotipos alojados en googleusercontent.
+    'style-src': ["'self'", `${google}style`],
+    'style-src-elem': ["'self'", `${google}style`, desarrollo ? "'unsafe-inline'" : ''],
+    // El boton de Google pone un style= fijo con su ancho; se permite solo ese
+    // valor exacto por su hash. Si Google lo cambia, el boton sigue funcionando
+    // y solo pierde ese ancho. Cualquier otro style= queda bloqueado.
+    'style-src-attr': [
+      "'unsafe-hashes'",
+      "'sha256-0XbXxDziHuSSx+6TUE+FAaDsbSyh3wmRLaFKB5hZFbI='", // width:320px; max-width:400px; min-width:min-content;
+    ],
+    // Las fuentes se sirven desde el propio sitio (@fontsource).
+    'font-src': ["'self'"],
+    // Fotos de perfil de las cuentas de Google.
     'img-src': ["'self'", 'data:', 'https://*.googleusercontent.com'],
     // En desarrollo, el websocket de recarga en caliente de Vite.
     'connect-src': ["'self'", google, origenApi, desarrollo ? 'ws:' : ''],

@@ -16,7 +16,7 @@ export class CompleteProfilePage {
         <h1>Completa tu perfil</h1>
         <p>Es la primera vez que inicias sesión. Ingresa tu código CUCEI (el mismo que usas en SIIAU) para continuar.</p>
       </div>
-      <div class="card card--md" style="max-width: 420px;">
+      <div class="card card--md card--angosta">
         <form id="complete-profile-form">
           <div class="form-group">
             <label class="form-label" for="codigo_cucei">Código CUCEI</label>

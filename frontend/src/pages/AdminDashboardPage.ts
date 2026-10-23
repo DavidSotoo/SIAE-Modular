@@ -15,6 +15,7 @@ import { formatearFecha, formatearFechaHora } from '../utils/fechas.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
 import { estadoBadge, etiquetaDeEstado } from '../components/EstadoBadge.js';
 import { skeletonTabla, skeletonLineas } from '../components/Skeleton.js';
+import { icono } from '../utils/iconos.js';
 
 const ESTADOS: ProjectState[] = [
   'borrador',
@@ -39,7 +40,9 @@ export class AdminDashboardPage {
       await this.buildLayout();
     } catch (err) {
       this.container.innerHTML =
-        '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
+        '<div class="state-empty">' +
+        icono('error') +
+        '<div class="state-empty__title">Error</div><div class="state-empty__msg">' +
         mensajeDeError(err) +
         '</div></div>';
     }
@@ -62,7 +65,7 @@ export class AdminDashboardPage {
         <p>Consulta todos los proyectos y folios del sistema, y expórtalos para reportes.</p>
       </div>
 
-      <div class="cards-grid" style="grid-template-columns: repeat(5, 1fr); margin-bottom: var(--sp-6);">
+      <div class="stat-grid">
         ${statTiles
           .map(
             (t) => `
@@ -83,16 +86,16 @@ export class AdminDashboardPage {
             ${ESTADOS.map((e) => `<option value="${e}">${e.charAt(0).toUpperCase() + e.slice(1)}</option>`).join('')}
           </select>
         </div>
-        <div class="form-group" style="flex: 2;">
+        <div class="form-group form-group--ancho">
           <label class="form-label text-label-sm" for="filter-search">Buscar por título o folio</label>
           <input type="text" id="filter-search" class="form-control" placeholder="Ej. Sistema Integral, A001-26A...">
         </div>
-        <div class="form-group" style="flex: 0 0 auto;">
-          <button type="submit" class="btn btn--primary"><span class="material-symbols-outlined">search</span> Filtrar</button>
+        <div class="form-group form-group--ajustado">
+          <button type="submit" class="btn btn--primary">${icono('search')} Filtrar</button>
         </div>
-        <div class="form-group" style="flex: 0 0 auto; display: flex; gap: var(--sp-2);">
-          <button type="button" class="btn btn--secondary btn--sm" id="btn-export-csv"><span class="material-symbols-outlined">download</span> CSV</button>
-          <button type="button" class="btn btn--secondary btn--sm" id="btn-export-xlsx"><span class="material-symbols-outlined">download</span> Excel</button>
+        <div class="form-group form-group--ajustado form-group--fila">
+          <button type="button" class="btn btn--ghost" id="btn-export-csv">${icono('download')} CSV</button>
+          <button type="button" class="btn btn--ghost" id="btn-export-xlsx">${icono('download')} Excel</button>
         </div>
       </form>
 
@@ -130,7 +133,9 @@ export class AdminDashboardPage {
 
       if (projects.length === 0) {
         tableContainer.innerHTML =
-          '<div class="state-empty"><span class="material-symbols-outlined">folder_off</span><div class="state-empty__title">Sin resultados</div><div class="state-empty__msg">No hay proyectos que coincidan con los filtros.</div></div>';
+          '<div class="state-empty">' +
+          icono('folder_off') +
+          '<div class="state-empty__title">Sin resultados</div><div class="state-empty__msg">No hay proyectos que coincidan con los filtros.</div></div>';
         return;
       }
 
@@ -142,7 +147,7 @@ export class AdminDashboardPage {
                 <th>Folio</th>
                 <th>Título</th>
                 <th>Estado</th>
-                <th>Mentor</th>
+                <th>Asesor</th>
                 <th>Integrantes</th>
                 <th>Creado</th>
               </tr>
@@ -162,7 +167,9 @@ export class AdminDashboardPage {
       });
     } catch (err) {
       tableContainer.innerHTML =
-        '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
+        '<div class="state-empty">' +
+        icono('error') +
+        '<div class="state-empty__title">Error</div><div class="state-empty__msg">' +
         mensajeDeError(err) +
         '</div></div>';
     }
@@ -175,7 +182,7 @@ export class AdminDashboardPage {
         <td data-label="Folio">${p.codigo_folio ?? '<span class="text-muted">—</span>'}</td>
         <td data-label="Título" class="table__titulo">${escapeHtml(p.titulo)}</td>
         <td data-label="Estado">${estadoBadge(p.estado_actual)}</td>
-        <td data-label="Mentor">${p.mentor_nombre ?? '<span class="text-muted">Sin asignar</span>'}</td>
+        <td data-label="Asesor">${p.mentor_nombre ?? '<span class="text-muted">Sin asignar</span>'}</td>
         <td data-label="Integrantes">${p.num_integrantes}</td>
         <td data-label="Creado">${fecha}</td>
       </tr>
@@ -188,6 +195,7 @@ export class AdminDashboardPage {
       title: 'Detalle del proyecto',
       contentHtml: skeletonLineas(4),
       confirmLabel: 'Cerrar',
+      informativo: true,
       confirmClass: 'btn--ghost',
       onConfirm: (m) => m.close(),
     });
@@ -225,30 +233,30 @@ export class AdminDashboardPage {
 
       modal.bodyEl.innerHTML = `
         <div class="mb-4">
-          <div class="text-label-sm text-muted">TÍTULO</div>
-          <div class="text-title">${escapeHtml(detail.titulo)}</div>
+          <div class="dato__etiqueta">Título</div>
+          <div class="titulo-documento">${escapeHtml(detail.titulo)}</div>
         </div>
         <div class="mb-4">
-          <div class="text-label-sm text-muted">DESCRIPCIÓN</div>
-          <p style="white-space: pre-line; margin: 0;">${detail.descripcion ? escapeHtml(detail.descripcion) : '<span class="text-muted">Sin descripción</span>'}</p>
+          <div class="dato__etiqueta">Descripción</div>
+          <p class="texto-multilinea">${detail.descripcion ? escapeHtml(detail.descripcion) : '<span class="text-muted">Sin descripción</span>'}</p>
         </div>
-        <div class="mb-4" style="display:flex; gap: var(--sp-6);">
+        <div class="mb-4 datos-fila">
           <div>
-            <div class="text-label-sm text-muted">ESTADO</div>
+            <div class="dato__etiqueta">Estado</div>
             ${estadoBadge(detail.estado_actual)}
           </div>
           <div>
-            <div class="text-label-sm text-muted">FOLIO</div>
-            <div class="text-label">${detail.codigo_folio ?? '—'}</div>
+            <div class="dato__etiqueta">Folio</div>
+            <div class="folio">${detail.codigo_folio ?? '—'}</div>
           </div>
           <div>
-            <div class="text-label-sm text-muted">MENTOR</div>
+            <div class="dato__etiqueta">Asesor</div>
             <div class="text-label">${detail.mentor_nombre ?? 'Sin asignar'}</div>
           </div>
         </div>
         <hr class="divider">
         <div class="mb-4">
-          <div class="text-label-sm text-muted mb-2">EQUIPO</div>
+          <div class="dato__etiqueta mb-2">Equipo</div>
           ${membersHtml}
         </div>
         ${
@@ -256,14 +264,14 @@ export class AdminDashboardPage {
             ? `
           <hr class="divider">
           <div class="mb-4">
-            <button class="btn btn--primary btn--sm" id="btn-register"><span class="material-symbols-outlined">verified</span> Emitir folio y registrar</button>
+            <button class="btn btn--primary btn--sm" id="btn-register">${icono('verified')} Emitir folio y registrar</button>
           </div>
         `
             : ''
         }
         <hr class="divider">
         <div>
-          <div class="text-label-sm text-muted mb-2">HISTORIAL</div>
+          <div class="dato__etiqueta mb-2">Historial</div>
           ${historyHtml}
         </div>
       `;
@@ -279,7 +287,7 @@ export class AdminDashboardPage {
         }
       });
     } catch (err) {
-      modal.bodyEl.innerHTML = `<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__msg">${mensajeDeError(err)}</div></div>`;
+      modal.bodyEl.innerHTML = `<div class="state-empty">${icono('error')}<div class="state-empty__msg">${mensajeDeError(err)}</div></div>`;
     }
   }
 

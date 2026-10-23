@@ -2,6 +2,7 @@
 // Reutilizable: se llama con el contenedor y el tipo de error para renderizar
 // la mascota SIAE + un mensaje adecuado. Si la imagen no existe todavía en
 // frontend/public/mascota-error.jpeg, cae automáticamente a un ícono.
+import { icono, type NombreIcono } from '../utils/iconos.js';
 
 export type ErrorStateKind = 'not-found' | 'offline';
 
@@ -9,7 +10,7 @@ interface ErrorStateOptions {
   onRetry?: () => void;
 }
 
-const CONTENT: Record<ErrorStateKind, { title: string; msg: string; icon: string }> = {
+const CONTENT: Record<ErrorStateKind, { title: string; msg: string; icon: NombreIcono }> = {
   'not-found': {
     title: 'Página no encontrada',
     msg: 'La ruta que buscas no existe o fue movida.',
@@ -32,7 +33,7 @@ export function renderErrorState(
   container.innerHTML = `
     <div class="error-state">
       <img src="/mascota-error.jpeg" alt="" class="error-state__img" data-respaldo="siguiente" />
-      <span class="material-symbols-outlined error-state__icon hidden">${icon}</span>
+      ${icono(icon, 'error-state__icon hidden')}
       <div class="state-empty__title">${title}</div>
       <div class="state-empty__msg">${msg}</div>
       ${options.onRetry ? '<button type="button" class="btn btn--primary" id="error-state-retry">Reintentar</button>' : ''}

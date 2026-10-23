@@ -7,6 +7,7 @@ import { escapeHtml } from '../utils/escapeHtml.js';
 import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
 import type { Area, Project } from '../types/index.js';
+import { icono } from '../utils/iconos.js';
 
 export class BuscarAsesorPage {
   private container: HTMLElement;
@@ -26,7 +27,9 @@ export class BuscarAsesorPage {
       this.buildLayout();
     } catch (err) {
       this.container.innerHTML =
-        '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
+        '<div class="state-empty">' +
+        icono('error') +
+        '<div class="state-empty__title">Error</div><div class="state-empty__msg">' +
         mensajeDeError(err) +
         '</div></div>';
     }
@@ -46,8 +49,8 @@ export class BuscarAsesorPage {
             ${this.areas.map((a) => `<option value="${a.id_area}">${escapeHtml(a.nombre)}</option>`).join('')}
           </select>
         </div>
-        <div class="form-group" style="flex: 0 0 auto;">
-          <button type="submit" class="btn btn--primary"><span class="material-symbols-outlined">search</span> Buscar</button>
+        <div class="form-group form-group--ajustado">
+          <button type="submit" class="btn btn--primary">${icono('search')} Buscar</button>
         </div>
       </form>
       
@@ -75,7 +78,9 @@ export class BuscarAsesorPage {
 
       if (advisors.length === 0) {
         resultsContainer.innerHTML =
-          '<div class="state-empty"><span class="material-symbols-outlined">person_search</span><div class="state-empty__title">Sin resultados</div><div class="state-empty__msg">No se encontraron asesores con esos filtros.</div></div>';
+          '<div class="state-empty">' +
+          icono('person_search') +
+          '<div class="state-empty__title">Sin resultados</div><div class="state-empty__msg">No se encontraron asesores con esos filtros.</div></div>';
         return;
       }
 
@@ -120,8 +125,8 @@ export class BuscarAsesorPage {
         html =
           `
           <div class="info-box mb-6">
-            <span class="material-symbols-outlined">info</span>
-            <div>No tienes un proyecto activo. <a href="#/proyecto" style="text-decoration: underline; font-weight: 500;">Crea uno aquí</a> para poder solicitar asesor.</div>
+            ${icono('info')}
+            <div>No tienes un proyecto activo. <a href="#/proyecto" class="enlace-en-texto">Crea uno aquí</a> para poder solicitar asesor.</div>
           </div>
         ` + html;
       }
@@ -140,7 +145,9 @@ export class BuscarAsesorPage {
       });
     } catch (err) {
       resultsContainer.innerHTML =
-        '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
+        '<div class="state-empty">' +
+        icono('error') +
+        '<div class="state-empty__title">Error</div><div class="state-empty__msg">' +
         mensajeDeError(err) +
         '</div></div>';
     }

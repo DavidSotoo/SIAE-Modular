@@ -38,10 +38,6 @@ export const test = base.extend<Fixtures & Opciones>({
     page.on('console', (msg) => {
       const texto = msg.text();
       if (msg.type() !== 'error' || !/Content Security Policy/i.test(texto)) return;
-      // axe descarga con fetch() las hojas de estilo externas para analizarlas,
-      // y eso choca con connect-src. La app carga Google Fonts con <link>
-      // (permitido por style-src) y nunca las pide con fetch: no es de la app.
-      if (/^Connecting to 'https:\/\/fonts\.googleapis\.com\//.test(texto)) return;
       violacionesCsp.push(texto);
     });
 

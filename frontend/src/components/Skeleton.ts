@@ -5,10 +5,29 @@
 // Son decorativas: van marcadas con aria-hidden y el contenedor anuncia la
 // carga con aria-busy, para no leerle cajas vacias a un lector de pantalla.
 
-/** Una barra. El ancho se pasa como porcentaje o medida CSS. */
-function linea(ancho: string, alto = '14px', radio?: string): string {
-  const r = radio ? `border-radius:${radio};` : '';
-  return `<div class="skeleton sk-line" style="width:${ancho};height:${alto};${r}"></div>`;
+// Medidas permitidas. Son clases y no style= porque la CSP no admite estilos
+// en linea; si hace falta otra, se agrega aqui y en main.css.
+const ANCHOS = {
+  '50%': 'sk-w-p50',
+  '60%': 'sk-w-p60',
+  '70%': 'sk-w-p70',
+  '80%': 'sk-w-p80',
+  '90%': 'sk-w-p90',
+  '70px': 'sk-w-70',
+  '90px': 'sk-w-90',
+  '120px': 'sk-w-120',
+  '140px': 'sk-w-140',
+  '180px': 'sk-w-180',
+} as const;
+const ALTOS = { '10px': 'sk-h-10', '14px': '', '22px': 'sk-h-22', '24px': 'sk-h-24' } as const;
+type Ancho = keyof typeof ANCHOS;
+
+/** Una barra con uno de los anchos y altos de arriba. */
+function linea(ancho: Ancho, alto: keyof typeof ALTOS = '14px', pastilla = false): string {
+  const clases = ['skeleton', 'sk-line', ANCHOS[ancho], ALTOS[alto], pastilla ? 'sk-pastilla' : '']
+    .filter(Boolean)
+    .join(' ');
+  return `<div class="${clases}"></div>`;
 }
 
 function envolver(contenido: string): string {
@@ -27,7 +46,7 @@ export function skeletonPerfil(): string {
         <div class="sk-lines">
           ${linea('180px', '22px')}
           ${linea('120px')}
-          ${linea('140px', '24px', '9999px')}
+          ${linea('140px', '24px', true)}
         </div>
       </div>
     </div>
@@ -38,7 +57,7 @@ export function skeletonPerfil(): string {
 
 /** Una tarjeta con un titulo y N lineas de texto. */
 export function skeletonTarjeta(lineas = 2): string {
-  const anchos = ['90%', '70%', '80%', '60%'];
+  const anchos: Ancho[] = ['90%', '70%', '80%', '60%'];
   return `<div class="sk-card">
     ${linea('140px')}
     ${Array.from({ length: lineas }, (_, i) => linea(anchos[i % anchos.length])).join('')}
@@ -54,8 +73,8 @@ export function skeletonTarjetas(cantidad = 3): string {
 
 /** Tabla con cabecera y filas, como los paneles de asesor y administracion. */
 export function skeletonTabla(filas = 4, columnas = 4): string {
-  const celda = (ancho: string) => `<td>${linea(ancho)}</td>`;
-  const anchos = ['70px', '80%', '90px', '60%', '50%'];
+  const celda = (ancho: Ancho) => `<td>${linea(ancho)}</td>`;
+  const anchos: Ancho[] = ['70px', '80%', '90px', '60%', '50%'];
   const cabecera = Array.from(
     { length: columnas },
     (_, i) => `<th>${linea(anchos[i % anchos.length], '10px')}</th>`,
@@ -76,7 +95,7 @@ export function skeletonTabla(filas = 4, columnas = 4): string {
 
 /** Bloque suelto de lineas, para secciones pequenas dentro de una vista. */
 export function skeletonLineas(cantidad = 3): string {
-  const anchos = ['80%', '60%', '70%', '50%'];
+  const anchos: Ancho[] = ['80%', '60%', '70%', '50%'];
   return envolver(
     `<div class="sk-card">${Array.from({ length: cantidad }, (_, i) => linea(anchos[i % anchos.length])).join('')}</div>`,
   );

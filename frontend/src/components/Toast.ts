@@ -1,11 +1,16 @@
-﻿// Toast component
+// Toast component
+import { icono, type NombreIcono } from '../utils/iconos.js';
 export type ToastType = 'success' | 'error' | 'info';
 interface ToastOptions {
   type?: ToastType;
   title?: string;
   duration?: number;
 }
-const ICONS: Record<ToastType, string> = { success: 'check_circle', error: 'error', info: 'info' };
+const ICONS: Record<ToastType, NombreIcono> = {
+  success: 'check_circle',
+  error: 'error',
+  info: 'info',
+};
 export function showToast(message: string, options: ToastOptions = {}): void {
   const { type = 'info', title, duration = 4000 } = options;
   let container = document.getElementById('toast-container');
@@ -24,9 +29,8 @@ export function showToast(message: string, options: ToastOptions = {}): void {
   if (type === 'error') toast.setAttribute('role', 'alert');
   const titleHtml = title ? '<div class="toast__title">' + title + '</div>' : '';
   toast.innerHTML =
-    '<span class="toast__icon material-symbols-outlined">' +
-    ICONS[type] +
-    '</span><div class="toast__body">' +
+    icono(ICONS[type], 'toast__icon') +
+    '<div class="toast__body">' +
     titleHtml +
     '<div class="toast__msg">' +
     message +

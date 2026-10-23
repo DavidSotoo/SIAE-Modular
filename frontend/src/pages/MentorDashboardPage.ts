@@ -18,6 +18,7 @@ import { formatearFecha, formatearFechaHora } from '../utils/fechas.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
 import { estadoBadge, etiquetaDeEstado } from '../components/EstadoBadge.js';
 import { skeletonTabla, skeletonLineas } from '../components/Skeleton.js';
+import { icono } from '../utils/iconos.js';
 
 export class MentorDashboardPage {
   private container: HTMLElement;
@@ -33,7 +34,9 @@ export class MentorDashboardPage {
       this.buildLayout();
     } catch (err) {
       this.container.innerHTML =
-        '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
+        '<div class="state-empty">' +
+        icono('error') +
+        '<div class="state-empty__title">Error</div><div class="state-empty__msg">' +
         mensajeDeError(err) +
         '</div></div>';
     }
@@ -95,7 +98,7 @@ export class MentorDashboardPage {
       <div class="request-card">
         <div class="request-card__header">
           <div class="request-card__from">${r.titulo_proyecto ? escapeHtml(r.titulo_proyecto) : 'Proyecto #' + r.id_proyecto}</div>
-          <div class="badge badge--pendiente">PENDIENTE</div>
+          <div class="badge badge--pendiente">Pendiente</div>
         </div>
         ${r.mensaje ? `<div class="request-card__msg">"${escapeHtml(r.mensaje)}"</div>` : ''}
         <div class="request-card__meta">Recibida: ${formatearFecha(r.created_at)}</div>
@@ -142,7 +145,9 @@ export class MentorDashboardPage {
 
       if (this.projects.length === 0) {
         container.innerHTML =
-          '<div class="state-empty"><span class="material-symbols-outlined">folder_off</span><div class="state-empty__title">Sin proyectos asignados</div><div class="state-empty__msg">Cuando aceptes una solicitud de asesoría, el proyecto aparecerá aquí.</div></div>';
+          '<div class="state-empty">' +
+          icono('folder_off') +
+          '<div class="state-empty__title">Sin proyectos asignados</div><div class="state-empty__msg">Cuando aceptes una solicitud de asesoría, el proyecto aparecerá aquí.</div></div>';
         return;
       }
 
@@ -184,7 +189,9 @@ export class MentorDashboardPage {
       });
     } catch (err) {
       container.innerHTML =
-        '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
+        '<div class="state-empty">' +
+        icono('error') +
+        '<div class="state-empty__title">Error</div><div class="state-empty__msg">' +
         mensajeDeError(err) +
         '</div></div>';
     }
@@ -199,18 +206,21 @@ export class MentorDashboardPage {
       title: escapeHtml(project.titulo),
       contentHtml: skeletonLineas(4),
       confirmLabel: 'Cerrar',
+      informativo: true,
       confirmClass: 'btn--ghost',
       onConfirm: (m) => m.close(),
     });
     modal.open();
 
     const viewBtnHtml = project.pdf_path
-      ? '<button class="btn btn--ghost btn--sm" id="btn-view-protocol"><span class="material-symbols-outlined">description</span> Ver protocolo</button>'
+      ? '<button class="btn btn--ghost btn--sm" id="btn-view-protocol">' +
+        icono('description') +
+        ' Ver protocolo</button>'
       : '<div class="text-muted">Aún no se ha subido un protocolo.</div>';
 
     const reviewActionsHtml = canReview
       ? `
-      <div class="mt-4" style="display:flex; gap: var(--sp-2); align-items:center;">
+      <div class="mt-4 acciones-fila">
         <button class="btn btn--primary btn--sm" id="btn-approve" ${visualizado ? '' : 'disabled'} title="${visualizado ? '' : 'Debes abrir el protocolo antes de aprobarlo'}">Aprobar protocolo</button>
         <button class="btn btn--danger btn--sm" id="btn-reject">Rechazar con correcciones</button>
         ${visualizado ? '' : '<span class="text-label-sm text-muted" id="approve-hint">Abre el protocolo primero</span>'}
@@ -220,32 +230,34 @@ export class MentorDashboardPage {
 
     const validatedNoticeHtml =
       project.estado_actual === 'validado'
-        ? '<div class="banner-alert banner-alert--neutral mt-4"><span class="material-symbols-outlined">info</span><div>Ya aprobaste este protocolo. Falta que administración emita el folio oficial para registrarlo.</div></div>'
+        ? '<div class="banner-alert banner-alert--neutral mt-4">' +
+          icono('info') +
+          '<div>Ya aprobaste este protocolo. Falta que administración emita el folio oficial para registrarlo.</div></div>'
         : '';
 
     modal.bodyEl.innerHTML = `
-      <div class="mb-4" style="display:flex; gap: var(--sp-6); align-items:center;">
+      <div class="mb-4 acciones-fila">
         ${estadoBadge(project.estado_actual)}
-        ${project.codigo_folio ? `<span class="badge badge--folio">Folio: ${project.codigo_folio}</span>` : ''}
+        ${project.codigo_folio ? `<span class="badge badge--folio">${escapeHtml(project.codigo_folio)}</span>` : ''}
       </div>
       <div class="mb-4">
-        <div class="text-label-sm text-muted mb-2">DESCRIPCIÓN</div>
-        <p style="white-space: pre-line; margin: 0;">${project.descripcion ? escapeHtml(project.descripcion) : '<span class="text-muted">Sin descripción</span>'}</p>
+        <div class="dato__etiqueta mb-2">Descripción</div>
+        <p class="texto-multilinea">${project.descripcion ? escapeHtml(project.descripcion) : '<span class="text-muted">Sin descripción</span>'}</p>
       </div>
       <div class="mb-4">
-        <div class="text-label-sm text-muted mb-2">EQUIPO</div>
+        <div class="dato__etiqueta mb-2">Equipo</div>
         ${project.miembros.map((m) => `<div class="text-label">${escapeHtml(m.nombre)} <span class="text-muted">(${m.codigo_cucei})</span>${m.es_lider ? ' <span class="badge badge--lider">Líder</span>' : ''}</div>`).join('')}
       </div>
       <hr class="divider">
       <div class="mb-4">
-        <div class="text-label-sm text-muted mb-2">DOCUMENTACIÓN</div>
+        <div class="dato__etiqueta mb-2">Protocolo</div>
         ${viewBtnHtml}
         ${reviewActionsHtml}
         ${validatedNoticeHtml}
       </div>
       <hr class="divider">
       <div>
-        <div class="text-label-sm text-muted mb-2">HISTORIAL</div>
+        <div class="dato__etiqueta mb-2">Historial</div>
         <div id="mentor-history">Cargando...</div>
       </div>
     `;

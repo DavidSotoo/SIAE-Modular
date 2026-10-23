@@ -14,6 +14,7 @@ import { getAdvisorById } from '../services/advisor.service.js';
 import { mensajeDeError } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
 import type { Project, ProjectState } from '../types/index.js';
+import { icono } from '../utils/iconos.js';
 
 export class MiProyectoPage {
   private container: HTMLElement;
@@ -31,7 +32,9 @@ export class MiProyectoPage {
       this.buildView();
     } catch (err) {
       this.container.innerHTML =
-        '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
+        '<div class="state-empty">' +
+        icono('error') +
+        '<div class="state-empty__title">Error</div><div class="state-empty__msg">' +
         mensajeDeError(err) +
         '</div></div>';
     }
@@ -127,11 +130,11 @@ export class MiProyectoPage {
       } else if (index < effectiveStateIndex || currentActualState === 'registrado') {
         // 'registrado' es el estado final: no queda ningún paso en curso
         cssClass = 'completed';
-        markerContent = '<span class="material-symbols-outlined">check</span>';
+        markerContent = icono('check');
       } else if (index === effectiveStateIndex) {
         if (currentActualState === 'correccion') {
           cssClass = 'alert';
-          markerContent = '<span class="material-symbols-outlined">warning</span>';
+          markerContent = icono('warning');
         } else {
           cssClass = 'active';
           markerContent = '';
@@ -152,7 +155,7 @@ export class MiProyectoPage {
     if (currentActualState === 'correccion') {
       bannerHtml = `
         <div class="banner-alert mt-4">
-          <span class="material-symbols-outlined">error</span>
+          ${icono('error')}
           <div>El proyecto requiere correcciones antes de continuar. Revisa el historial de cambios para más detalle.</div>
         </div>
       `;
@@ -162,14 +165,14 @@ export class MiProyectoPage {
         : '';
       bannerHtml = `
         <div class="banner-alert banner-alert--success mt-4">
-          <span class="material-symbols-outlined">verified</span>
+          ${icono('verified')}
           <div>Tu proyecto quedó registrado${folioText}. El protocolo ya no se puede modificar.</div>
         </div>
       `;
     } else if (currentActualState === 'cancelado') {
       bannerHtml = `
         <div class="banner-alert banner-alert--neutral mt-4">
-          <span class="material-symbols-outlined">info</span>
+          ${icono('info')}
           <div>Este proyecto fue cancelado. Ya no es posible editarlo ni continuar el flujo.</div>
         </div>
       `;
@@ -178,11 +181,11 @@ export class MiProyectoPage {
     let membersHtml = '';
     this.project.miembros.forEach((m) => {
       membersHtml += `
-        <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--color-outline-variant);">
-          <div class="profile-card__avatar" style="width: 32px; height: 32px; font-size: 14px; margin-right: 12px;">${escapeHtml(m.nombre.charAt(0))}</div>
+        <div class="integrante">
+          <div class="profile-card__avatar integrante__avatar">${escapeHtml(m.nombre.charAt(0))}</div>
           <div>
-            <div style="font-weight: 500;">${escapeHtml(m.nombre)}${m.es_lider ? ' <span class="badge badge--lider">Líder</span>' : ''}</div>
-            <div style="font-size: 0.85rem; color: var(--color-on-surface-variant);">${m.codigo_cucei}</div>
+            <div class="integrante__nombre">${escapeHtml(m.nombre)}${m.es_lider ? ' <span class="badge badge--lider">Líder</span>' : ''}</div>
+            <div class="integrante__codigo">${escapeHtml(m.codigo_cucei ?? '')}</div>
           </div>
         </div>
       `;
@@ -194,12 +197,12 @@ export class MiProyectoPage {
       `<div class="badges-row">` +
       estadoBadge(this.project.estado_actual) +
       (this.project.codigo_folio
-        ? `<span class="badge badge--folio">Folio: ${escapeHtml(this.project.codigo_folio)}</span>`
+        ? `<span class="badge badge--folio">${escapeHtml(this.project.codigo_folio)}</span>`
         : '') +
       `</div>`;
 
     this.container.innerHTML = `
-      <div class="section-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+      <div class="section-header section-header--con-accion">
         <div>
           <h2>Mi proyecto</h2>
           <p>Detalles de tu proyecto actual, asesor y estado del protocolo.</p>
@@ -207,13 +210,13 @@ export class MiProyectoPage {
         ${folioBadge}
       </div>
 
-      <div class="cards-grid" style="grid-template-columns: 1fr; gap: var(--sp-6);">
+      <div class="pila">
         
         <div class="card card--lg">
-          <div style="display:flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+          <div class="proyecto-cabecera">
             <div>
-              <h3 class="text-title">${escapeHtml(this.project.titulo)}</h3>
-              ${this.project.descripcion ? `<p class="text-muted mt-2" style="white-space: pre-line; max-width: 70ch;">${escapeHtml(this.project.descripcion)}</p>` : ''}
+              <h3 class="titulo-documento">${escapeHtml(this.project.titulo)}</h3>
+              ${this.project.descripcion ? `<p class="text-muted mt-2 texto-multilinea texto-medida">${escapeHtml(this.project.descripcion)}</p>` : ''}
             </div>
           </div>
 
@@ -223,7 +226,7 @@ export class MiProyectoPage {
           ${currentActualState === 'cancelado' ? '' : this.renderDocumentSection()}
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--sp-6);">
+        <div class="rejilla-dos">
           
           <div class="card card--md">
             <h3 class="text-title mb-4">Equipo</h3>
@@ -268,13 +271,13 @@ export class MiProyectoPage {
       : 'Aún no se ha subido un protocolo.';
 
     const viewLink = hasDoc
-      ? `<button class="btn btn--ghost btn--sm mt-2" id="btn-view-document"><span class="material-symbols-outlined">description</span> Ver protocolo actual</button>`
+      ? `<button class="btn btn--ghost btn--sm mt-2" id="btn-view-document">${icono('description')} Ver protocolo actual</button>`
       : '';
 
     const dropzone = canUpload
       ? `
       <div class="dropzone" id="protocol-dropzone">
-        <span class="material-symbols-outlined">upload_file</span>
+        ${icono('upload_file')}
         <p class="text-label mt-2">Arrastra tu protocolo PDF aquí o</p>
         <button class="btn btn--secondary btn--sm mt-2" id="btn-select-file">${hasDoc ? 'Reemplazar archivo' : 'Seleccionar archivo'}</button>
         <input type="file" id="file-input" accept="application/pdf" class="hidden">
@@ -282,15 +285,15 @@ export class MiProyectoPage {
       </div>
     `
       : `
-      <div class="state-empty" style="padding: 16px 0;">
+      <div class="state-empty state-empty--compacto">
         <div class="state-empty__msg">${protocolMsg}</div>
       </div>
     `;
 
     return `
       <hr class="divider">
-      <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h3 class="text-title" style="margin: 0;">Protocolo</h3>
+      <div class="seccion-cabecera">
+        <h3 class="text-title">Protocolo</h3>
         ${viewLink}
       </div>
       ${dropzone}
@@ -375,7 +378,7 @@ export class MiProyectoPage {
 
     if (!this.project!.id_mentor) {
       container.innerHTML = `
-        <div class="state-empty" style="padding: 24px 0;">
+        <div class="state-empty state-empty--compacto">
           <div class="state-empty__msg">Aún no tienes asesor.</div>
           <a class="btn btn--ghost btn--sm mt-4" href="#/asesores">Buscar asesor</a>
         </div>
@@ -396,7 +399,7 @@ export class MiProyectoPage {
       `;
     } catch {
       container.innerHTML = `
-        <div class="state-empty" style="padding: 24px 0;">
+        <div class="state-empty state-empty--compacto">
           <div class="state-empty__msg">Información del asesor próximamente.</div>
         </div>
       `;
@@ -438,7 +441,7 @@ export class MiProyectoPage {
       container.innerHTML = timelineHtml;
     } catch {
       container.innerHTML = `
-        <div class="state-empty" style="padding: 24px 0;">
+        <div class="state-empty state-empty--compacto">
           <div class="state-empty__msg">Historial disponible próximamente.</div>
         </div>
       `;
