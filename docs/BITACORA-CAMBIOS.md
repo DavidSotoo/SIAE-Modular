@@ -710,7 +710,7 @@ un valor distinto en cada petición y el despliegue en Vercel es estático.
 
 ### Ajustes tras la revisión
 
-- **Login:** por decisión de David se conserva el diseño original (tarjeta
+- **Login:** tras revisarlo en local se decidió conservar el diseño original (tarjeta
   centrada). Solo cambian tres cosas: sus estilos pasan a `main.css`, usa el
   escudo oficial y toma la fuente de la app, porque Inter ya no se descarga.
 - **Botón de Google que a veces no aparecía:** la vista revisaba
