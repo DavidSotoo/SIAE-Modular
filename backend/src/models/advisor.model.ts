@@ -39,9 +39,7 @@ export interface UpsertAdvisorData {
 export async function findAdvisorProfileByUserId(
   id_usuario: number,
 ): Promise<AdvisorProfileFull | null> {
-  const profileRes = await pool.query<
-    AdvisorProfile & { nombre: string; codigo_cucei: string }
-  >(
+  const profileRes = await pool.query<AdvisorProfile & { nombre: string; codigo_cucei: string }>(
     `SELECT ap.id_usuario, ap.especialidad, ap.disponible, ap.cupo_maximo,
             ap.acepta_coasesoria, ap.updated_at, u.nombre, u.codigo_cucei
      FROM advisor_profiles ap
@@ -99,10 +97,10 @@ export async function replaceAdvisorAreas(
 ): Promise<void> {
   await client.query('DELETE FROM advisor_areas WHERE id_usuario = $1', [id_usuario]);
   for (const id_area of areas) {
-    await client.query(
-      'INSERT INTO advisor_areas (id_usuario, id_area) VALUES ($1, $2)',
-      [id_usuario, id_area],
-    );
+    await client.query('INSERT INTO advisor_areas (id_usuario, id_area) VALUES ($1, $2)', [
+      id_usuario,
+      id_area,
+    ]);
   }
 }
 

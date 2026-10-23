@@ -56,10 +56,7 @@ export async function createAdvisorRequestService(
   // Validar cupo y disponibilidad del mentor (fuera de tx, sin bloqueo — solo preflight)
   const tieneCupo = await advisorHasCupo(body.id_mentor);
   if (!tieneCupo) {
-    throw conflict(
-      'El asesor no está disponible o no tiene cupo',
-      'ADVISOR_NO_CUPO',
-    );
+    throw conflict('El asesor no está disponible o no tiene cupo', 'ADVISOR_NO_CUPO');
   }
 
   // Verificar solicitud duplicada
@@ -80,9 +77,7 @@ export async function createAdvisorRequestService(
   });
 }
 
-export async function getMentorAdvisorRequests(
-  id_mentor: number,
-): Promise<AdvisorRequest[]> {
+export async function getMentorAdvisorRequests(id_mentor: number): Promise<AdvisorRequest[]> {
   return findAdvisorRequestsByMentor(id_mentor);
 }
 
@@ -118,7 +113,11 @@ export async function acceptAdvisorRequest(
 
     // Condición WHERE id_mentor IS NULL en el UPDATE evita sobrescribir silenciosamente
     // a un mentor ya asignado si dos solicitudes se aceptan casi al mismo tiempo
-    const rowCount = await assignMentorToProject(client, solicitud.id_proyecto, solicitud.id_mentor);
+    const rowCount = await assignMentorToProject(
+      client,
+      solicitud.id_proyecto,
+      solicitud.id_mentor,
+    );
     if (rowCount === 0) {
       // Otro proceso ganó la carrera — el proyecto ya tiene mentor
       throw conflict('El proyecto ya tiene un asesor asignado', 'ALREADY_HAS_MENTOR');

@@ -83,7 +83,9 @@ describe('Equipo: crear proyecto, invitar, solicitar y limite de integrantes', (
       const res = await request(app)
         .get('/api/students/me/project')
         .set('Authorization', `Bearer ${t.A1}`);
-      const lider = res.body.miembros.find((m: { codigo_cucei: string }) => m.codigo_cucei === CODES.A1);
+      const lider = res.body.miembros.find(
+        (m: { codigo_cucei: string }) => m.codigo_cucei === CODES.A1,
+      );
       expect(lider?.es_lider).toBe(true);
     });
 

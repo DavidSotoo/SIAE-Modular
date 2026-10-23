@@ -58,8 +58,6 @@ export async function updateMyAvailability(
 }
 
 /** Busca asesores disponibles con cupo libre. */
-export async function searchAdvisorsService(
-  areaId?: number,
-): Promise<AdvisorSearchResult[]> {
+export async function searchAdvisorsService(areaId?: number): Promise<AdvisorSearchResult[]> {
   return searchAdvisors(areaId);
 }

@@ -45,12 +45,7 @@ export async function updateMyProfile(
   body: UpdateProfileBody,
 ): Promise<StudentProfileFull> {
   const VALID_SKILLS_NIVEL = ['basico', 'intermedio', 'avanzado'];
-  const VALID_DISPONIBILIDAD = [
-    'tiempo_completo',
-    'medio_tiempo',
-    'fines_de_semana',
-    'flexible',
-  ];
+  const VALID_DISPONIBILIDAD = ['tiempo_completo', 'medio_tiempo', 'fines_de_semana', 'flexible'];
   const VALID_ESTADO = ['buscando_equipo', 'en_equipo', 'no_disponible'];
 
   if (body.disponibilidad && !VALID_DISPONIBILIDAD.includes(body.disponibilidad)) {

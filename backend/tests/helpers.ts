@@ -60,9 +60,7 @@ export async function limpiarDatosDePrueba(): Promise<void> {
     )
     DELETE FROM projects WHERE id_proyecto IN (SELECT id_proyecto FROM proyectos)
   `);
-  await pool.query(
-    `DELETE FROM users WHERE codigo_cucei LIKE '99%' OR nombre LIKE 'TEST-%'`,
-  );
+  await pool.query(`DELETE FROM users WHERE codigo_cucei LIKE '99%' OR nombre LIKE 'TEST-%'`);
 }
 
 export interface UsuariosDePrueba {
@@ -76,10 +74,10 @@ export async function sembrarUsuarios(): Promise<UsuariosDePrueba> {
 
   const alumnos = [CODES.A1, CODES.A2, CODES.A3, CODES.A4, CODES.A5, CODES.A6, CODES.A7, CODES.A8];
   for (const [i, codigo] of alumnos.entries()) {
-    await pool.query(
-      `INSERT INTO users (codigo_cucei, nombre, rol) VALUES ($1, $2, 'alumno')`,
-      [codigo, `TEST-Alumno A${i + 1}`],
-    );
+    await pool.query(`INSERT INTO users (codigo_cucei, nombre, rol) VALUES ($1, $2, 'alumno')`, [
+      codigo,
+      `TEST-Alumno A${i + 1}`,
+    ]);
   }
   await pool.query(
     `INSERT INTO users (codigo_cucei, nombre, rol) VALUES ($1, 'TEST-Mentor M1', 'mentor')`,
@@ -124,10 +122,9 @@ export async function columnaDeProyecto<T = unknown>(
   id_proyecto: number,
   columna: 'estado_actual' | 'pdf_visualizado' | 'id_mentor' | 'descripcion',
 ): Promise<T> {
-  const res = await pool.query(
-    `SELECT ${columna} AS valor FROM projects WHERE id_proyecto = $1`,
-    [id_proyecto],
-  );
+  const res = await pool.query(`SELECT ${columna} AS valor FROM projects WHERE id_proyecto = $1`, [
+    id_proyecto,
+  ]);
   return res.rows[0]?.valor as T;
 }
 

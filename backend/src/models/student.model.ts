@@ -52,9 +52,7 @@ export interface StudentSearchFilters {
 // ─── Queries ───────────────────────────────────────────────────────────────
 
 /** Devuelve el perfil completo de un alumno con sus skills y áreas. */
-export async function findProfileByUserId(
-  id_usuario: number,
-): Promise<StudentProfileFull | null> {
+export async function findProfileByUserId(id_usuario: number): Promise<StudentProfileFull | null> {
   const profileRes = await pool.query<
     StudentProfile & { nombre: string; codigo_cucei: string; foto_url: string | null }
   >(
@@ -147,17 +145,15 @@ export async function replaceStudentInterests(
 ): Promise<void> {
   await client.query('DELETE FROM student_interests WHERE id_usuario = $1', [id_usuario]);
   for (const id_area of areas) {
-    await client.query(
-      'INSERT INTO student_interests (id_usuario, id_area) VALUES ($1, $2)',
-      [id_usuario, id_area],
-    );
+    await client.query('INSERT INTO student_interests (id_usuario, id_area) VALUES ($1, $2)', [
+      id_usuario,
+      id_area,
+    ]);
   }
 }
 
 /** Busca alumnos con filtros opcionales. Nunca devuelve password_hash. */
-export async function searchStudents(
-  filters: StudentSearchFilters,
-): Promise<StudentProfileFull[]> {
+export async function searchStudents(filters: StudentSearchFilters): Promise<StudentProfileFull[]> {
   const conditions: string[] = ["sp.estado_busqueda != 'no_disponible'"];
   const params: unknown[] = [];
   let idx = 1;

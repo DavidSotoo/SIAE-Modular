@@ -62,7 +62,10 @@ export async function exportXlsxHandler(req: Request, res: Response, next: NextF
     const projects = await listProjectsForAdmin(parseFilters(req));
     const buffer = await buildProjectsXlsx(projects);
 
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
     res.setHeader('Content-Disposition', 'attachment; filename="proyectos_siae.xlsx"');
     res.send(buffer);
   } catch (err) {

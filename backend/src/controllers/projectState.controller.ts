@@ -1,14 +1,21 @@
 import { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import fs from 'fs/promises';
-import { submitProtocol, validateProject, registerProject, rejectProject, getProjectHistory, getProtocolFilePath } from '../services/projectState.service.js';
+import {
+  submitProtocol,
+  validateProject,
+  registerProject,
+  rejectProject,
+  getProjectHistory,
+  getProtocolFilePath,
+} from '../services/projectState.service.js';
 import { badRequest } from '../utils/errors.js';
 
 export const uploadProtocolHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id_proyecto = Number(req.params.id_proyecto);
     const { id, codigo_cucei } = req.user!;
-    
+
     if (!req.file) {
       throw badRequest('No se subió ningún archivo PDF');
     }
@@ -56,7 +63,7 @@ export const getHistoryHandler = async (req: Request, res: Response, next: NextF
   try {
     const id_proyecto = Number(req.params.id_proyecto);
     const { id, codigo_cucei, rol } = req.user!;
-    
+
     const history = await getProjectHistory(id_proyecto, id, codigo_cucei, rol);
     res.json(history);
   } catch (err) {
@@ -93,7 +100,7 @@ export const rejectProjectHandler = async (req: Request, res: Response, next: Ne
     const id_proyecto = Number(req.params.id_proyecto);
     const { id } = req.user!;
     const { comentario } = req.body;
-    
+
     await rejectProject(id_proyecto, id, comentario);
     res.json({ message: 'Proyecto rechazado con comentarios' });
   } catch (err) {

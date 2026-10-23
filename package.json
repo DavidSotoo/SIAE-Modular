@@ -6,8 +6,8 @@
   "scripts": {
     "lint": "eslint backend/src backend/tests frontend/src e2e playwright.config.ts",
     "lint:fix": "eslint backend/src backend/tests frontend/src e2e playwright.config.ts --fix",
-    "format": "prettier --write \"{backend,frontend}/src/**/*.{ts,css}\" \"backend/tests/**/*.ts\" \"e2e/**/*.ts\" playwright.config.ts",
-    "format:check": "prettier --check \"{backend,frontend}/src/**/*.{ts,css}\" \"backend/tests/**/*.ts\" \"e2e/**/*.ts\" playwright.config.ts",
+    "format": "prettier --write \"{backend,frontend}/src/**/*.{ts,css}\" \"backend/tests/**/*.ts\" \"e2e/**/*.ts\" playwright.config.ts frontend/vite.config.ts",
+    "format:check": "prettier --check \"{backend,frontend}/src/**/*.{ts,css}\" \"backend/tests/**/*.ts\" \"e2e/**/*.ts\" playwright.config.ts frontend/vite.config.ts",
     "prepare": "husky",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",

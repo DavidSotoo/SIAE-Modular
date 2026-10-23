@@ -1,5 +1,10 @@
 import { api } from './api.js';
-import type { AdminProjectRow, AdminProjectDetail, AdminProjectFilters, AdminStats } from '../types/index.js';
+import type {
+  AdminProjectRow,
+  AdminProjectDetail,
+  AdminProjectFilters,
+  AdminStats,
+} from '../types/index.js';
 
 function buildQuery(filters: AdminProjectFilters): string {
   const params = new URLSearchParams();
@@ -12,8 +17,7 @@ function buildQuery(filters: AdminProjectFilters): string {
 export const listAdminProjects = (filters: AdminProjectFilters = {}): Promise<AdminProjectRow[]> =>
   api.get('/admin/projects' + buildQuery(filters));
 
-export const getAdminStats = (): Promise<AdminStats> =>
-  api.get('/admin/stats');
+export const getAdminStats = (): Promise<AdminStats> => api.get('/admin/stats');
 
 export const getAdminProjectDetail = (id_proyecto: number): Promise<AdminProjectDetail> =>
   api.get('/admin/projects/' + id_proyecto);

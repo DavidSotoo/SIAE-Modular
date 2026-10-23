@@ -23,10 +23,7 @@ export interface Area {
 // ─── Perfil de alumno ────────────────────────────────────────────────────────
 
 export type DisponibilidadTipo =
-  | 'tiempo_completo'
-  | 'medio_tiempo'
-  | 'fines_de_semana'
-  | 'flexible';
+  'tiempo_completo' | 'medio_tiempo' | 'fines_de_semana' | 'flexible';
 
 export type EstadoBusqueda = 'buscando_equipo' | 'en_equipo' | 'no_disponible';
 
@@ -68,7 +65,8 @@ export type StudentSearchResult = StudentProfile;
 
 // ─── Proyectos ───────────────────────────────────────────────────────────────
 
-export type ProjectState = 'borrador' | 'pendiente' | 'validado' | 'registrado' | 'correccion' | 'cancelado';
+export type ProjectState =
+  'borrador' | 'pendiente' | 'validado' | 'registrado' | 'correccion' | 'cancelado';
 
 /** Representa un proyecto y sus integrantes actuales. */
 export interface Project {

@@ -21,7 +21,11 @@ router.get('/admin/projects', listProjectsHandler);
 router.get('/admin/stats', getStatsHandler);
 
 // GET /api/admin/projects/:id_proyecto — detalle + historial
-router.get('/admin/projects/:id_proyecto', validateParams(paramsIdProyecto), getProjectDetailHandler);
+router.get(
+  '/admin/projects/:id_proyecto',
+  validateParams(paramsIdProyecto),
+  getProjectDetailHandler,
+);
 
 // GET /api/admin/export/csv — exportación CSV
 router.get('/admin/export/csv', exportCsvHandler);

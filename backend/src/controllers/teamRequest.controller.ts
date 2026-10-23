@@ -17,11 +17,7 @@ export async function postTeamRequest(
     const id_proyecto = parseInt(req.params.id_proyecto, 10);
     if (isNaN(id_proyecto)) throw badRequest('id_proyecto debe ser un número');
 
-    const result = await createTeamRequestService(
-      id_proyecto,
-      req.user!.codigo_cucei!,
-      req.body,
-    );
+    const result = await createTeamRequestService(id_proyecto, req.user!.codigo_cucei!, req.body);
     res.status(201).json(result);
   } catch (err) {
     next(err);
