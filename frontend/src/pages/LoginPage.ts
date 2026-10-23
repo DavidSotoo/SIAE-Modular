@@ -1,5 +1,6 @@
 import { loginWithGoogle } from '../services/auth.service.js';
-import { getErrorMessage } from '../services/errorMessages.js';
+import { mensajeDeError } from '../services/errorMessages.js';
+import { ApiRequestError } from '../services/api.js';
 import { showToast } from '../components/Toast.js';
 
 // Client ID del proyecto `siae-modular` en Google Cloud. No es secreto, así que
@@ -328,9 +329,9 @@ export class LoginPage {
 
       const roleHomes: Record<string, string> = { mentor: '#/mentor', admin: '#/admin' };
       window.location.hash = roleHomes[res.user.rol] ?? '#/perfil';
-    } catch (err: any) {
-      const message = getErrorMessage(err.code, err.status);
-      if (err.code === 'DOMAIN_NOT_ALLOWED') {
+    } catch (err) {
+      const message = mensajeDeError(err);
+      if (err instanceof ApiRequestError && err.code === 'DOMAIN_NOT_ALLOWED') {
         domainErrorText.textContent = message;
         domainError.classList.remove('hidden');
       } else {

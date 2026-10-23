@@ -2,31 +2,34 @@
 // Mapeo centralizado de códigos de error del backend a mensajes amigables en español.
 // Diseñado para ser extensible: agregar nuevos códigos aquí afecta todos los componentes.
 import { MAX_INTEGRANTES } from '../constants.js';
+import { ApiRequestError } from './api.js';
 
 /** Código de error devuelto por el backend en { error, code } */
 type ApiErrorCode = string;
 
 const ERROR_MESSAGES: Record<string, string> = {
   // Team Requests
-  ALREADY_MEMBER:        'Este alumno ya es integrante del proyecto.',
-  PROJECT_FULL:          `El proyecto ya alcanzó el máximo de ${MAX_INTEGRANTES} integrantes.`,
-  ALUMNO_HAS_PROJECT:    'El alumno ya tiene un proyecto activo y no puede unirse a otro.',
-  DUPLICATE_REQUEST:     'Ya existe una solicitud pendiente para este alumno en este proyecto.',
-  NOT_PROJECT_MEMBER:    'Debes ser integrante del proyecto para realizar esta acción.',
+  ALREADY_MEMBER: 'Este alumno ya es integrante del proyecto.',
+  PROJECT_FULL: `El proyecto ya alcanzó el máximo de ${MAX_INTEGRANTES} integrantes.`,
+  ALUMNO_HAS_PROJECT: 'El alumno ya tiene un proyecto activo y no puede unirse a otro.',
+  DUPLICATE_REQUEST: 'Ya existe una solicitud pendiente para este alumno en este proyecto.',
+  NOT_PROJECT_MEMBER: 'Debes ser integrante del proyecto para realizar esta acción.',
 
   // Advisor Requests
-  ADVISOR_NO_CUPO:           'El asesor no está disponible o no tiene cupo libre en este momento.',
-  DUPLICATE_ADVISOR_REQUEST: 'Ya enviaste una solicitud de asesoría a este mentor para este proyecto.',
-  ALREADY_HAS_MENTOR:        'El proyecto ya tiene un asesor asignado.',
+  ADVISOR_NO_CUPO: 'El asesor no está disponible o no tiene cupo libre en este momento.',
+  DUPLICATE_ADVISOR_REQUEST:
+    'Ya enviaste una solicitud de asesoría a este mentor para este proyecto.',
+  ALREADY_HAS_MENTOR: 'El proyecto ya tiene un asesor asignado.',
 
   // Login con Google
-  DOMAIN_NOT_ALLOWED: 'Ese correo no pertenece a la UDG. Inicia sesión con tu cuenta institucional (@alumnos.udg.mx o @academicos.udg.mx).',
+  DOMAIN_NOT_ALLOWED:
+    'Ese correo no pertenece a la UDG. Inicia sesión con tu cuenta institucional (@alumnos.udg.mx o @academicos.udg.mx).',
 
   // Genéricos HTTP
-  UNAUTHORIZED:   'Tu sesión expiró. Por favor inicia sesión nuevamente.',
-  FORBIDDEN:      'No tienes permiso para realizar esta acción.',
-  NOT_FOUND:      'El recurso solicitado no fue encontrado.',
-  CONFLICT:       'Hubo un conflicto con el estado actual del recurso.',
+  UNAUTHORIZED: 'Tu sesión expiró. Por favor inicia sesión nuevamente.',
+  FORBIDDEN: 'No tienes permiso para realizar esta acción.',
+  NOT_FOUND: 'El recurso solicitado no fue encontrado.',
+  CONFLICT: 'Hubo un conflicto con el estado actual del recurso.',
 };
 
 const GENERIC_SERVER_ERROR = 'Ocurrió un error en el servidor. Inténtalo más tarde.';
@@ -48,7 +51,17 @@ export function getErrorMessage(code?: ApiErrorCode, status?: number): string {
     if (status === 403) return ERROR_MESSAGES.FORBIDDEN;
     if (status === 404) return ERROR_MESSAGES.NOT_FOUND;
     if (status === 409) return ERROR_MESSAGES.CONFLICT;
-    if (status >= 500)  return GENERIC_SERVER_ERROR;
+    if (status >= 500) return GENERIC_SERVER_ERROR;
   }
+  return GENERIC_CLIENT_ERROR;
+}
+
+/**
+ * Mensaje amigable para cualquier error atrapado en un `catch`. Los errores de
+ * la API (ApiRequestError) traen `code` y `status`; cualquier otro cae en el
+ * mensaje generico.
+ */
+export function mensajeDeError(err: unknown): string {
+  if (err instanceof ApiRequestError) return getErrorMessage(err.code, err.status);
   return GENERIC_CLIENT_ERROR;
 }

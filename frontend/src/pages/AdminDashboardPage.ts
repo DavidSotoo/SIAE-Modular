@@ -7,7 +7,7 @@ import {
   triggerBlobDownload,
 } from '../services/admin.service.js';
 import { registerProject } from '../services/project.service.js';
-import { getErrorMessage } from '../services/errorMessages.js';
+import { mensajeDeError } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
 import type { AdminProjectRow, AdminProjectFilters, ProjectState } from '../types/index.js';
@@ -36,10 +36,10 @@ export class AdminDashboardPage {
     this.container.innerHTML = skeletonTabla(4, 5);
     try {
       await this.buildLayout();
-    } catch (err: any) {
+    } catch (err) {
       this.container.innerHTML =
         '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
-        getErrorMessage(err.code, err.status) +
+        mensajeDeError(err) +
         '</div></div>';
     }
   }
@@ -159,10 +159,10 @@ export class AdminDashboardPage {
           this.openDetailModal(id);
         });
       });
-    } catch (err: any) {
+    } catch (err) {
       tableContainer.innerHTML =
         '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
-        getErrorMessage(err.code, err.status) +
+        mensajeDeError(err) +
         '</div></div>';
     }
   }
@@ -273,12 +273,12 @@ export class AdminDashboardPage {
           showToast('Proyecto registrado. Folio: ' + result.codigo_folio, { type: 'success' });
           modal.close();
           this.loadTable();
-        } catch (err: any) {
-          showToast(getErrorMessage(err.code, err.status), { type: 'error' });
+        } catch (err) {
+          showToast(mensajeDeError(err), { type: 'error' });
         }
       });
-    } catch (err: any) {
-      modal.bodyEl.innerHTML = `<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__msg">${getErrorMessage(err.code, err.status)}</div></div>`;
+    } catch (err) {
+      modal.bodyEl.innerHTML = `<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__msg">${mensajeDeError(err)}</div></div>`;
     }
   }
 
@@ -292,8 +292,8 @@ export class AdminDashboardPage {
       const filename = format === 'csv' ? 'proyectos_siae.csv' : 'proyectos_siae.xlsx';
       triggerBlobDownload(blob, filename);
       showToast('Exportación descargada.', { type: 'success' });
-    } catch (err: any) {
-      showToast(getErrorMessage(err.code, err.status), { type: 'error' });
+    } catch (err) {
+      showToast(mensajeDeError(err), { type: 'error' });
     }
   }
 }

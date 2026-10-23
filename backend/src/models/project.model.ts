@@ -28,9 +28,7 @@ export interface ProjectWithMembers extends ProjectRow {
 
 // ─── Queries ───────────────────────────────────────────────────────────────
 
-export async function findProjectMentorId(
-  id_proyecto: number,
-): Promise<number | null> {
+export async function findProjectMentorId(id_proyecto: number): Promise<number | null> {
   const res = await pool.query<{ id_mentor: number | null }>(
     `SELECT id_mentor FROM projects WHERE id_proyecto = $1`,
     [id_proyecto],
@@ -65,7 +63,7 @@ export async function findActiveProjectByAlumno(
      LIMIT 1`,
     [codigo_alumno],
   );
-  
+
   if (projRes.rows.length === 0) return null;
   const project = projRes.rows[0];
 
@@ -107,7 +105,9 @@ export async function findProjectsByMentor(
   const membersByProject = new Map<number, ProjectMember[]>();
   memRes.rows.forEach((r) => {
     if (!membersByProject.has(r.id_proyecto)) membersByProject.set(r.id_proyecto, []);
-    membersByProject.get(r.id_proyecto)!.push({ codigo_cucei: r.codigo_cucei, nombre: r.nombre, es_lider: r.es_lider });
+    membersByProject
+      .get(r.id_proyecto)!
+      .push({ codigo_cucei: r.codigo_cucei, nombre: r.nombre, es_lider: r.es_lider });
   });
 
   return projRes.rows.map((p) => ({ ...p, miembros: membersByProject.get(p.id_proyecto) ?? [] }));
@@ -118,12 +118,12 @@ export async function updateProjectStateAndPdf(
   estadosOrigen: string[],
   estado_nuevo: string,
   pdf_path?: string,
-  client?: pg.PoolClient
+  client?: pg.PoolClient,
 ): Promise<boolean> {
   const db = client || pool;
 
   let query = `UPDATE projects SET estado_actual = $1, updated_at = now()`;
-  const values: any[] = [estado_nuevo];
+  const values: unknown[] = [estado_nuevo];
 
   if (pdf_path !== undefined) {
     values.push(pdf_path);
@@ -142,9 +142,7 @@ export async function updateProjectStateAndPdf(
   return (res.rowCount ?? 0) > 0;
 }
 
-export async function findProjectPdfPath(
-  id_proyecto: number,
-): Promise<string | null> {
+export async function findProjectPdfPath(id_proyecto: number): Promise<string | null> {
   const res = await pool.query<{ pdf_path: string | null }>(
     `SELECT pdf_path FROM projects WHERE id_proyecto = $1`,
     [id_proyecto],
@@ -153,9 +151,7 @@ export async function findProjectPdfPath(
   return res.rows[0].pdf_path;
 }
 
-export async function isProjectPdfVisualizado(
-  id_proyecto: number,
-): Promise<boolean> {
+export async function isProjectPdfVisualizado(id_proyecto: number): Promise<boolean> {
   const res = await pool.query<{ pdf_visualizado: boolean }>(
     `SELECT pdf_visualizado FROM projects WHERE id_proyecto = $1`,
     [id_proyecto],
@@ -165,8 +161,7 @@ export async function isProjectPdfVisualizado(
 }
 
 export async function markPdfVisualizado(id_proyecto: number): Promise<void> {
-  await pool.query(
-    `UPDATE projects SET pdf_visualizado = true WHERE id_proyecto = $1`,
-    [id_proyecto],
-  );
+  await pool.query(`UPDATE projects SET pdf_visualizado = true WHERE id_proyecto = $1`, [
+    id_proyecto,
+  ]);
 }

@@ -4,6 +4,8 @@ import app from './app.js';
 
 const PORT = parseInt(process.env.PORT ?? '4000', 10);
 app.listen(PORT, () => {
+  // Unico log informativo: avisa en que puerto quedo el servidor.
+  // eslint-disable-next-line no-console
   console.log(`SIAE-Modular backend corriendo en http://localhost:${PORT}`);
 });
 

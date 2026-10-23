@@ -445,3 +445,42 @@ recibía el foco.
   Playwright si se vuelve necesario.
 - La suite comparte la base con desarrollo en local (los datos `98…` se
   borran y se vuelven a sembrar en cada corrida).
+
+---
+
+## 2026-10-22 — Cero `any` y lint sin tolerancia a avisos
+
+### Qué se identificó
+
+Quedaban 36 `any` (deuda abierta desde la fase de calidad del 17 de octubre),
+y el CI toleraba hasta 50 avisos de lint. Con ese margen, un `any` nuevo
+entraba sin que nadie lo notara.
+
+### Qué se hizo
+
+- **30 de los 36 eran `catch (err: any)`** para leer `err.code` y `err.status`.
+  Se reemplazaron por un helper tipado, `mensajeDeError(err: unknown)` en
+  `services/errorMessages.ts`, que reconoce `ApiRequestError` y si no cae en el
+  mensaje genérico. Antes, un error que no viniera de la API (un `TypeError`,
+  por ejemplo) se leía como si tuviera `code`; ahora el tipo obliga a comprobarlo.
+- **Login:** la comprobación de `DOMAIN_NOT_ALLOWED` pasa por
+  `err instanceof ApiRequestError`.
+- **Filtros de búsqueda:** `params: any` pasa a `StudentSearchParams` y
+  `{ area?: number }`.
+- **Perfil:** los valores del formulario se tipan como `DisponibilidadTipo` y
+  `EstadoBusqueda`.
+- **Backend:** `req.user as any` pasa a `req.user!` (como en el resto de los
+  controladores) y los valores de la consulta SQL a `unknown[]`. Al tiparlo
+  apareció que `codigo_cucei` puede ser `null`; se comprobó que ambas rutas
+  pasan por `requireOnboarded`, así que no era un bug, y se usa la misma
+  aserción que los demás controladores.
+
+### Resultado medido
+
+|                        | Antes | Después   |
+| ---------------------- | ----- | --------- |
+| `any` en el código     | 36    | **0**     |
+| `no-explicit-any`      | aviso | **error** |
+| Avisos tolerados en CI | 50    | **0**     |
+
+Siguen pasando las 109 pruebas de backend y las 29 de e2e.

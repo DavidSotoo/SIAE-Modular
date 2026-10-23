@@ -1,5 +1,5 @@
 import { completeProfile } from '../services/auth.service.js';
-import { getErrorMessage } from '../services/errorMessages.js';
+import { mensajeDeError } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
 import { validarCampo, bloquearHastaValido, codigoCuceiValido } from '../utils/validacion.js';
 
@@ -76,8 +76,8 @@ export class CompleteProfilePage {
 
       showToast('Perfil completado', { type: 'success' });
       window.location.hash = '#/perfil';
-    } catch (err: any) {
-      showToast(getErrorMessage(err.code, err.status), { type: 'error' });
+    } catch (err) {
+      showToast(mensajeDeError(err), { type: 'error' });
       btn.disabled = false;
       btn.textContent = 'Continuar';
     }

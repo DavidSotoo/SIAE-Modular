@@ -14,10 +14,17 @@ import {
   semestreValido,
   urlValida,
 } from '../utils/validacion.js';
-import { getErrorMessage } from '../services/errorMessages.js';
+import { mensajeDeError } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
 import { ChipSelector } from '../components/ChipSelector.js';
-import type { Skill, Area, StudentProfile, StudentProfileUpdate } from '../types/index.js';
+import type {
+  Skill,
+  Area,
+  StudentProfile,
+  StudentProfileUpdate,
+  DisponibilidadTipo,
+  EstadoBusqueda,
+} from '../types/index.js';
 
 const ROL_LABEL: Record<string, string> = {
   alumno: 'Alumno',
@@ -99,13 +106,13 @@ export class PerfilPage {
       this.areas = areas;
       this.mode = 'view';
       this.buildView();
-    } catch (err: any) {
+    } catch (err) {
       this.container.innerHTML =
         '<div class="state-empty">' +
         '<span class="material-symbols-outlined">error</span>' +
         '<div class="state-empty__title">Error</div>' +
         '<div class="state-empty__msg">' +
-        getErrorMessage(err.code, err.status) +
+        mensajeDeError(err) +
         '</div>' +
         '</div>';
     }
@@ -512,8 +519,8 @@ export class PerfilPage {
       semestre,
       bio: (formData.get('bio') as string) || null,
       portafolio_url: portafolio_url || null,
-      disponibilidad: (formData.get('disponibilidad') as any) || null,
-      estado_busqueda: formData.get('estado_busqueda') as any,
+      disponibilidad: (formData.get('disponibilidad') as DisponibilidadTipo | null) || null,
+      estado_busqueda: formData.get('estado_busqueda') as EstadoBusqueda,
       skills: [...hs, ...ss],
       areas: ar,
     };
@@ -530,8 +537,8 @@ export class PerfilPage {
       // After save, switch back to view
       this.mode = 'view';
       this.buildView();
-    } catch (err: any) {
-      showToast(getErrorMessage(err.code, err.status), {
+    } catch (err) {
+      showToast(mensajeDeError(err), {
         type: 'error',
         title: 'Error al guardar',
       });

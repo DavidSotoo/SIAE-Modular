@@ -40,9 +40,9 @@ export default tseslint.config(
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrors: 'none' },
       ],
-      // `any` es deuda real, pero hay 36 usos heredados: se avisa sin
-      // romper el build hasta que se limpien.
-      '@typescript-eslint/no-explicit-any': 'warn',
+      // Los 36 `any` heredados ya se limpiaron: uno nuevo rompe el build.
+      // En un `catch`, el error es `unknown`; usar mensajeDeError(err).
+      '@typescript-eslint/no-explicit-any': 'error',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       eqeqeq: ['error', 'always', { null: 'ignore' }],
       'prefer-const': 'error',

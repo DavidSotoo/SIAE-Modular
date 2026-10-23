@@ -9,11 +9,12 @@
   acceptTeamRequest,
   rejectTeamRequest,
   cancelTeamRequest,
+  type StudentSearchParams,
 } from '../services/student.service.js';
 import { MAX_INTEGRANTES } from '../constants.js';
 import { skeletonTarjetas, skeletonLineas } from '../components/Skeleton.js';
 import { getMyProject } from '../services/project.service.js';
-import { getErrorMessage } from '../services/errorMessages.js';
+import { mensajeDeError } from '../services/errorMessages.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
 import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
@@ -45,10 +46,10 @@ export class BuscarEquipoPage {
       this.skills = skills;
       this.areas = areas;
       this.buildLayout();
-    } catch (err: any) {
+    } catch (err) {
       this.container.innerHTML =
         '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
-        getErrorMessage(err.code, err.status) +
+        mensajeDeError(err) +
         '</div></div>';
     }
   }
@@ -138,10 +139,10 @@ export class BuscarEquipoPage {
     const resultsContainer = document.getElementById('search-results-container')!;
     resultsContainer.innerHTML = skeletonTarjetas(3);
 
-    const params: any = {};
+    const params: StudentSearchParams = {};
     if (fd.get('skill')) params.skill = Number(fd.get('skill'));
     if (fd.get('area')) params.area = Number(fd.get('area'));
-    if (fd.get('estado_busqueda')) params.estado_busqueda = fd.get('estado_busqueda');
+    if (fd.get('estado_busqueda')) params.estado_busqueda = String(fd.get('estado_busqueda'));
     if (fd.get('semestre_min')) params.semestre_min = Number(fd.get('semestre_min'));
     if (fd.get('semestre_max')) params.semestre_max = Number(fd.get('semestre_max'));
 
@@ -231,10 +232,10 @@ export class BuscarEquipoPage {
           this.openInviteModal(codigo, nombre);
         });
       });
-    } catch (err: any) {
+    } catch (err) {
       resultsContainer.innerHTML =
         '<div class="state-empty"><span class="material-symbols-outlined">error</span><div class="state-empty__title">Error</div><div class="state-empty__msg">' +
-        getErrorMessage(err.code, err.status) +
+        mensajeDeError(err) +
         '</div></div>';
     }
   }
@@ -262,8 +263,8 @@ export class BuscarEquipoPage {
           });
           showToast('Invitación enviada exitosamente', { type: 'success' });
           m.close();
-        } catch (err: any) {
-          showToast(getErrorMessage(err.code, err.status), { type: 'error' });
+        } catch (err) {
+          showToast(mensajeDeError(err), { type: 'error' });
         } finally {
           m.setLoading(false);
         }
@@ -315,9 +316,8 @@ export class BuscarEquipoPage {
 
       this.renderRequestCards(recibidasContainer, recibidas, true);
       this.renderRequestCards(enviadasContainer, enviadas, false);
-    } catch (err: any) {
-      recibidasContainer.innerHTML =
-        '<div class="text-error">' + getErrorMessage(err.code, err.status) + '</div>';
+    } catch (err) {
+      recibidasContainer.innerHTML = '<div class="text-error">' + mensajeDeError(err) + '</div>';
       enviadasContainer.innerHTML = '';
     }
   }
@@ -407,8 +407,8 @@ export class BuscarEquipoPage {
 
       showToast('Acción completada', { type: 'success' });
       this.loadSolicitudes(); // Refresh list
-    } catch (err: any) {
-      showToast(getErrorMessage(err.code, err.status), { type: 'error' });
+    } catch (err) {
+      showToast(mensajeDeError(err), { type: 'error' });
       btn.disabled = false;
       btn.textContent = originalText;
     }
