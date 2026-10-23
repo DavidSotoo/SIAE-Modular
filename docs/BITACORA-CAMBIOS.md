@@ -550,3 +550,33 @@ inyecte HTML, el navegador se niega a ejecutar scripts y manejadores en línea.
   autorizado en el Client ID de Google: el botón carga, pero Google responde 403.
   Se agrega en Google Cloud Console (ver `docs/setup-google-oauth.md`). No tiene
   relación con la CSP.
+
+---
+
+## 2026-10-22 — Repositorio formateado y `format:check` en CI
+
+### Qué se identificó
+
+38 archivos heredados no seguían el estilo de Prettier. Por eso el CI no podía
+correr `format:check`, y cada commit que tocaba uno de esos archivos lo
+reformateaba entero y mezclaba ruido con el cambio real (deuda anotada el
+17 de octubre).
+
+### Qué se hizo
+
+- **Un commit de solo formato** (`style: formatear con Prettier...`): 38 archivos,
+  sin cambios de comportamiento. Se verificó con lint, las 109 pruebas de
+  backend, el build y las 33 de e2e.
+- **`.git-blame-ignore-revs`** con ese commit: GitHub lo lee solo, así que
+  `git blame` sigue mostrando al autor real de cada línea. En local se activa
+  con `git config blame.ignoreRevsFile .git-blame-ignore-revs`.
+- **Paso `Prettier` en el job de Lint** del CI (`npm run format:check`). Un
+  archivo sin formatear rompe el build; el hook de commit (lint-staged) ya lo
+  formatea solo, así que en la práctica solo lo atrapa si alguien se salta el hook.
+- `format` y `format:check` cubren también `frontend/vite.config.ts`.
+
+### Importante al mergear
+
+Este PR debe mergearse con **merge commit** (como los anteriores), no con
+squash ni rebase: esos cambian el hash del commit de formato y
+`.git-blame-ignore-revs` dejaría de encontrarlo.

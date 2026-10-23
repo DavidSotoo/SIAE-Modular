@@ -26,6 +26,11 @@ jobs:
       - name: ESLint
         run: npx eslint backend/src backend/tests frontend/src e2e playwright.config.ts --max-warnings 0
 
+      # El repo entero ya esta formateado; un archivo sin formatear rompe el
+      # build. Se arregla con `npm run format` (o lo hace el hook de commit).
+      - name: Prettier
+        run: npm run format:check
+
   backend:
     name: Backend (typecheck, pruebas)
     runs-on: ubuntu-latest

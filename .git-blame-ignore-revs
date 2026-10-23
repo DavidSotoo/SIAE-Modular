@@ -1,0 +1,6 @@
+# Commits de solo formato que `git blame` debe saltar. GitHub lo lee solo;
+# en local se activa una vez con:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# style: formatear con Prettier los 38 archivos heredados
+c3e4319bc7ad091d95893405e219cadcc26ef683
