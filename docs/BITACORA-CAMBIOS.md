@@ -287,3 +287,98 @@ rechazó.
 - Los `onerror` en línea del avatar siguen impidiendo una CSP estricta.
 - Sin pruebas de interfaz: todo lo anterior se verificó a mano en el
   navegador. Playwright sigue pendiente.
+
+---
+
+## 2026-10-18 — Accesibilidad (Fase 2), primera parte
+
+**Rama:** `angel/accesibilidad` (desde `main`)
+
+### Qué se identificó
+
+Se midió el estado con **axe-core 4.10.2** (el verificador estándar de WCAG)
+en todas las vistas, más pruebas manuales de teclado que axe no cubre.
+Resultado de la línea base:
+
+| Vista                                       | Violaciones axe                             | Gravedad               |
+| ------------------------------------------- | ------------------------------------------- | ---------------------- |
+| Login                                       | 3 (landmarks)                               | moderate               |
+| Alumno (perfil, equipo, asesores, proyecto) | 1 `region` c/u                              | moderate               |
+| Admin / Mentor                              | `region` + `scrollable-region-focusable`    | moderate + **serious** |
+| Modal (prueba manual de teclado)            | foco no entra, sin trampa, Escape no cierra | —                      |
+
+### Por qué importaba
+
+- **El modal era una trampa para quien usa teclado o lector de pantalla:** al
+  abrirlo el foco se quedaba detrás, se podía tabular hacia el contenido de
+  fondo (que debería estar inerte) y no había forma de cerrarlo con Escape.
+- La **tabla con scroll** (serious) no se podía alcanzar con teclado: quien no
+  usa mouse no podía desplazarla.
+- Los **landmarks** mal puestos desorientan a un lector de pantalla, que los
+  usa como índice para saltar entre secciones de la página.
+
+### Qué se hizo
+
+- **Modal (`Modal.ts`):** al abrir, el foco entra al diálogo y se recuerda
+  quién lo tenía; Tab y Shift+Tab circulan dentro (trampa de foco); Escape lo
+  cierra; al cerrar, el foco vuelve al elemento que lo abrió.
+- **`scrollable-region-focusable`:** las tablas de admin y mentor reciben
+  `tabindex="0"`, `role="region"` y `aria-label`, para ser alcanzables por
+  teclado y anunciadas.
+- **`region`:** el contenedor del sidebar pasa a ser el landmark de navegación
+  (`role="navigation"` + `aria-label`), para que el logo y el pie (tema,
+  cerrar sesión) dejen de quedar sueltos fuera de todo landmark. El menú
+  interno deja de ser `<nav>` para no anidar dos landmarks de navegación.
+- **Landmarks del login:** el login metía un `<main>` dentro del `<main>` del
+  layout. El interno pasa a `<div>`; queda un solo main.
+
+### Resultado medido
+
+|                   | Antes                  | Después                                   |
+| ----------------- | ---------------------- | ----------------------------------------- |
+| Login             | 3 violaciones          | **0**                                     |
+| Alumno (×4)       | 1 c/u                  | **0**                                     |
+| Admin / Mentor    | 2 c/u (1 serious)      | **0**                                     |
+| Modal con teclado | foco fuera, sin Escape | foco entra, trampa, Escape, foco devuelto |
+
+Verificado con axe-core en las 7 vistas (todas en 0) y con pruebas manuales
+de teclado sobre el modal. Las 109 pruebas de backend siguen pasando (no se
+tocó backend).
+
+### Verificación con Lighthouse
+
+Se corrió **Lighthouse** (categoría accesibilidad) sobre las 5 vistas
+principales, con Chrome real; las autenticadas se midieron sembrando la
+sesión con Puppeteer antes de auditar.
+
+| Vista                | Lighthouse a11y |
+| -------------------- | --------------- |
+| Login                | 100/100         |
+| Perfil (alumno)      | 100/100         |
+| Mi Proyecto (alumno) | 100/100         |
+| Panel admin          | 100/100         |
+| Panel asesor         | 100/100         |
+
+**Matiz importante y honesto:** Lighthouse daba **100/100 también antes** de
+estos cambios. Su puntaje usa un subconjunto curado de reglas de axe, más
+laxo que el verificador completo; las violaciones que sí detectó axe
+(landmarks, tabla no alcanzable por teclado) no entran en el número de
+Lighthouse. Es decir: **el 100 de Lighthouse confirma que se cumple ese
+umbral, pero la mejora real de esta fase se ve en axe (de hasta 3
+violaciones por vista a 0) y en la navegación por teclado del modal, que
+ninguna de las dos herramientas detecta de forma automática.** Para el
+informe conviene citar las tres evidencias, no solo el 100.
+
+### Cierre: toasts anunciados y contraste en modo oscuro
+
+- **Toasts:** el contenedor `#toast-container` pasa a ser una región live
+  persistente (`aria-live="polite"`), que existe desde el arranque — así el
+  lector de pantalla anuncia de forma fiable los avisos insertados, cosa que
+  un `role` en un nodo recién creado no siempre logra. Los errores conservan
+  `role="alert"` (interrumpen); los avisos normales los anuncia el contenedor
+  sin duplicar la lectura. Verificado en el DOM.
+- **Contraste en modo oscuro:** se corrió axe con la regla `color-contrast`
+  forzando el tema oscuro, en las vistas de alumno y en el panel admin
+  (incluidas las insignias de estado de colores). **0 fallos.**
+
+Con esto la Fase 2 queda cerrada.

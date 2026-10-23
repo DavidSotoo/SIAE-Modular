@@ -110,9 +110,15 @@ export function renderTopbar(container: HTMLElement): void {
 
 export function renderSidebar(container: HTMLElement, activePath: string, rol?: Rol): void {
   container.className = 'sidebar';
+  // El contenedor es el landmark de navegacion: asi el logo y el pie (tema,
+  // cerrar sesion) quedan dentro de una region, en vez de sueltos fuera de
+  // todo landmark (axe: regla "region"). El menu interno deja de ser <nav>
+  // para no anidar dos landmarks de navegacion.
+  container.setAttribute('role', 'navigation');
+  container.setAttribute('aria-label', 'Menú lateral');
   container.innerHTML =
     '<div class="sidebar__brand"><h1>SIAE</h1><p>CUCEI · Informática</p></div>' +
-    '<nav class="sidebar__nav" aria-label="Navegación principal">' +
+    '<div class="sidebar__nav">' +
     linksForRol(rol)
       .map(
         (l) =>
@@ -129,7 +135,7 @@ export function renderSidebar(container: HTMLElement, activePath: string, rol?: 
           '</span></a>',
       )
       .join('') +
-    '</nav>' +
+    '</div>' +
     '<div class="sidebar__footer">' +
     // Theme toggle pill
     '<button class="theme-toggle" id="btn-theme" aria-label="Cambiar tema">' +
