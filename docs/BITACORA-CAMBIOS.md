@@ -484,3 +484,69 @@ entraba sin que nadie lo notara.
 | Avisos tolerados en CI | 50    | **0**     |
 
 Siguen pasando las 109 pruebas de backend y las 29 de e2e.
+
+---
+
+## 2026-10-22 — Content Security Policy estricta para scripts
+
+### Qué se identificó
+
+El frontend no tenía ninguna CSP: no existía `vercel.json` y la CSP de helmet
+solo protege las respuestas de la API, no el HTML de la SPA. Además, dos
+manejadores `onerror` en línea (el avatar de Perfil y la mascota de la página
+de error) y un `<script>` en línea en `index.html` impedían activar una política
+estricta. La bitácora del 12 de octubre ya lo marcaba como deuda.
+
+### Por qué importaba
+
+Las vistas pintan HTML con `innerHTML`. Todo pasa por `escapeHtml`, pero basta
+un descuido para que un dato del usuario se convierta en un XSS. Una CSP sin
+`'unsafe-inline'` en `script-src` es la segunda línea de defensa: aunque se
+inyecte HTML, el navegador se niega a ejecutar scripts y manejadores en línea.
+
+### Alternativas evaluadas
+
+- **Cabecera en `vercel.json`.** Es lo canónico, pero solo aplica en Vercel: en
+  desarrollo y en las pruebas e2e no habría CSP, y una violación se
+  descubriría hasta producción.
+- **Elegida: `<meta http-equiv>` generada por un plugin de Vite**
+  (`frontend/vite.config.ts`). Aplica igual en desarrollo, en e2e y en el build,
+  y calcula el origen de la API a partir de `VITE_API_URL`. Su límite es que una
+  meta no admite `frame-ancestors`; si hace falta protección contra
+  clickjacking, se agrega como cabecera en el hosting.
+
+### Qué se hizo
+
+- **CSP:** `script-src 'self' https://accounts.google.com/gsi/client`, sin
+  `'unsafe-inline'` ni `'unsafe-eval'`; `object-src 'none'`, `base-uri` y
+  `form-action` limitados a `'self'`. También se declaran los orígenes de Google
+  Identity, Google Fonts y las fotos de `googleusercontent.com`.
+- **`onerror` en línea →** `utils/respaldoImagenes.ts`, un solo listener en
+  fase de captura que atiende `data-respaldo="iniciales"` y
+  `data-respaldo="siguiente"`, incluidas las imágenes insertadas después.
+- **Script del tema →** `public/tema-inicial.js`: sigue siendo síncrono en el
+  `<head>`, así que no reaparece el parpadeo.
+- `style-src` conserva `'unsafe-inline'` (ver deuda).
+
+### Resultado medido
+
+- 4 pruebas e2e nuevas (33 en total): la CSP existe y no permite scripts en
+  línea; un `<img onerror>` y un `<script>` inyectados **no se ejecutan**
+  (el navegador reporta 2 violaciones de `script-src`); los dos respaldos de
+  imagen siguen funcionando.
+- **Vigilante en todas las pruebas:** cualquier violación de la CSP hace fallar
+  la prueba en la que ocurre, así que una vista nueva con un script en línea no
+  pasa el CI. Se excluyen las descargas que hace axe de Google Fonts para
+  auditar, porque la app nunca las pide con `fetch`.
+- Verificado a mano que el botón real de Google se dibuja con la CSP activa,
+  sin violaciones.
+
+### Deuda que queda abierta
+
+- **`style-src 'unsafe-inline'`:** quedan ~49 atributos `style=` en las vistas y
+  un `<style>` en el login. Quitarlo exige moverlos a clases; el riesgo de
+  estilos en línea es mucho menor que el de scripts.
+- **El origen `http://localhost:5199`** (puerto de desarrollo actual) no está
+  autorizado en el Client ID de Google: el botón carga, pero Google responde 403.
+  Se agrega en Google Cloud Console (ver `docs/setup-google-oauth.md`). No tiene
+  relación con la CSP.

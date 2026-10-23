@@ -5,7 +5,14 @@
 import { writeFileSync } from 'node:fs';
 import jwt from 'jsonwebtoken';
 import pg from 'pg';
-import { ARCHIVO_SESIONES, E2E, TITULO_PROYECTO, USUARIOS, type ClaveUsuario } from './entorno.js';
+import {
+  ARCHIVO_SESIONES,
+  E2E,
+  FOTO_ROTA,
+  TITULO_PROYECTO,
+  USUARIOS,
+  type ClaveUsuario,
+} from './entorno.js';
 
 export interface Sesion {
   token: string;
@@ -57,6 +64,13 @@ export default async function globalSetup(): Promise<void> {
        VALUES ($1, 'Sistemas embebidos', true, 3)`,
       [sesiones.mentor.user.id],
     );
+
+    // Foto de perfil que nunca carga (las pruebas responden 404): ejercita el
+    // respaldo a iniciales sin manejadores onerror en linea.
+    await db.query(`UPDATE users SET foto_url = $1 WHERE id = $2`, [
+      FOTO_ROTA,
+      sesiones.alumnoSinProyecto.user.id,
+    ]);
 
     const proyecto = await db.query<{ id_proyecto: number }>(
       `INSERT INTO projects (titulo, descripcion)

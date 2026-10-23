@@ -35,6 +35,9 @@ export type ClaveUsuario = keyof typeof USUARIOS;
 
 export const TITULO_PROYECTO = 'E2E-Sistema de monitoreo de laboratorios';
 
+/** Foto de perfil del alumno sin proyecto; las pruebas siempre la responden con 404. */
+export const FOTO_ROTA = 'https://lh3.googleusercontent.com/e2e-foto-rota';
+
 /** Codigo que captura el alumno de onboarding durante la prueba. */
 export const CODIGO_ONBOARDING = '980000777';
 

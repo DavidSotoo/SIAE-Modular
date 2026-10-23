@@ -8,9 +8,11 @@ import { CompleteProfilePage } from './pages/CompleteProfilePage.js';
 import { MentorDashboardPage } from './pages/MentorDashboardPage.js';
 import { AdminDashboardPage } from './pages/AdminDashboardPage.js';
 import { renderErrorState } from './pages/ErrorStatePage.js';
+import { instalarRespaldoDeImagenes } from './utils/respaldoImagenes.js';
 
 // Apply theme ASAP to avoid flash of wrong theme
 applyStoredTheme();
+instalarRespaldoDeImagenes();
 
 function getStoredUser(): { rol?: Rol; codigo_cucei?: string | null } | null {
   const raw = localStorage.getItem('siae_user');

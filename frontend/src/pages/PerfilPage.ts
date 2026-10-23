@@ -64,11 +64,10 @@ function initials(nombre: string): string {
 function avatarContent(nombre: string, foto_url: string | null): string {
   const letters = escapeHtml(initials(nombre));
   const url = safeUrl(foto_url);
-  // Las iniciales viajan en un data-attribute en vez de interpolarse dentro
-  // del JS del onerror: un nombre con comilla rompia el literal y permitia
-  // inyectar codigo.
+  // Si la foto no carga, utils/respaldoImagenes.ts la cambia por las
+  // iniciales. Sin onerror en linea: la CSP no permite scripts en atributos.
   return url
-    ? `<img src="${escapeHtml(url)}" alt="" referrerpolicy="no-referrer" data-initials="${letters}" onerror="this.parentElement.textContent = this.dataset.initials;">`
+    ? `<img src="${escapeHtml(url)}" alt="" referrerpolicy="no-referrer" data-respaldo="iniciales" data-initials="${letters}">`
     : letters;
 }
 

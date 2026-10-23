@@ -22,13 +22,17 @@ const CONTENT: Record<ErrorStateKind, { title: string; msg: string; icon: string
   },
 };
 
-export function renderErrorState(container: HTMLElement, kind: ErrorStateKind, options: ErrorStateOptions = {}): void {
+export function renderErrorState(
+  container: HTMLElement,
+  kind: ErrorStateKind,
+  options: ErrorStateOptions = {},
+): void {
   const { title, msg, icon } = CONTENT[kind];
 
   container.innerHTML = `
     <div class="error-state">
-      <img src="/mascota-error.jpeg" alt="" class="error-state__img" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';" />
-      <span class="material-symbols-outlined error-state__icon" style="display:none;">${icon}</span>
+      <img src="/mascota-error.jpeg" alt="" class="error-state__img" data-respaldo="siguiente" />
+      <span class="material-symbols-outlined error-state__icon hidden">${icon}</span>
       <div class="state-empty__title">${title}</div>
       <div class="state-empty__msg">${msg}</div>
       ${options.onRetry ? '<button type="button" class="btn btn--primary" id="error-state-retry">Reintentar</button>' : ''}

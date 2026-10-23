@@ -6,14 +6,10 @@
   <title>SIAE-Modular - Portal de Estudiantes</title>
   <link rel="stylesheet" href="/src/styles/main.css">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <!-- Inline: apply theme before first paint to avoid flash -->
-  <script>
-    (function(){
-      var t = localStorage.getItem('siae_theme');
-      if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      document.documentElement.setAttribute('data-theme', t);
-    })();
-  </script>
+  <!-- Aplica el tema antes del primer pintado para evitar el parpadeo. Es un
+       archivo y no un script en linea porque la CSP no permite estos ultimos.
+       La CSP misma la inyecta vite.config.ts al inicio del <head>. -->
+  <script src="/tema-inicial.js"></script>
 </head>
 <body>
   <a href="#main-content" class="skip-link">Saltar al contenido</a>
