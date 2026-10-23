@@ -382,3 +382,66 @@ informe conviene citar las tres evidencias, no solo el 100.
   (incluidas las insignias de estado de colores). **0 fallos.**
 
 Con esto la Fase 2 queda cerrada.
+
+---
+
+## 2026-10-22 — Pruebas de interfaz (e2e) con Playwright y axe
+
+### Qué se identificó
+
+El frontend no tenía ninguna prueba. Todo lo logrado en las fases de diseño
+y accesibilidad se había verificado a mano en el navegador, así que una
+regresión (un modal que pierde el foco, una vista que vuelve a tener
+violaciones de axe) podía llegar a `main` sin que nadie lo notara.
+
+### Alternativas evaluadas
+
+- **Simular la API con `page.route`.** Más rápido y sin base de datos, pero
+  prueba un backend imaginario: no detectaría que el frontend y la API dejen
+  de entenderse, que es justo el tipo de fallo que más cuesta ver a mano.
+- **Elegida: stack real.** Playwright levanta su propio backend (puerto 4100)
+  y su propio Vite (5188) contra Postgres, con un `JWT_SECRET` fijo. La
+  siembra crea usuarios con código `98…` y nombre `E2E-` (aislados de los
+  datos reales y de las pruebas de backend, que usan `99…`) y firma un JWT por
+  usuario, que se inyecta en `localStorage` igual que lo haría el login con
+  Google. El botón de Google se bloquea en las pruebas para no depender de la red.
+
+### Qué cubre (29 pruebas, `npm run test:e2e`)
+
+- **Accesibilidad:** axe (WCAG 2.1 A/AA + buenas prácticas) en las 8 vistas,
+  en tema claro y oscuro. Exige cero violaciones.
+- **Navegación por rol:** redirección al login sin sesión, página de inicio de
+  cada rol, rutas prohibidas, menú lateral por rol, ruta inexistente, cerrar
+  sesión y el onboarding completo (capturar el código CUCEI).
+- **Flujo entre roles:** la alumna solicita asesoría desde el modal, el mentor
+  la ve y la acepta, y la alumna ya no puede pedir otro asesor. Incluye el
+  modal manejado solo con teclado (foco inicial, trampa de Tab, Escape y foco
+  devuelto).
+
+Corre en CI como un job nuevo, `E2E (Playwright + axe)`, que sube el reporte
+y las trazas si algo falla. Se corrió 4 veces seguidas en local sin fallos
+intermitentes.
+
+### Bugs que encontraron las pruebas
+
+1. **El modal no ponía el foco en el primer campo** (lo prometía la Fase 2).
+   `'.modal__body ' + FOCUSABLE` solo aplicaba el prefijo al primer selector de
+   la lista separada por comas, así que `button:not([disabled])` encontraba
+   antes la ✕ del encabezado. Se busca ahora dentro de `bodyEl`.
+2. **El botón de tema incumplía WCAG 2.5.3** (`label-content-name-mismatch`):
+   se veía "Modo claro" pero su nombre accesible era "Cambiar tema", así que
+   no se podía activar por voz diciendo lo que se ve. Ahora es
+   "Modo claro, cambiar tema" y se actualiza al alternar.
+3. **Completar perfil no tenía `h1`** (`page-has-heading-one`): es la única vista
+   sin menú lateral, que es donde vive el `h1` "SIAE".
+
+Las tres se habían escapado de la verificación manual de la Fase 2, que usaba
+un subconjunto de reglas de axe y probó el modal sin revisar qué elemento
+recibía el foco.
+
+### Deuda que queda abierta
+
+- Solo Chromium. Firefox y WebKit se pueden agregar como proyectos de
+  Playwright si se vuelve necesario.
+- La suite comparte la base con desarrollo en local (los datos `98…` se
+  borran y se vuelven a sembrar en cada corrida).

@@ -818,6 +818,8 @@ textarea.form-control {
 .section-header {
   margin-bottom: var(--sp-6);
 }
+/* h1 en vistas sin menu lateral (completar perfil), que no tienen otro h1. */
+.section-header h1,
 .section-header h2 {
   font-size: var(--fs-title);
   font-weight: var(--fw-semibold);

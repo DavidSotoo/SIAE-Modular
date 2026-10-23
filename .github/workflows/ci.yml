@@ -25,7 +25,7 @@ jobs:
       # Falla solo con errores. Los avisos (los `any` heredados) se reportan
       # pero no bloquean, para poder limpiarlos de forma gradual.
       - name: ESLint
-        run: npx eslint backend/src backend/tests frontend/src --max-warnings 50
+        run: npx eslint backend/src backend/tests frontend/src e2e playwright.config.ts --max-warnings 50
 
   backend:
     name: Backend (typecheck, pruebas)
@@ -105,3 +105,71 @@ jobs:
       - name: Typecheck y build
         working-directory: frontend
         run: npm run build
+
+  e2e:
+    name: E2E (Playwright + axe)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: siae_admin
+          POSTGRES_PASSWORD: siae_dev_password
+          POSTGRES_DB: siae_modular
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U siae_admin -d siae_modular"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://siae_admin:siae_dev_password@127.0.0.1:5432/siae_modular
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      # Raiz (Playwright, axe), backend (tsx, Express) y frontend (Vite).
+      - name: Instalar dependencias
+        run: |
+          npm ci
+          npm ci --prefix backend
+          npm ci --prefix frontend
+
+      - name: Instalar Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Aplicar migraciones en orden
+        run: |
+          for f in database/migrations/*.sql; do
+            echo "-- $f"
+            psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"
+          done
+
+      - name: Typecheck de las pruebas
+        run: npm run typecheck:e2e
+
+      # Playwright levanta backend y frontend por su cuenta (playwright.config.ts).
+      - name: Pruebas e2e
+        run: npm run test:e2e
+
+      - name: Subir reporte si falla
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
