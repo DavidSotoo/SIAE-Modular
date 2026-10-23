@@ -1952,12 +1952,6 @@ textarea.form-control {
     display: block;
     width: 100%;
   }
-  /* El titulo es la unica columna larga: se parte en lineas para que la tabla
-   quepa sin scroll horizontal en escritorio. */
-  .table td.table__titulo {
-    white-space: normal;
-    min-width: 14rem;
-  }
   .table tbody tr {
     border: 1px solid var(--color-outline-variant);
     border-radius: var(--radius-lg);
