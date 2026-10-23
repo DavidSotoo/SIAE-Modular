@@ -15,6 +15,7 @@ import { MAX_INTEGRANTES } from '../constants.js';
 import { skeletonTarjetas, skeletonLineas } from '../components/Skeleton.js';
 import { getMyProject } from '../services/project.service.js';
 import { mensajeDeError } from '../services/errorMessages.js';
+import { formatearFecha } from '../utils/fechas.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
 import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
@@ -357,7 +358,7 @@ export class BuscarEquipoPage {
             <div class="badge ${bgClass}">${req.estado.toUpperCase()}</div>
           </div>
           ${req.mensaje ? `<div class="request-card__msg">"${escapeHtml(req.mensaje)}"</div>` : ''}
-          <div class="request-card__meta">Actualizado: ${new Date(req.updated_at).toLocaleDateString()}</div>
+          <div class="request-card__meta">Actualizado: ${formatearFecha(req.updated_at)}</div>
           ${
             req.estado === 'pendiente'
               ? `

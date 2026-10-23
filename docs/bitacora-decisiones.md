@@ -42,3 +42,22 @@ El JWT propio de la aplicación se sigue emitiendo igual que antes tras la verif
 **Verificación:** cubierto por las pruebas de integración, que arman un equipo hasta 5 y comprueban que el sexto recibe `409 PROJECT_FULL`.
 
 **Quién lo decidió:** Angel Soto Delgado.
+
+---
+
+## 2026-10-22 — La interfaz es solo en español de México (sin i18n)
+
+**Qué cambió:** desde la fase de Diseño (17-oct) quedaba abierto si los textos se centralizaban en un catálogo para traducirlos. Se decide que **la interfaz queda solo en español de México (es-MX)**, sin catálogo ni selector de idioma. Los textos siguen escritos en cada vista.
+
+**Por qué:** es una herramienta institucional de CUCEI cuyos usuarios (alumnos, mentores y administración) trabajan en español. Centralizar ~2,800 líneas de vistas sería un refactor grande con riesgo de regresiones y sin un usuario que lo necesite hoy. Si más adelante entran usuarios que no hablan español (por ejemplo, de intercambio), se retoma.
+
+**Lo que sí se corrigió:** 6 fechas se formateaban con el idioma del navegador (`toLocaleDateString()` sin argumentos), así que un navegador en inglés mostraba "10/22/2026" (el mes primero) en una app en español. Ahora todas pasan por `frontend/src/utils/fechas.ts`:
+
+- `formatearFecha` → "22 oct 2026"
+- `formatearFechaHora` → "22 oct 2026, 9:41 p.m."
+
+Ambas usan locale `es-MX` y zona `America/Mexico_City` fijos, así una fecha se lee igual desde cualquier lugar. Lo cubre una prueba e2e con el navegador en `en-US` y zona `Asia/Tokyo`.
+
+**Regla a partir de aquí:** las fechas nuevas se formatean con esos helpers, nunca con `toLocale*()` sin argumentos.
+
+**Quién lo decidió:** Angel Soto Delgado.

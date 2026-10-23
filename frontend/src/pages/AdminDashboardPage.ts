@@ -11,6 +11,7 @@ import { mensajeDeError } from '../services/errorMessages.js';
 import { showToast } from '../components/Toast.js';
 import { Modal } from '../components/Modal.js';
 import type { AdminProjectRow, AdminProjectFilters, ProjectState } from '../types/index.js';
+import { formatearFecha, formatearFechaHora } from '../utils/fechas.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
 import { estadoBadge, etiquetaDeEstado } from '../components/EstadoBadge.js';
 import { skeletonTabla, skeletonLineas } from '../components/Skeleton.js';
@@ -168,7 +169,7 @@ export class AdminDashboardPage {
   }
 
   private renderRow(p: AdminProjectRow): string {
-    const fecha = new Date(p.created_at).toLocaleDateString();
+    const fecha = formatearFecha(p.created_at);
     return `
       <tr data-id="${p.id_proyecto}">
         <td data-label="Folio">${p.codigo_folio ?? '<span class="text-muted">—</span>'}</td>
@@ -212,7 +213,7 @@ export class AdminDashboardPage {
             <div class="timeline-item">
               <div class="timeline-marker"></div>
               <div class="timeline-content">
-                <div class="text-label-sm text-muted">${new Date(log.timestamp).toLocaleString()}</div>
+                <div class="text-label-sm text-muted">${formatearFechaHora(log.timestamp)}</div>
                 <div>Cambio de <strong>${etiquetaDeEstado(log.estado_anterior)}</strong> a <strong>${etiquetaDeEstado(log.estado_nuevo)}</strong></div>
                 ${log.comentario ? `<div class="text-label mt-1 text-muted">"${escapeHtml(log.comentario)}"</div>` : ''}
               </div>

@@ -5,6 +5,7 @@ import {
   uploadProtocol,
   downloadProtocol,
 } from '../services/project.service.js';
+import { formatearFechaHora } from '../utils/fechas.js';
 import { escapeHtml } from '../utils/escapeHtml.js';
 import { estadoBadge, etiquetaDeEstado } from '../components/EstadoBadge.js';
 import { skeletonPerfil, skeletonLineas } from '../components/Skeleton.js';
@@ -416,7 +417,7 @@ export class MiProyectoPage {
 
       let timelineHtml = '<div class="timeline">';
       logs.forEach((log) => {
-        const dateStr = new Date(log.timestamp).toLocaleString();
+        const dateStr = formatearFechaHora(log.timestamp);
         const prev = etiquetaDeEstado(log.estado_anterior);
         const current = etiquetaDeEstado(log.estado_nuevo);
         const comment = log.comentario
