@@ -708,6 +708,21 @@ un valor distinto en cada petición y el despliegue en Vercel es estático.
   semestre tenía una etiqueta sin campo asociado; "Mentor" pasa a "Asesor"
   en la tabla de administración, para usar la misma palabra en toda la app.
 
+### Ajustes tras la revisión
+
+- **Login:** por decisión de David se conserva el diseño original (tarjeta
+  centrada). Solo cambian tres cosas: sus estilos pasan a `main.css`, usa el
+  escudo oficial y toma la fuente de la app, porque Inter ya no se descarga.
+- **Botón de Google que a veces no aparecía:** la vista revisaba
+  `window.google` una sola vez al pintarse. En una primera visita sin caché
+  el script `async` de Google aún no terminaba y se mostraba "No se pudo
+  cargar Google" aunque llegara un momento después. Ahora espera el `load`
+  del script, con un límite de 10 s. El error ya existía en `main`.
+- **Estilo del botón de Google:** el botón inserta un `style=` fijo con su
+  ancho, que `style-src-attr 'none'` bloqueaba. Se permite solo ese valor
+  exacto con `'unsafe-hashes'` y su hash SHA-256. Si Google lo cambia, el
+  botón funciona igual y solo pierde ese ancho.
+
 ### Pendiente para la fase C
 
 Layout por vista: la cabecera del perfil (franja y avatar al estilo red

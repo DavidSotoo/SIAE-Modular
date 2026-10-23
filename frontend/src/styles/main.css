@@ -294,8 +294,7 @@ textarea {
   height: auto;
 }
 /* En oscuro el escudo va sobre una placa clara: su indigo se perderia en el fondo. */
-[data-theme='dark'] .sidebar__escudo,
-[data-theme='dark'] .login__escudo {
+[data-theme='dark'] .sidebar__escudo {
   background: #f5f4f8;
   border-radius: var(--radius);
   padding: 3px;
@@ -362,9 +361,6 @@ textarea {
 /* Login y completar perfil van sin menu lateral. */
 #sidebar-container.hidden ~ .main-content {
   margin-left: 0;
-}
-.main-content:has(> .login) {
-  padding: 0;
 }
 
 /* ─── Acciones del pie de la sidebar ── */
@@ -2222,110 +2218,189 @@ textarea.form-control {
 }
 
 /* ─── Login ───────────────────────────────────────────────────────────────
-   Antes estos estilos iban en un <style> dentro de la vista, con los colores
-   de la pantalla de acceso de Google y sin tema oscuro. */
-.login {
+   Conserva el diseno original del login (tarjeta centrada al estilo de la
+   pantalla de acceso de Google). Antes estos estilos iban en un <style>
+   dentro de la vista; la CSP ya no lo permite. Siempre en tema claro. */
+.login-page-wrapper {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: #f0f4f9;
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(26, 115, 232, 0.035) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(11, 32, 70, 0.03) 0%, transparent 45%);
+  font-family: var(--font-family);
+  color: #202124;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.login-topbar {
+  width: 100%;
+  max-width: 1152px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+}
+
+.login-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.login-topbar-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-topbar-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0b2046;
+  line-height: 1;
+}
+
+.login-topbar-subtitle {
+  font-size: 12px;
+  color: #5f6368;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.login-main {
+  flex-grow: 1;
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--sp-6);
-  padding: var(--sp-8) var(--sp-4);
-  background: var(--c-fondo);
+  padding: 24px;
 }
-.login__panel {
+
+.login-card {
   width: 100%;
-  max-width: 420px;
-  background: var(--c-superficie);
-  border: 1px solid var(--c-borde);
-  border-top: 4px solid var(--c-oro);
-  border-radius: var(--radius-lg);
-  padding: var(--sp-8);
+  max-width: 448px;
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid rgba(229, 231, 235, 0.75);
+  box-shadow:
+    0 4px 20px -2px rgba(17, 24, 39, 0.08),
+    0 2px 6px -1px rgba(17, 24, 39, 0.04);
+  padding: 44px 40px;
 }
-.login__marca {
+
+.login-card-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.login-card-emblem {
   display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.login-card-title {
+  font-size: 24px;
+  font-weight: 400;
+  color: #202124;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.login-card-subtitle {
+  font-size: 14px;
+  color: #5f6368;
+  line-height: 1.6;
+}
+
+.login-google-area {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--sp-3);
+  gap: 16px;
+  padding-top: 8px;
 }
-.login__escudo {
-  width: 44px;
-  height: auto;
-}
-.login__sistema {
-  font-size: 20px;
-  font-weight: var(--fw-bold);
-  line-height: 1.1;
-  letter-spacing: 0.02em;
-  color: var(--c-marca);
-}
-.login__institucion {
-  font-size: var(--fs-label-sm);
-  color: var(--c-texto-2);
-}
-.login__titulo {
-  margin-top: var(--sp-8);
-  font-size: var(--fs-page);
-  font-weight: var(--fw-semibold);
-  line-height: 1.25;
-}
-.login__texto {
-  margin: var(--sp-2) 0 var(--sp-6);
-  color: var(--c-texto-2);
-  font-size: 15px;
-}
-.login__google {
+
+#google-signin-button {
   min-height: 44px;
 }
-.login__aviso {
-  font-size: var(--fs-label);
-  color: var(--c-error);
-}
-.login__error {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--sp-2);
-  margin-bottom: var(--sp-4);
-  padding: var(--sp-3);
-  font-size: var(--fs-label);
-  line-height: 1.4;
-  color: var(--c-error-texto);
-  background: var(--c-error-fondo);
-  border-radius: var(--radius);
-}
-.login__error .icono {
-  font-size: 18px;
-  margin-top: 1px;
-}
-.login__error.hidden {
-  display: none;
-}
-.login__dominios {
-  display: grid;
-  gap: var(--sp-1);
-  margin-top: var(--sp-6);
-  padding-top: var(--sp-4);
-  border-top: 1px solid var(--c-borde);
-  font-size: var(--fs-label);
-}
-.login__dominios div {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--sp-4);
-}
-.login__dominios dt {
-  color: var(--c-texto-2);
-}
-.login__dominios dd {
-  font-weight: var(--fw-semibold);
-}
-.login__pie {
-  font-size: 12px;
-  color: var(--c-texto-2);
+
+.login-google-fallback {
+  font-size: 13px;
+  color: #b3261e;
   text-align: center;
 }
-@media (max-width: 480px) {
-  .login__panel {
-    padding: var(--sp-6) var(--sp-5);
+
+.login-domain-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: #b3261e;
+  background: #fce8e6;
+  border: 1px solid #f6c6c2;
+  border-radius: 12px;
+  padding: 12px 14px;
+  text-align: left;
+  line-height: 1.4;
+}
+.login-domain-error .icono {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.login-domain-error.hidden {
+  display: none;
+}
+
+.login-domain-hint {
+  font-size: 12px;
+  color: #5f6368;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.login-footer {
+  width: 100%;
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-footer-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-size: 12px;
+  color: #5f6368;
+}
+.login-footer-copy {
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+@media (max-width: 640px) {
+  .login-card {
+    padding: 36px 28px;
   }
+}
+
+/* Antes eran atributos style= en las imagenes; la CSP ya no los admite. */
+.login-topbar-logo {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+}
+.login-card-emblem img {
+  height: 64px;
+  width: auto;
+  object-fit: contain;
 }

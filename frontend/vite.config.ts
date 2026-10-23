@@ -26,7 +26,13 @@ function construirCsp(apiUrl: string | undefined, desarrollo: boolean): string {
     'script-src': ["'self'", `${google}client`],
     'style-src': ["'self'", `${google}style`],
     'style-src-elem': ["'self'", `${google}style`, desarrollo ? "'unsafe-inline'" : ''],
-    'style-src-attr': ["'none'"],
+    // El boton de Google pone un style= fijo con su ancho; se permite solo ese
+    // valor exacto por su hash. Si Google lo cambia, el boton sigue funcionando
+    // y solo pierde ese ancho. Cualquier otro style= queda bloqueado.
+    'style-src-attr': [
+      "'unsafe-hashes'",
+      "'sha256-0XbXxDziHuSSx+6TUE+FAaDsbSyh3wmRLaFKB5hZFbI='", // width:320px; max-width:400px; min-width:min-content;
+    ],
     // Las fuentes se sirven desde el propio sitio (@fontsource).
     'font-src': ["'self'"],
     // Fotos de perfil de las cuentas de Google.
