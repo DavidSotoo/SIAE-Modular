@@ -3,12 +3,17 @@
 import { readFileSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { test as base, expect, type Page } from '@playwright/test';
-import { ARCHIVO_SESIONES, type ClaveUsuario } from './entorno.js';
+import { ARCHIVO_SESIONES, FOTO_ROTA, type ClaveUsuario } from './entorno.js';
 import type { Sesion } from './global-setup.js';
 
 function leerSesiones(): Record<ClaveUsuario, Sesion> {
   return JSON.parse(readFileSync(ARCHIVO_SESIONES, 'utf8'));
 }
+
+type Opciones = {
+  /** Falla la prueba si hubo violaciones de la CSP. Se apaga solo donde se provocan. */
+  vigilarCsp: boolean;
+};
 
 type Fixtures = {
   /** Deja la sesion del usuario en localStorage antes de que cargue la app. */
@@ -17,12 +22,32 @@ type Fixtures = {
   auditarAccesibilidad: () => Promise<void>;
 };
 
-export const test = base.extend<Fixtures>({
-  page: async ({ page }, use) => {
+export const test = base.extend<Fixtures & Opciones>({
+  vigilarCsp: [true, { option: true }],
+
+  page: async ({ page, vigilarCsp }, use) => {
     // El boton de Google carga un script externo; en pruebas se bloquea para
     // no depender de la red y la pagina muestra su alternativa.
     await page.route(/accounts\.google\.com/, (route) => route.abort());
+    await page.route(FOTO_ROTA, (route) => route.fulfill({ status: 404 }));
+
+    // Cualquier violacion de la CSP hace fallar la prueba en la que ocurre:
+    // asi, si una vista nueva vuelve a usar un script u onerror en linea, el
+    // CI lo detecta. Chrome las reporta como errores de consola.
+    const violacionesCsp: string[] = [];
+    page.on('console', (msg) => {
+      const texto = msg.text();
+      if (msg.type() !== 'error' || !/Content Security Policy/i.test(texto)) return;
+      // axe descarga con fetch() las hojas de estilo externas para analizarlas,
+      // y eso choca con connect-src. La app carga Google Fonts con <link>
+      // (permitido por style-src) y nunca las pide con fetch: no es de la app.
+      if (/^Connecting to 'https:\/\/fonts\.googleapis\.com\//.test(texto)) return;
+      violacionesCsp.push(texto);
+    });
+
     await use(page);
+
+    if (vigilarCsp) expect(violacionesCsp, 'violaciones de la CSP').toEqual([]);
   },
 
   iniciarSesion: async ({ page }, use) => {
