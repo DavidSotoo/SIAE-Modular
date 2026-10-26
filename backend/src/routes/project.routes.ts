@@ -17,29 +17,16 @@ import { validateParams, validateBody } from '../middleware/validate.js';
 import { paramsIdProyecto } from '../schemas/common.schema.js';
 import { crearProyectoBody, rechazarProyectoBody } from '../schemas/project.schema.js';
 import multer from 'multer';
-import fs from 'fs';
-import path from 'path';
 
-// Asegurar que exista el directorio de subida
-const uploadDir = path.join(process.cwd(), 'uploads/protocolos');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const id_proyecto = req.params.id_proyecto || 'unknown';
-    const timestamp = Date.now();
-    cb(null, `protocolo_${id_proyecto}_${timestamp}.pdf`);
-  },
-});
-
+// El protocolo se queda en memoria y de ahi pasa a la base de datos. No se
+// escribe en disco: en Vercel el sistema de archivos es efimero y de solo
+// lectura, asi que un uploads/ ni se podria crear ni sobreviviria al deploy.
 const upload = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  storage: multer.memoryStorage(),
+  // Vercel corta las peticiones (y las respuestas) de sus funciones en 4.5 MB
+  // a nivel de infraestructura. Con el tope en 4 MB el usuario recibe el error
+  // claro de multer en vez de un 413 opaco del proxy.
+  limits: { fileSize: 4 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (file.mimetype === 'application/pdf') {
       cb(null, true);

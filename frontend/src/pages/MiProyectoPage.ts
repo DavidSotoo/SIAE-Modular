@@ -258,7 +258,7 @@ export class MiProyectoPage {
   private renderDocumentSection(): string {
     const state = this.project!.estado_actual;
     const canUpload = state === 'borrador' || state === 'correccion';
-    const hasDoc = !!this.project!.pdf_path;
+    const hasDoc = !!this.project!.tiene_pdf;
     const PROTOCOL_MSG: Partial<Record<ProjectState, string>> = {
       pendiente: 'Tu asesor está revisando el protocolo; no se puede reemplazar por ahora.',
       validado: 'Tu asesor validó el protocolo; falta que administración emita el folio.',

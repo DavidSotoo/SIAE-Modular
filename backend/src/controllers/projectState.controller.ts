@@ -1,13 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import path from 'path';
-import fs from 'fs/promises';
 import {
   submitProtocol,
   validateProject,
   registerProject,
   rejectProject,
   getProjectHistory,
-  getProtocolFilePath,
+  getProtocolFile,
 } from '../services/projectState.service.js';
 import { badRequest } from '../utils/errors.js';
 
@@ -20,29 +18,23 @@ export const uploadProtocolHandler = async (req: Request, res: Response, next: N
       throw badRequest('No se subió ningún archivo PDF');
     }
 
-    const pdf_path = req.file.path; // Destino local de multer
+    const contenido = req.file.buffer; // multer guarda en memoria, no en disco
 
     // El mimetype del multipart lo declara el cliente y se puede falsificar;
-    // se confirma leyendo la cabecera real del archivo ya escrito. Si falla,
-    // el catch de abajo lo borra.
-    const handle = await fs.open(pdf_path, 'r');
-    try {
-      const { buffer, bytesRead } = await handle.read(Buffer.alloc(5), 0, 5, 0);
-      if (bytesRead < 5 || buffer.toString('latin1') !== '%PDF-') {
-        throw badRequest('El archivo no es un PDF válido');
-      }
-    } finally {
-      await handle.close();
+    // se confirma leyendo la cabecera real de los bytes recibidos.
+    if (contenido.subarray(0, 5).toString('latin1') !== '%PDF-') {
+      throw badRequest('El archivo no es un PDF válido');
     }
 
-    await submitProtocol(id_proyecto, id, codigo_cucei!, pdf_path);
+    // El protocolo entra en la misma transaccion que el cambio de estado, asi
+    // que un rechazo por permisos o estado no deja nada atras: ya no hay PDFs
+    // huerfanos que limpiar (antes habia que borrarlos a mano, SM-62).
+    await submitProtocol(id_proyecto, id, codigo_cucei!, {
+      contenido,
+      nombre: req.file.originalname,
+    });
     res.json({ message: 'Protocolo subido exitosamente' });
   } catch (err) {
-    // multer ya guardó el archivo antes de validar permisos y estado; si la
-    // subida se rechaza, se borra para no dejar PDFs huérfanos en uploads/ (SM-62)
-    if (req.file) {
-      await fs.unlink(req.file.path).catch(() => {});
-    }
     next(err);
   }
 };
@@ -52,8 +44,10 @@ export const downloadProtocolHandler = async (req: Request, res: Response, next:
     const id_proyecto = Number(req.params.id_proyecto);
     const { id, codigo_cucei, rol } = req.user!;
 
-    const pdf_path = await getProtocolFilePath(id_proyecto, id, codigo_cucei, rol);
-    res.download(path.resolve(pdf_path));
+    const { contenido, nombre } = await getProtocolFile(id_proyecto, id, codigo_cucei, rol);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(nombre)}"`);
+    res.send(contenido);
   } catch (err) {
     next(err);
   }

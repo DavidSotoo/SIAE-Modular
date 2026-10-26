@@ -204,7 +204,7 @@ export class MentorDashboardPage {
     });
     modal.open();
 
-    const viewBtnHtml = project.pdf_path
+    const viewBtnHtml = project.tiene_pdf
       ? '<button class="btn btn--ghost btn--sm" id="btn-view-protocol"><span class="material-symbols-outlined">description</span> Ver protocolo</button>'
       : '<div class="text-muted">Aún no se ha subido un protocolo.</div>';
 
