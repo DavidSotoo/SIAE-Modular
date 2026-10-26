@@ -3,8 +3,15 @@ import 'dotenv/config';
 
 const { Pool } = pg;
 
+// Postgres gestionado (Neon) exige TLS; el de docker-compose en local no lo
+// tiene configurado. Se decide por el host en vez de confiar en que pg
+// interprete el sslmode de la cadena, que varia entre versiones.
+const urlDb = process.env.DATABASE_URL ?? '';
+const esLocal = /@(localhost|127\.0\.0\.1|\[::1\])[:/]/.test(urlDb);
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: urlDb,
+  ssl: esLocal ? undefined : { rejectUnauthorized: true },
 });
 
 pool.on('error', (err) => {

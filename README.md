@@ -4,14 +4,14 @@ Sistema Integral de Administración de Equipos Modulares — CUCEI, Ingeniería 
 
 ## Stack
 
-| Capa | Tecnología |
-|---|---|
-| Frontend | Vite + TypeScript (SPA), sin framework pesado (según Sprint 2) |
-| Backend | Node.js + Express + TypeScript |
-| Base de datos | PostgreSQL (Neon/Supabase en prod, Docker local en dev) |
-| Auth | Login con Google (OIDC) por dominio institucional + JWT propio + RBAC — ver `docs/bitacora-decisiones.md` |
-| Contenedores | Docker (solo entorno local) |
-| Despliegue | Vercel (frontend + funciones serverless del backend) |
+| Capa          | Tecnología                                                                                                |
+| ------------- | --------------------------------------------------------------------------------------------------------- |
+| Frontend      | Vite + TypeScript (SPA), sin framework pesado (según Sprint 2)                                            |
+| Backend       | Node.js + Express + TypeScript                                                                            |
+| Base de datos | PostgreSQL (Neon/Supabase en prod, Docker local en dev)                                                   |
+| Auth          | Login con Google (OIDC) por dominio institucional + JWT propio + RBAC — ver `docs/bitacora-decisiones.md` |
+| Contenedores  | Docker (solo entorno local)                                                                               |
+| Despliegue    | Vercel (frontend + funciones serverless del backend) + Neon (Postgres) — ver `docs/despliegue.md`         |
 
 ## Estructura del repo
 
