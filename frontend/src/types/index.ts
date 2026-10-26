@@ -75,7 +75,8 @@ export interface Project {
   descripcion?: string | null;
   estado_actual: ProjectState;
   codigo_folio?: string | null;
-  pdf_path?: string | null;
+  /** El contenido del PDF nunca viaja aqui; solo si el proyecto ya tiene uno. */
+  tiene_pdf?: boolean;
   pdf_visualizado?: boolean;
   id_mentor: number | null;
   created_at: string;

@@ -580,3 +580,57 @@ reformateaba entero y mezclaba ruido con el cambio real (deuda anotada el
 Este PR debe mergearse con **merge commit** (como los anteriores), no con
 squash ni rebase: esos cambian el hash del commit de formato y
 `.git-blame-ignore-revs` dejaría de encontrarlo.
+
+## 2026-10-26 — Los protocolos PDF pasan del disco a la base de datos
+
+### Qué se identificó
+
+El proyecto solo corría en local y no tenía ninguna configuración de despliegue.
+Al preparar el primer deploy gratuito apareció un bloqueante de fondo: los
+protocolos se guardaban en el sistema de archivos.
+
+- `project.routes.ts` usaba `multer.diskStorage` escribiendo en
+  `process.cwd()/uploads/protocolos`, y `projectState.controller.ts` los servía
+  con `res.download(path)`.
+- En Vercel —y en cualquier hosting gratuito— el sistema de archivos es efímero:
+  cada despliegue habría borrado todos los protocolos subidos.
+- Peor: el módulo hacía `mkdirSync` al cargarse, y en serverless el directorio de
+  trabajo es de solo lectura. La función habría reventado al arrancar, no al
+  subir un archivo.
+
+### Qué se hizo
+
+- **Migración `008_pdf_en_base.sql`**: `projects` gana `pdf_contenido BYTEA` y
+  `pdf_nombre`, y pierde `pdf_path`. No había nada que migrar: ninguna fila
+  tenía ruta y el directorio de subidas estaba vacío.
+- **`multer.memoryStorage()`**: el PDF viaja en memoria y entra en la base dentro
+  de la **misma transacción** que el cambio de estado. Como efecto secundario
+  desaparece el manejo de archivos huérfanos (SM-62): si la subida se rechaza por
+  permisos o por estado, no queda nada que limpiar.
+- **Validación de la cabecera `%PDF-`** sobre el buffer, en lugar de abrir un
+  descriptor del archivo ya escrito. Mismo invariante, sin tocar disco.
+- **Las consultas enumeran columnas** en vez de `SELECT p.*`. El `bytea` nunca
+  entra en el JSON de un proyecto; en su lugar va `tiene_pdf`, calculado como
+  `pdf_contenido IS NOT NULL`. El frontend ya usaba `pdf_path` solo como
+  bandera (`!!project.pdf_path`), así que el cambio fue de nombre, no de lógica.
+- **Límite de subida: 10 MB → 4 MB.** Vercel corta los cuerpos de petición y de
+  respuesta de sus funciones en 4,5 MB a nivel de infraestructura, sin opción de
+  configurarlo. Con el tope en 4 MB el usuario recibe el error claro de multer en
+  vez de un 413 opaco del proxy.
+
+### Verificación
+
+Las 109 pruebas de integración ya ejercitaban todo el flujo por HTTP con
+supertest y **ninguna tocaba el disco**, así que cubrieron el refactor sin
+escribir pruebas nuevas: siguen en verde, incluidas las que fijan el IMF-03
+(`pdf_visualizado` vuelve a false al resubir; no se puede validar sin abrir el
+PDF). Además se probó a mano contra la base local: subida de un PDF real,
+descarga byte a byte idéntica al original, rechazo de un archivo que no es PDF,
+y el JSON del proyecto devolviendo `tiene_pdf` sin rastro del binario.
+
+### Pendiente
+
+El límite de peticiones por IP (`express-rate-limit`) usa memoria por instancia.
+En serverless cada instancia lleva su propio contador, así que deja de ser un
+límite global exacto. Sigue frenando abuso básico; si llega a importar, la salida
+es un store en Postgres.

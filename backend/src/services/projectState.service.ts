@@ -2,7 +2,7 @@ import pool from '../config/db.js';
 import {
   updateProjectStateAndPdf,
   findProjectMentorId,
-  findProjectPdfPath,
+  findProjectPdf,
   isProjectPdfVisualizado,
   markPdfVisualizado,
 } from '../models/project.model.js';
@@ -45,7 +45,7 @@ export async function submitProtocol(
   id_proyecto: number,
   id_usuario: number,
   codigo_cucei: string,
-  pdf_path: string,
+  pdf: { contenido: Buffer; nombre: string },
 ): Promise<void> {
   const isMember = await isAlumnoInProject(id_proyecto, codigo_cucei);
   if (!isMember) {
@@ -73,7 +73,7 @@ export async function submitProtocol(
       id_proyecto,
       ['borrador', 'correccion'],
       'pendiente',
-      pdf_path,
+      pdf,
       client,
     );
 
@@ -267,20 +267,20 @@ export async function getProjectHistory(
 }
 
 /**
- * Devuelve la ruta del PDF vigente para descarga/visualización. Cuando quien
- * abre el archivo es el mentor asignado, marca pdf_visualizado = true —esta
- * es la señal que exige el IMF-03 antes de permitir validateProject().
+ * Devuelve el PDF vigente para descarga/visualización. Cuando quien abre el
+ * archivo es el mentor asignado, marca pdf_visualizado = true —esta es la
+ * señal que exige el IMF-03 antes de permitir validateProject().
  */
-export async function getProtocolFilePath(
+export async function getProtocolFile(
   id_proyecto: number,
   id_usuario: number,
   codigo_cucei: string | null,
   rol: string,
-): Promise<string> {
+): Promise<{ contenido: Buffer; nombre: string }> {
   await assertProjectAccess(id_proyecto, id_usuario, codigo_cucei, rol);
 
-  const pdf_path = await findProjectPdfPath(id_proyecto);
-  if (!pdf_path) {
+  const pdf = await findProjectPdf(id_proyecto);
+  if (!pdf) {
     throw notFound('Este proyecto aún no tiene un protocolo subido');
   }
 
@@ -288,5 +288,5 @@ export async function getProtocolFilePath(
     await markPdfVisualizado(id_proyecto);
   }
 
-  return pdf_path;
+  return pdf;
 }
