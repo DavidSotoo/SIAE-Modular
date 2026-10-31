@@ -34,3 +34,8 @@ Thumbs.db
 e2e/.sesiones.json
 test-results/
 playwright-report/
+
+# Subidas locales. Desde la migración 008 los protocolos viven en la base,
+# no en disco; esta carpeta solo guarda sobras de pruebas viejas y nunca
+# debe entrar al repo.
+backend/uploads/
