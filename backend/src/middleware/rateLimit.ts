@@ -1,5 +1,15 @@
-import rateLimit, { type RateLimitRequestHandler } from 'express-rate-limit';
+import rateLimit, { type RateLimitRequestHandler, type Options } from 'express-rate-limit';
+import type { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/errors.js';
+
+// express-rate-limit, igual que helmet, trae sus propios tipos con un `exports`
+// sin condición "types". Con moduleResolution NodeNext su default export se
+// resuelve como el namespace del módulo (no callable) en algunos entornos —el
+// build de Vercel corre con una versión de Node distinta a la del CI—. El cast
+// vía unknown fija el tipo correcto sin cambiar el comportamiento en ejecución.
+const crearRateLimit = rateLimit as unknown as (
+  options: Partial<Options>,
+) => RateLimitRequestHandler;
 
 interface OpcionesLimitador {
   ventanaMs: number;
@@ -18,12 +28,12 @@ export function crearLimitador({
   mensaje,
   codigo,
 }: OpcionesLimitador): RateLimitRequestHandler {
-  return rateLimit({
+  return crearRateLimit({
     windowMs: ventanaMs,
     limit: maximo,
     standardHeaders: 'draft-7',
     legacyHeaders: false,
-    handler: (_req, _res, next) => {
+    handler: (_req: Request, _res: Response, next: NextFunction) => {
       next(new AppError(mensaje, 429, codigo));
     },
   });
