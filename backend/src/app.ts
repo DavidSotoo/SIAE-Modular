@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Request, Response, NextFunction, RequestHandler } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { AppError } from './utils/errors.js';
@@ -17,7 +17,12 @@ import adminRoutes from './routes/admin.routes.js';
 const app = express();
 
 // ─── Middlewares globales ─────────────────────────────────────────────────
-app.use(helmet());
+// helmet trae sus propios tipos con un `exports` sin condición "types", así
+// que la resolución de su default export varía por entorno: local y CI lo
+// ven como función, pero el build de Vercel lo tomaba como el namespace del
+// módulo ("has no call signatures"). El cast vía unknown hace el build
+// robusto en cualquier entorno sin cambiar el comportamiento en ejecución.
+app.use((helmet as unknown as () => RequestHandler)());
 
 // Origenes permitidos. En desarrollo basta con los puertos locales de Vite;
 // en produccion CORS_ORIGINS debe traer la URL real (separadas por coma).
