@@ -16,7 +16,9 @@ export interface UpdateProfileBody {
   portafolio_url?: string | null;
   disponibilidad?: string | null;
   estado_busqueda?: 'buscando_equipo' | 'en_equipo' | 'no_disponible';
-  skills?: Array<{ id_skill: number; nivel: string }>;
+  // Las soft skills no tienen nivel (el formulario las envía sin `nivel`); por
+  // eso es opcional. Al guardar, una skill sin nivel se almacena como 'basico'.
+  skills?: Array<{ id_skill: number; nivel?: string }>;
   areas?: number[];
 }
 
@@ -64,7 +66,9 @@ export async function updateMyProfile(
       if (!Number.isInteger(sk.id_skill) || sk.id_skill < 1) {
         throw badRequest(`id_skill inválido: ${sk.id_skill}`);
       }
-      if (!VALID_SKILLS_NIVEL.includes(sk.nivel)) {
+      // Solo las hard skills traen nivel; las soft lo omiten. Validamos el
+      // nivel únicamente cuando viene, y más abajo se normaliza a 'basico'.
+      if (sk.nivel != null && !VALID_SKILLS_NIVEL.includes(sk.nivel)) {
         throw badRequest(`nivel de skill inválido: ${sk.nivel}`);
       }
     }
@@ -80,7 +84,13 @@ export async function updateMyProfile(
     });
 
     if (body.skills !== undefined) {
-      await replaceStudentSkills(client, id_usuario, body.skills);
+      // Las soft skills llegan sin nivel: se guardan como 'basico' (la columna
+      // es NOT NULL y la vista de soft skills ignora el nivel de todos modos).
+      const skillsConNivel = body.skills.map((sk) => ({
+        id_skill: sk.id_skill,
+        nivel: sk.nivel ?? 'basico',
+      }));
+      await replaceStudentSkills(client, id_usuario, skillsConNivel);
     }
     if (body.areas !== undefined) {
       await replaceStudentInterests(client, id_usuario, body.areas);
